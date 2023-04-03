@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "project-pygames"
+version = "0.0.1"
+description = ""
+authors = ["Vagish Vela <git@vagish.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "project_pygames"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pygame = "^2.3.0"
+black = "^23.3.0"
+pylint = "^2.17.2"
+pre-commit = "^3.2.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+# https://github.com/psf/black
+target-version = ["py310"]
+line-length = 88
+color = true
+
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | env
+    | venv
+)/
+'''
