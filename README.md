@@ -1,3 +1,5 @@
+![pylint](https://github.com/VagishVela/project-pygames/actions/workflows/pylint.yml/badge.svg) ![black](https://github.com/VagishVela/project-pygames/actions/workflows/black.yml/badge.svg)
+
 # Alien Escape Game
 
 Welcome to Alien Escape, a turn-by-turn strategy game where you play as a character who wakes up in a dark room in an unknown building. Your goal is to find a torch, battle the aliens that are trying to capture you, and escape the building.
