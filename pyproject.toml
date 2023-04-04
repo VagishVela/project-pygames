@@ -2,7 +2,7 @@
 name = "project-pygames"
 version = "0.0.1"
 description = ""
-authors = ["Vagish Vela <git@vagish.com>"]
+authors = ["Vagish Vela <git@vagish.com>", "Arkaprabha Sinha Roy <sinharoy.ap@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [{include = "project_pygames"}]
@@ -10,6 +10,8 @@ packages = [{include = "project_pygames"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 pygame = "^2.3.0"
+
+[tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
 pylint = "^2.17.2"
 pre-commit = "^3.2.2"
