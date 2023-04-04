@@ -1,0 +1,5 @@
+[MAIN]
+extension-pkg-whitelist=pygame
+
+[MESSAGE CONTROL]
+disable=invalid-name, fixme, duplicate-code
