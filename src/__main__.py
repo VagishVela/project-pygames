@@ -9,6 +9,8 @@ from src.views.inventory_view import InventoryView
 from src.views.game_over_view import GameOverView
 from src.views.pause_view import PauseView
 
+from src.config import SCREEN_WIDTH, SCREEN_HEIGHT
+
 # Define different views
 class View(Enum):
     StartView = 0
@@ -23,9 +25,7 @@ class View(Enum):
 pygame.init()
 
 # Set up the display
-screen_width = 800
-screen_height = 600
-screen = pygame.display.set_mode((screen_width, screen_height))
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Initialize view instances
 view_instances = {
