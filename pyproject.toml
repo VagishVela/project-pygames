@@ -42,3 +42,7 @@ exclude = '''
     | venv
 )/
 '''
+
+#[tool.poetry.scripts]
+#game = "main:main"
+# Doesn't work rn, "project_pygames does not contain any element"
