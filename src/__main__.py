@@ -1,6 +1,14 @@
 import pygame
 from enum import Enum
 
+from src.views.start_view import StartView
+from src.views.menu_view import MenuView
+from src.views.game_view import GameView
+from src.views.battle_view import BattleView
+from src.views.inventory_view import InventoryView
+from src.views.game_over_view import GameOverView
+from src.views.pause_view import PauseView
+
 # Define different views
 class View(Enum):
     StartView = 0
@@ -8,44 +16,8 @@ class View(Enum):
     GameView = 2
     BattleView = 3
     InventoryView = 4
-    GameOver = 5
+    GameOverView = 5
     PauseView = 6
-
-# Create a class for each view
-class StartView:
-    def render(self, screen):
-        # Render StartView here
-        pass
-
-class MenuView:
-    def render(self, screen):
-        # Render MenuView here
-        pass
-
-class GameView:
-    def render(self, screen):
-        # Render GameView here
-        pass
-
-class BattleView:
-    def render(self, screen):
-        # Render BattleView here
-        pass
-
-class InventoryView:
-    def render(self, screen):
-        # Render InventoryView here
-        pass
-
-class GameOver:
-    def render(self, screen):
-        # Render GameOver here
-        pass
-
-class PauseView:
-    def render(self, screen):
-        # Render PauseView here
-        pass
 
 # Initialize Pygame
 pygame.init()
@@ -62,7 +34,7 @@ view_instances = {
     View.GameView: GameView(),
     View.BattleView: BattleView(),
     View.InventoryView: InventoryView(),
-    View.GameOver: GameOver(),
+    View.GameOverView: GameOverView(),
     View.PauseView: PauseView()
 }
 
