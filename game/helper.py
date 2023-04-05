@@ -143,7 +143,7 @@ class Button:
     def update(self):
         """Process mouse input"""
 
-        # TODO: functionality doesn't work, needs investigation
+        pygame.event.pump()  # Update internal state of pygame
 
         mouse_pos = pygame.mouse.get_pos()
         self.button_surface.fill(self.fill_colors["normal"])
