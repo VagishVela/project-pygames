@@ -27,3 +27,4 @@ class Cache:
 
 
 views_cache = Cache()
+data = {}
