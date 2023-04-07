@@ -1,5 +1,4 @@
 """ This package contains the views """
-import sys
 
 import pygame
 
