@@ -4,7 +4,7 @@ from typing import Iterable, Callable
 
 import pygame
 
-from game.types import ColorValue
+from game._common import ColorValue
 
 
 # pylint: disable=too-many-instance-attributes, too-many-arguments
