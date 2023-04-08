@@ -21,16 +21,17 @@ class Battle(View):
 
         self.enemy = Enemy(self.width*0.7, self.height*0.4, (64, 64))
         self.projectiles = []
-        self.player_attack()
         self.dodge_timer = 0
         self.dodge_for_frames = 60
+        
+        self.attack(self.player, self.enemy)  # remove this when inputs are working
 
     def on_update(self):
         for projectile in self.projectiles:
             projectile.update()
             if projectile.check_collision(self.enemy) or projectile.check_collision(self.player):
                 self.projectiles.remove(projectile)
-                if projectile.is_mine: 
+                if projectile.is_player: 
                     died = self.enemy.take_damage(self.player.abilities)
                     if died: self.win_game()
                 else:
