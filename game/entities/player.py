@@ -21,6 +21,8 @@ class Player(Sprite):
     
     def take_damage(self, e_ability):
         self.abilities["health"] -= (e_ability["attack"] * (100-self.abilities["damage"])/100)
+        # Return true if the player dies
+        return self.abilities["health"] <= 0
 
     def draw(self, screen: Surface, world_spece=False):
         if not world_spece:

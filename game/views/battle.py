@@ -31,53 +31,54 @@ class Battle(View):
             if projectile.check_collision(self.enemy) or projectile.check_collision(self.player):
                 self.projectiles.remove(projectile)
                 if projectile.is_mine: 
-                    self.enemy.take_damage(self.player.abilities)
+                    died = self.enemy.take_damage(self.player.abilities)
+                    if died: self.win_game()
                 else:
                     if self.dodge_timer <= 0:
-                        self.player.take_damage(self.enemy.abilities)
+                        died = self.player.take_damage(self.enemy.abilities)
+                        if died: self.game_over()
                     self.my_turn = True
 
                 # TODO Somehow wait for some seconds and execute the next line
-                if not self.my_turn: self.enemy_attack()
+                if not self.my_turn: self.attack(self.enemy, self.player)
+
+
+        ##### EVENTS ARE NOT WORKING AT ALL !!!!!!!!!!!!!1
+        # TODO fix the keyboard input :(
 
         for event in pygame.event.get():
             print("EVENT")
             if event.type == pygame.KEYDOWN:
                 if self.my_turn:
                     if event.key == pygame.K_a:
-                        self.player_attack()
+                        self.attack(self.player, self.enemy)
                 else:
                     if event.key == pygame.K_SPACE:
                         self.player_dodge()
         
+    def win_game(self):
+        # TODO Set the player abilities and health
+        # TODO Go the the win view or map view
+        pass
+    def game_over(self):
+        self.enemy = self.enemy.kill()  # Kill the enemy and remove reference
+        # TODO Give the player some coins
+        # TODO Go the the Game over view
 
-    def player_attack(self):
+    def attack(self, _from: Player|Enemy, _to: Player|Enemy):
         # play some Attack animation
         projectile_direction = pygame.math.Vector2(
-            (self.enemy.pos[0] + self.enemy.rect[0]/2) - self.player.pos[0],
-            (self.enemy.pos[1] + self.enemy.rect[1]/2) - self.player.pos[1]
+            (_to.pos[0] + _to.rect[0]/2) - _from.pos[0],
+            (_to.pos[1] + _to.rect[1]/2) - _from.pos[1]
         )
         projectile_direction = projectile_direction.normalize()
         projectile_position = (
-            self.player.pos[0] + projectile_direction.x*50,
-            self.player.pos[1] + projectile_direction.y*50
+            _from.pos[0] + projectile_direction.x*50,
+            _from.pos[1] + projectile_direction.y*50
         )
-        self.projectiles.append(Projectile(projectile_position, tuple(projectile_direction), True))
-        self.my_turn = False
-    
-    def enemy_attack(self):
-        # play some Attack animation
-        projectile_direction = pygame.math.Vector2(
-            (self.enemy.pos[0] + self.enemy.rect[0]/2) - self.player.pos[0],
-            (self.enemy.pos[1] + self.enemy.rect[1]/2) - self.player.pos[1]
-        )
-        projectile_direction = -projectile_direction.normalize()
-        projectile_position = (
-            self.enemy.pos[0] + projectile_direction.x*50,
-            self.enemy.pos[1] + projectile_direction.y*50
-        )
-        self.projectiles.append(Projectile(projectile_position, tuple(projectile_direction), False))
-    
+        self.projectiles.append(Projectile(projectile_position, tuple(projectile_direction), type(_from)==Player))
+        if type(_from) == Player: self.my_turn = False
+
 
     def player_dodge(self):
         if self.my_turn: return
@@ -101,10 +102,10 @@ class Battle(View):
         pass
 
 class Projectile(Sprite):
-    def __init__(self, pos: tuple[int, int] | list[int, int], direction: tuple[int, int], is_mine=True) -> None:
+    def __init__(self, pos: tuple[int, int] | list[int, int], direction: tuple[int, int], is_player=True) -> None:
         self.x, self.y = pos
         self.direction = direction
-        self.is_mine = is_mine
+        self.is_player = is_player
         self.speed = 5
         self.image = pygame.transform.rotozoom(
             pygame.image.load("assets/fireball_1.png"), 

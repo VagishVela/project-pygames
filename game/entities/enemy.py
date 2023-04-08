@@ -16,10 +16,12 @@ class Enemy(Sprite):
             "damage": 30,
             "health": 70,
         }
+        # self.details = "I am Quantalocus, a deadly Alien with no special abilities"
         self.visible = True
     def take_damage(self, p_ability):
         self.abilities["health"] -= (p_ability["attack"] * (100-self.abilities["damage"])/100)
-        print(self.abilities["health"])
+        # Return true if the enemy dies
+        return self.abilities["health"] <= 0
 
     def draw(self, screen: Surface):
         screen.blit(self.image, self.pos)
