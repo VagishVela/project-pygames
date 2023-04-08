@@ -17,8 +17,9 @@ class Enemy(Sprite):
             "health": 70,
         }
         self.visible = True
-    def take_damage(self, player_abilities):
-        pass
+    def take_damage(self, p_ability):
+        self.abilities["health"] -= (p_ability["attack"] * (100-self.abilities["damage"])/100)
+        print(self.abilities["health"])
 
     def draw(self, screen: Surface):
         screen.blit(self.image, self.pos)

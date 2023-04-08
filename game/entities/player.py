@@ -16,6 +16,10 @@ class Player(Sprite):
             "damage": 20,
             "health": 100,
         }
+        self.has_shield = True
+    
+    def take_damage(self, e_ability):
+        self.abilities["health"] -= (e_ability["attack"] * (100-self.abilities["damage"])/100)
 
     def draw(self, screen: Surface, world_spece=False):
         if not world_spece:

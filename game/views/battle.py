@@ -1,5 +1,6 @@
 """ Implements the Battle view """
 
+from asyncio import sleep
 import pygame
 from pygame import Surface
 from pygame.sprite import Sprite
@@ -20,17 +21,23 @@ class Battle(View):
         self.player.pos = (self.width*0.2, self.height*0.5)
 
         self.enemy = Enemy(self.width*0.7, self.height*0.4, (64, 64))
-        print(self.enemy.rect)
         self.projectiles = []
         self.player_attack()
 
     def on_update(self):
         for projectile in self.projectiles:
             projectile.update()
-            if projectile.check_collision(self.enemy):
-                print("COLLIDEDDD")
-                self.enemy.take_damage(self.player.abilities)
-        
+            if projectile.check_collision(self.enemy) or projectile.check_collision(self.player):
+                self.projectiles.remove(projectile)
+                if projectile.is_mine: 
+                    self.enemy.take_damage(self.player.abilities)
+                else: 
+                    self.player.take_damage(self.enemy.abilities)
+                    self.my_turn = True
+
+                # TODO Somehow wait for some seconds and execute the next line
+                if not self.my_turn: self.enemy_attack()
+
         for event in pygame.event.get():
             print("EVENT")
             if event.type == pygame.KEYDOWN:
@@ -44,12 +51,32 @@ class Battle(View):
 
     def player_attack(self):
         # play some Attack animation
-        projectile_direction = (
+        projectile_direction = pygame.math.Vector2(
             (self.enemy.pos[0] + self.enemy.rect[0]/2) - self.player.pos[0],
-            (self.enemy.pos[1] + self.enemy.rect[1]/2) - self.player.pos[1],
+            (self.enemy.pos[1] + self.enemy.rect[1]/2) - self.player.pos[1]
         )
-        self.projectiles.append(Projectile(self.player.pos, projectile_direction))
+        projectile_direction = projectile_direction.normalize()
+        projectile_position = (
+            self.player.pos[0] + projectile_direction.x*50,
+            self.player.pos[1] + projectile_direction.y*50
+        )
+        self.projectiles.append(Projectile(projectile_position, tuple(projectile_direction), True))
+        self.my_turn = False
     
+    def enemy_attack(self):
+        # play some Attack animation
+        projectile_direction = pygame.math.Vector2(
+            (self.enemy.pos[0] + self.enemy.rect[0]/2) - self.player.pos[0],
+            (self.enemy.pos[1] + self.enemy.rect[1]/2) - self.player.pos[1]
+        )
+        projectile_direction = -projectile_direction.normalize()
+        projectile_position = (
+            self.enemy.pos[0] + projectile_direction.x*50,
+            self.enemy.pos[1] + projectile_direction.y*50
+        )
+        self.projectiles.append(Projectile(projectile_position, tuple(projectile_direction), False))
+    
+
     def player_dodge(self):
         pass
 
@@ -74,18 +101,19 @@ class Projectile(Sprite):
             -math.degrees(math.atan2(self.direction[1], self.direction[0])),
             1.5
         )
+        self.rect = self.image.get_rect()
 
     def update(self):
-        self.x += self.direction[0] * self.speed * 0.001
-        self.y += self.direction[1] * self.speed * 0.001
+        self.x += self.direction[0] * self.speed * 1
+        self.y += self.direction[1] * self.speed * 1
 
     def draw(self, screen: Surface):
         screen.blit(self.image, (self.x, self.y))
 
-    def check_collision(self, enemy: Enemy):
+    def check_collision(self, entity: Player | Enemy):
         return not (
-            self.x < enemy.pos[0] or 
-            self.x > enemy.pos[0]+enemy.rect.w or 
-            self.y < enemy.pos[1] or 
-            self.y > enemy.pos[1]+enemy.rect.h
+            self.x + self.rect.w/2 < entity.pos[0] or 
+            self.x + self.rect.w/2 > entity.pos[0]+entity.rect.w or 
+            self.y + self.rect.h/2 < entity.pos[1] or 
+            self.y + self.rect.h/2 > entity.pos[1]+entity.rect.h
         )
