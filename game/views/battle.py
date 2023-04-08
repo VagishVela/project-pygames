@@ -1,6 +1,5 @@
 """ Implements the Battle view """
 
-from asyncio import sleep
 import pygame
 from pygame import Surface
 from pygame.sprite import Sprite
@@ -23,6 +22,8 @@ class Battle(View):
         self.enemy = Enemy(self.width*0.7, self.height*0.4, (64, 64))
         self.projectiles = []
         self.player_attack()
+        self.dodge_timer = 0
+        self.dodge_for_frames = 60
 
     def on_update(self):
         for projectile in self.projectiles:
@@ -31,8 +32,9 @@ class Battle(View):
                 self.projectiles.remove(projectile)
                 if projectile.is_mine: 
                     self.enemy.take_damage(self.player.abilities)
-                else: 
-                    self.player.take_damage(self.enemy.abilities)
+                else:
+                    if self.dodge_timer <= 0:
+                        self.player.take_damage(self.enemy.abilities)
                     self.my_turn = True
 
                 # TODO Somehow wait for some seconds and execute the next line
@@ -78,7 +80,15 @@ class Battle(View):
     
 
     def player_dodge(self):
-        pass
+        if self.my_turn: return
+        if self.dodge_timer <= 0:
+            self.dodge_timer = self.dodge_for_frames
+            self.player.dodging = True
+        else:
+            self.dodge_timer -= 1
+            self.dodge_timer = pygame.math.clamp(self.dodge_timer, 0, self.dodge_for_frames)
+        if self.dodge_timer == 0: self.player.dodging = False
+        
 
     def on_draw(self):
         self.screen.fill("#333333")

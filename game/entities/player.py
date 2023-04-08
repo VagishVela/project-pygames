@@ -17,18 +17,20 @@ class Player(Sprite):
             "health": 100,
         }
         self.has_shield = True
+        self.dodging = False
     
     def take_damage(self, e_ability):
         self.abilities["health"] -= (e_ability["attack"] * (100-self.abilities["damage"])/100)
 
     def draw(self, screen: Surface, world_spece=False):
         if not world_spece:
-            screen.blit(
-                self.image,
-                (
+            pos = (
                     screen.get_width() / 2 - self.pos[0],
                     screen.get_height() / 2 - self.pos[1],
-                ),
-            )
+                )
         else:
-            screen.blit(self.image, (self.pos[0], self.pos[1]))
+            pos = (self.pos[0], self.pos[1])
+        screen.blit(self.image, pos)
+            
+        if self.dodging:
+            pygame.draw.circle(screen, pygame.Color(255, 255, 255, 50), pos, self.rect.w*1.5)
