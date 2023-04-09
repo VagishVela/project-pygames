@@ -119,6 +119,8 @@ class Button:
         width: int | float,
         height: int | float,
         text: str = "Button",
+        module: str = None,
+        screen: str = None,
         on_click: Callable = None,
         once: bool = False,
     ):
@@ -129,6 +131,8 @@ class Button:
         self.on_click = on_click
         self.once = once
         self.text = text
+        self.module = module
+        self.screen = screen
 
         self.fill_colors = {
             "normal": "#ffffff",
@@ -152,9 +156,9 @@ class Button:
             if pygame.mouse.get_pressed(num_buttons=3)[0]:
                 self.button_surface.fill(self.fill_colors["pressed"])
                 if self.once:
-                    self.onclick()
+                    self.on_click(self)
                 elif not self.already_pressed:
-                    self.onclick()
+                    self.on_click(self)
                     self.already_pressed = True
             else:
                 self.already_pressed = False

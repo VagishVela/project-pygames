@@ -29,7 +29,9 @@ class Menu(View):
                 self.height / 2 + i * 60,
                 100,
                 50,
-                option,
+                text=option["name"],
+                module=option["module"],
+                screen=option["screen"],
                 on_click=self.on_button_click,
             )
             for i, option in enumerate(self.options)
@@ -37,12 +39,12 @@ class Menu(View):
         print(self.buttons)
 
     def on_button_click(self, button):
-        new_view = importlib.import_module(f"game.views.{button.text['module']}")
+        new_view = importlib.import_module(f"game.views.{button.module}")
         self.change_views(
-            getattr(new_view, button.text["screen"]),
+            getattr(new_view, button.screen),
             self.width,
             self.height,
-            button.text["screen"],
+            button.screen,
         )
 
     def on_update(self):
