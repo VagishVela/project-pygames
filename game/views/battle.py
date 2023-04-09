@@ -1,12 +1,14 @@
 """ Implements the Battle view """
 
+import math
+
 import pygame
 from pygame import Surface
 from pygame.sprite import Sprite
+
 from game.entities.enemy import Enemy
 from game.entities.player import Player
 from views import View
-import math
 
 
 class Battle(View):

@@ -1,18 +1,9 @@
 """ Implements the Menu view """
 
-from game.helper import Text, Button
-from views import View
 import importlib
 
-
-def fun(t):
-    """for debug, rename/reuse this"""
-
-    # """ use a function like this that returns a function pointer, instead of lambdas """
-    def _():
-        print(t)
-
-    return _
+from game.helper import Text, Button
+from views import View
 
 
 class Menu(View):
