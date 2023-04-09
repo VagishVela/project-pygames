@@ -119,14 +119,14 @@ class Button:
         width: int | float,
         height: int | float,
         text: str = "Button",
-        onclick: Callable = None,
+        on_click: Callable = None,
         once: bool = False,
     ):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.onclick = onclick
+        self.on_click = on_click
         self.once = once
         self.text = text
 

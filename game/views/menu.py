@@ -14,12 +14,15 @@ def fun(t):
     return _
 
 
+import importlib
+
+
 class Menu(View):
     """The Menu view"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.options = ["Option 1", "Option 2", "Option 3"]
+        self.options = [{"name": "New Game", "module": "map", "screen": "Map"}]
         self.buttons = [
             Button(
                 self.width / 2,
@@ -27,12 +30,20 @@ class Menu(View):
                 100,
                 50,
                 option,
+                on_click=self.on_button_click,
             )
             for i, option in enumerate(self.options)
         ]
-        for b in self.buttons:
-            b.onclick = fun(b.text)
         print(self.buttons)
+
+    def on_button_click(self, button):
+        new_view = importlib.import_module(f"game.views.{button.text['module']}")
+        self.change_views(
+            getattr(new_view, button.text["screen"]),
+            self.width,
+            self.height,
+            button.text["screen"],
+        )
 
     def on_update(self):
         for b in self.buttons:
