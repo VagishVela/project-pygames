@@ -31,23 +31,43 @@ class Level:
                 self.arr[i][j] = self._get_tile((y - i, x - j))
         return self.arr.tolist()
 
-    def move(self, x, y):
-        if self.check_collision(x, y):
-            self.loc[0] += x
-            self.loc[1] += y
-            return True
-        return False
+    def move(self, dx, dy):
+        """Move the whole map in the given direction"""
 
-    def check_collision(self, x, y):
+        if f := self.check_collision(dx, dy):
+            if f == "e":
+                return [False, "e"]
+            self.loc[0] += dx
+            self.loc[1] += dy
+            return [True, "ok"]
+        return [False, "w"]
+
+    def check_collision(self, dx, dy):
         """True, on no collision"""
 
-        match (x, y):
+        match (dx, dy):
             case (0, 1):
-                return self.arr[3][4] == ord("x")
+                return (
+                    "e"
+                    if self.arr[3][4] == ord("e")
+                    else self.arr[3][4] == ord("x")
+                )
             case (0, -1):
-                return self.arr[5][4] == ord("x")
+                return (
+                    "e"
+                    if self.arr[5][4] == ord("e")
+                    else self.arr[5][4] == ord("x")
+                )
             case (1, 0):
-                return self.arr[4][3] == ord("x")
+                return (
+                    "e"
+                    if self.arr[4][3] == ord("e")
+                    else self.arr[4][3] == ord("x")
+                )
             case (-1, 0):
-                return self.arr[4][5] == ord("x")
+                return (
+                    "e"
+                    if self.arr[4][5] == ord("e")
+                    else self.arr[4][5] == ord("x")
+                )
         return False

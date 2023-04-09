@@ -30,7 +30,7 @@ class Map(View):
         self._e_hash = {}
         self._w_hash = {}
         self._cur = []
-        self._moved = False
+        self._moved = [False, "nr"]
 
         for i, j in itertools.product(range(9), range(9)):
             self._e_hash[(i, j)] = Enemy(
@@ -59,7 +59,7 @@ class Map(View):
                 case pygame.MOUSEBUTTONDOWN:
                     self.on_click()
                 case pygame.KEYDOWN:
-                    self._moved = False
+                    self._moved = [False, "nr"]
                     match event.key:
                         case pygame.K_UP | pygame.K_w:
                             self._moved = self.level.move(0, 1)
@@ -73,8 +73,12 @@ class Map(View):
                             from game.views.pause import Pause
 
                             self.change_views(Pause, self.width, self.height, "Paused")
-                    if self._moved:
+
+                    if self._moved[0]:
                         self.not_player.disappear(self._cur)
+                    elif self._moved[1] == "e":
+                        from game.views.battle import Battle
+                        self.change_views(Battle, title="Battle")
 
     def on_update(self):
         if self._moved or not self._cur:
