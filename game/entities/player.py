@@ -12,10 +12,11 @@ class Player(Sprite):
         self.pos = self.image.get_width() / 2, self.image.get_height() / 2
         self.rect = self.image.get_rect()
         self.abilities = {
-            "attack": 3,
+            "attack": 20,
             "damage": 20,
             "health": 100,
         }
+        self.max_health = 100
         self.has_shield = True
         self.dodging = False
 

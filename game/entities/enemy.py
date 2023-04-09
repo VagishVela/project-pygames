@@ -16,7 +16,8 @@ class Enemy(Sprite):
             "damage": 30,
             "health": 70,
         }
-        # self.details = "I am Quantalocus, a deadly Alien with no special abilities"
+        self.max_health = 70
+        self.details = ["I am Quantalocus.", "A deadly Alien with no special abilities"]
         self.visible = True
 
     def take_damage(self, p_ability):

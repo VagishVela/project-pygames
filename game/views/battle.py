@@ -9,6 +9,7 @@ from pygame.sprite import Sprite
 from game.entities.enemy import Enemy
 from game.entities.player import Player
 from views import View
+from game.helper import Text, Button
 
 
 class Battle(View):
@@ -25,6 +26,7 @@ class Battle(View):
         self.projectiles = []
         self.dodge_timer = 0
         self.dodge_for_frames = 60
+        self.buttons
 
         self.attack(self.player, self.enemy)  # remove this when inputs are working
 
@@ -108,10 +110,23 @@ class Battle(View):
 
     def on_draw(self):
         self.screen.fill("#333333")
+        dialog_box_rect = (self.screen.get_width()*0.1, 20, self.screen.get_width()*0.8, 100)
+        dialog_box_color = (200, 200, 200)
+        pygame.draw.rect(self.screen, dialog_box_color, dialog_box_rect, 0, 20)
+        for i, text in enumerate(self.enemy.details):
+            Text(text, "sans-serif", self.screen.get_width()/2, dialog_box_rect[1]+30*(i+1), 24, (0,0,0)).blit_into(self.screen)
         self.player.draw(self.screen, True)
         self.enemy.draw(self.screen)
         for projectile in self.projectiles:
             projectile.draw(self.screen)
+        self.draw_health(self.player)
+        self.draw_health(self.enemy)
+
+    def draw_health(self, entity: Player|Enemy):
+        width = 100
+        pygame.draw.rect(self.screen, (0,0,0), (entity.pos[0]-10, entity.pos[1]-40, width, 20))
+        pygame.draw.rect(self.screen, (255,0,0), (entity.pos[0]-10, entity.pos[1]-40, width*entity.abilities["health"]/entity.max_health, 20))
+
 
     def on_click(self):
         pass
