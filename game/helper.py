@@ -141,7 +141,9 @@ class Button:
         }
 
         self.button_surface = pygame.Surface((self.width, self.height))
-        self.button_rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.button_rect = pygame.Rect(
+            self.x - self.width / 2, self.y - self.height / 2, self.width, self.height
+        )
         self.already_pressed = False
 
     def update(self):
