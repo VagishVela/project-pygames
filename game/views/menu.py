@@ -2,6 +2,7 @@
 
 from game.helper import Text, Button
 from views import View
+import importlib
 
 
 def fun(t):
@@ -14,9 +15,6 @@ def fun(t):
     return _
 
 
-import importlib
-
-
 class Menu(View):
     """The Menu view"""
 
@@ -26,7 +24,7 @@ class Menu(View):
         self.buttons = [
             Button(
                 self.width / 2,
-                self.height / 2 + i * 60,
+                self.height / 2 - 120 + i * 60,
                 100,
                 50,
                 text=option["name"],
@@ -57,8 +55,8 @@ class Menu(View):
             "Menu",
             self.font,
             self.width / 2,
-            self.height / 2 - 50,
-            200,
+            self.height / 2 - 200,
+            40,
             "red",
         ).blit_into(self.screen)
 
