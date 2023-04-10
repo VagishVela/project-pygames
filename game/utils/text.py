@@ -1,10 +1,10 @@
-""" Contains helper functions and classes to speed up development"""
+""" This module implements the Text class """
 
-from typing import Iterable, Callable
+from typing import Iterable
 
 import pygame
 
-from game._common import ColorValue
+from game.common_types import ColorValue
 
 
 # pylint: disable=too-many-instance-attributes, too-many-arguments
@@ -107,93 +107,3 @@ class Text:
                 )
             case _:
                 surface.blit(self.surface, (self.x, self.y))
-
-
-class Button:
-    """Class to work with buttons"""
-
-    def __init__(
-        self,
-        x: int | float,
-        y: int | float,
-        width: int | float,
-        height: int | float,
-        text: str = "Button",
-        module: str = None,
-        screen: str = None,
-        onclick: Callable = None,
-        once: bool = False,
-    ):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.onclick = onclick
-        self.once = once
-        self.text = text
-        self.module = module
-        self.screen = screen
-
-        self.fill_colors = {
-            "normal": "#ffffff",
-            "hover": "#666666",
-            "pressed": "#333333",
-        }
-
-        self.button_surface = pygame.Surface((self.width, self.height))
-        self.button_rect = pygame.Rect(
-            self.x - self.width / 2, self.y - self.height / 2, self.width, self.height
-        )
-        self.already_pressed = False
-
-    def update(self):
-        """Process mouse input"""
-
-        pygame.event.pump()  # Update internal state of pygame
-
-        mouse_pos = pygame.mouse.get_pos()
-        self.button_surface.fill(self.fill_colors["normal"])
-
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN and self.button_rect.collidepoint(
-                mouse_pos
-            ):
-                self.button_surface.fill(self.fill_colors["pressed"])
-                if self.once:
-                    self.onclick(self)
-                elif not self.already_pressed:
-                    self.onclick(self)
-                    self.already_pressed = True
-
-        if self.button_rect.collidepoint(mouse_pos):
-            self.button_surface.fill(self.fill_colors["hover"])
-        else:
-            self.already_pressed = False
-
-    def blit_into(
-        self,
-        surface: pygame.Surface,
-        font: str | bytes | Iterable[str | bytes] = None,
-        size: int = 20,
-        color: ColorValue = (20, 20, 20),
-    ):
-        """
-        Blit the text into the provided surface.
-
-        :param surface: Destination surface
-        :param font: Desired font for the buttons. Uses the pygame default if None.
-        :param size: Font size
-        :param color: Font color
-        :return:
-        """
-        if not font:
-            font = pygame.font.get_default_font()
-        Text(
-            self.text,
-            font,
-            self.button_rect.width / 2,
-            self.button_rect.height / 2,
-            size,
-            color,
-        ).blit_into(self.button_surface)
-        surface.blit(self.button_surface, self.button_rect)

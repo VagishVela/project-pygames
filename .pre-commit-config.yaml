@@ -16,8 +16,8 @@ repos:
         name: Pylint
         entry: pylint
         language: system
-        types: [python]
-        args: ["--rcfile=.pylintrc"]
+        types: [ python ]
+        args: [ "--rcfile=.pylintrc" ]
 
   - repo: https://github.com/psf/black
     rev: 23.3.0
@@ -26,7 +26,7 @@ repos:
         name: Black
         entry: black
         # poetry run raised error for some reason
-        types: [python]
+        types: [ python ]
         language: system
         args: ["--config=pyproject.toml"]
 

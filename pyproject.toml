@@ -5,7 +5,7 @@ description = ""
 authors = ["Vagish Vela <git@vagish.com>", "Arkaprabha Sinha Roy <sinharoy.ap@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "game"}]
+packages = [{ include = "game" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"

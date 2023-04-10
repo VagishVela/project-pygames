@@ -8,8 +8,8 @@ from pygame.sprite import Sprite
 
 from game.entities.enemy import Enemy
 from game.entities.player import Player
-from views import View
-from game.helper import Text, Button
+from game.utils import Text
+from game.views import View
 
 
 class Battle(View):
