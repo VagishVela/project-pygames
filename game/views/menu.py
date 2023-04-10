@@ -1,6 +1,6 @@
 """ Implements the Menu view """
 
-from game.utils import Text, Button
+from game.utils import Text, LinkButton
 from game.views import View
 
 
@@ -9,27 +9,21 @@ class Menu(View):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.options = [{"name": "New Game", "module": "map", "screen": "Map"}]
+        self.options = [{"text": "New Game", "link_to_path": "map.Map"}]
         self.buttons = [
-            Button(
+            LinkButton(
+                self,
                 self.width / 2,
                 self.height / 2 - 120 + i * 60,
                 100,
                 50,
-                text=option["name"],
-                module=option["module"],
-                screen=option["screen"],
-                on_click=self.on_button_click,
+                link_to_path="map.Map",
+                text=option["text"],
+                on_click=lambda: print("pressed"),  # debug
             )
             for i, option in enumerate(self.options)
         ]
         print(self.buttons)
-
-    def on_button_click(self, button):
-        self.change_views(
-            f"{button.module}.{button.screen}",
-            button.screen,
-        )
 
     def on_update(self):
         for b in self.buttons:
