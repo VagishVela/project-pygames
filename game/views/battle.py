@@ -21,9 +21,9 @@ class Battle(View):
         self.my_turn = True
 
         self.player = Player()
-        self.player.pos = (self.width * 0.2, self.height * 0.5)
+        self.player.pos = (self.width * 0.1, self.height * 0.6)
 
-        self.enemy = Enemy(self.width * 0.7, self.height * 0.4, (64, 64))
+        self.enemy = Enemy(self.width * 0.7, self.height * 0.25, (64, 64))
         self.projectiles = []
         self.dodge_timer = 0
         self.dodge_for_frames = 60
@@ -116,47 +116,54 @@ class Battle(View):
 
     def on_draw(self):
         """Draw the battle view"""
-        self.screen.fill("#333333")
-        dialog_box_rect = (
-            self.screen.get_width() * 0.1,
-            20,
-            self.screen.get_width() * 0.8,
-            100,
-        )
-        dialog_box_color = (200, 200, 200)
-        pygame.draw.rect(self.screen, dialog_box_color, dialog_box_rect, 0, 20)
-        for i, text in enumerate(self.enemy.details):
-            Text(
-                text,
-                "sans-serif",
-                self.screen.get_width() / 2,
-                dialog_box_rect[1] + 30 * (i + 1),
-                24,
-                (0, 0, 0),
-            ).blit_into(self.screen)
-        self.player.draw(self.screen, True)
-        self.enemy.draw(self.screen)
-        for projectile in self.projectiles:
-            projectile.draw(self.screen)
-        self.draw_health(self.player)
-        self.draw_health(self.enemy)
+        self.screen.fill((0, 0, 0))
 
-    def draw_health(self, entity: Player | Enemy):
-        """Draw the health bar of an entity"""
-        width = 100
+        # draw the player and the enemy
+        self.screen.blit(pygame.image.load("assets/player.png"), (50, 200))
+        self.screen.blit(pygame.image.load("assets/enemy.png"), (self.width - 150, 50))
+
+        # draw the health bars
+        pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect(10, 10, 150, 20))
         pygame.draw.rect(
-            self.screen, (0, 0, 0), (entity.pos[0] - 10, entity.pos[1] - 40, width, 20)
+            self.screen,
+            (255, 0, 0),
+            pygame.Rect(
+                10,
+                10,
+                150 * self.player.abilities["health"] / self.player.max_health,
+                20,
+            ),
+        )
+
+        pygame.draw.rect(
+            self.screen, (255, 255, 255), pygame.Rect(self.width - 160, 50, 150, 20)
         )
         pygame.draw.rect(
             self.screen,
             (255, 0, 0),
-            (
-                entity.pos[0] - 10,
-                entity.pos[1] - 40,
-                width * entity.abilities["health"] / entity.max_health,
+            pygame.Rect(
+                self.width - 160,
+                50,
+                150 * self.enemy.abilities["health"] / self.enemy.max_health,
                 20,
             ),
         )
+
+        # draw the attack button
+        pygame.draw.rect(
+            self.screen,
+            (255, 255, 255),
+            pygame.Rect(self.width // 2 - 60, self.height - 60, 120, 40),
+            2,
+        )
+        Text(
+            "ATTACK",
+            "sans-serif",
+            self.width // 2,
+            self.height - 40,
+            24,
+            (255, 255, 255),
+        ).blit_into(self.screen)
 
     def on_click(self):
         """Called when the user clicks the mouse"""
