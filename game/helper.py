@@ -121,14 +121,14 @@ class Button:
         text: str = "Button",
         module: str = None,
         screen: str = None,
-        on_click: Callable = None,
+        onclick: Callable = None,
         once: bool = False,
     ):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.on_click = on_click
+        self.on_click = onclick
         self.once = once
         self.text = text
         self.module = module

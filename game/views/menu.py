@@ -21,7 +21,7 @@ class Menu(View):
                 text=option["name"],
                 module=option["module"],
                 screen=option["screen"],
-                on_click=self.on_button_click,
+                onclick=self.on_button_click,
             )
             for i, option in enumerate(self.options)
         ]
