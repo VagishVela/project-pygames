@@ -1,6 +1,6 @@
 """ This module implements the Button class """
 import typing
-from typing import Iterable, Callable
+from typing import Iterable, Callable, Tuple
 
 import pygame
 
@@ -98,26 +98,28 @@ class Button:
         surface.blit(self.button_surface, self.button_rect)
 
 
-class LinkButton(Button):
+class MenuButton(Button):
     """Buttons linking two views"""
 
     def __init__(
         self,
         view: "View",
-        x: NumType,
-        y: NumType,
-        width: NumType,
-        height: NumType,
-        link_to_path: str,
+        xy: Tuple[NumType, NumType],
+        dimensions: Tuple[NumType, NumType],
+        view_path: str,
         text: str = "Button",
         on_click=None,
-    ):
+    ) -> None:
+        x, y = xy
+        width, height = dimensions
         self._on_click = on_click
         self.view = view
-        self.link_to_path = link_to_path
-        super().__init__(x, y, width, height, text, on_click=self._link, once=True)
+        self.link_to_path = view_path
+        super().__init__(
+            x, y, width, height, text, on_click=self._change_to_view, once=True
+        )
 
-    def _link(self):
+    def _change_to_view(self):
         """Switch views"""
         if self._on_click:
             # if there's something to do before switching views
