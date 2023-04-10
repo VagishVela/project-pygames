@@ -36,12 +36,9 @@ class Start(View):
     def on_click(self):
         # import here to avoid circular imports
         # pylint: disable=C0415
-        # from game.views.map import Map
-        # from game.views.battle import Battle
         from game.views.menu import Menu
-        from game.views.battle import Battle
 
-        self.change_views(Battle, self.width, self.height, "Menu")
+        self.change_views(Menu, self.width, self.height, "Menu")
 
     @staticmethod
     def exit():
