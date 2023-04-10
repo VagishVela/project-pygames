@@ -9,16 +9,15 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
 
-  # - repo: https://github.com/pycqa/pylint
-  #   rev: v2.17.2
-  #   hooks:
-  #     - id: pylint
-  #       name: Pylint
-  #       entry: pylint
-  #       # poetry run raised error for some reason
-  #       language: system
-  #       types: [python]
-  #       args: ["--rcfile=.pylintrc"]
+  - repo: https://github.com/pycqa/pylint
+    rev: v2.17.2
+    hooks:
+      - id: pylint
+        name: Pylint
+        entry: pylint
+        language: system
+        types: [ python ]
+        args: [ "--rcfile=.pylintrc" ]
 
   - repo: https://github.com/psf/black
     rev: 23.3.0
@@ -27,7 +26,7 @@ repos:
         name: Black
         entry: black
         # poetry run raised error for some reason
-        types: [python]
+        types: [ python ]
         language: system
         args: ["--config=pyproject.toml"]
 
