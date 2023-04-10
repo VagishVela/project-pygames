@@ -16,6 +16,7 @@ class Battle(View):
     """The Battle view"""
 
     def __init__(self, *args, **kwargs):
+        """Initialize the battle view"""
         super().__init__(*args, **kwargs)
         self.my_turn = True
 
@@ -31,6 +32,7 @@ class Battle(View):
         self.attack(self.player, self.enemy)  # remove this when inputs are working
 
     def on_update(self):
+        """Called every frame"""
         for projectile in self.projectiles:
             projectile.update()
             if projectile.check_collision(self.enemy) or projectile.check_collision(
@@ -66,16 +68,19 @@ class Battle(View):
                         self.player_dodge()
 
     def win_game(self):
+        """Called when the player wins"""
         # TODO Set the player abilities and health
         # TODO Go the the win view or map view
         pass
 
     def game_over(self):
+        """Called when the player dies"""
         self.enemy = self.enemy.kill()  # Kill the enemy and remove reference
         # TODO Give the player some coins
         # TODO Go the the Game over view
 
     def attack(self, _from: Player | Enemy, _to: Player | Enemy):
+        """Called when the player presses the A key"""
         # play some Attack animation
         projectile_direction = pygame.math.Vector2(
             (_to.pos[0] + _to.rect[0] / 2) - _from.pos[0],
@@ -95,6 +100,7 @@ class Battle(View):
             self.my_turn = False
 
     def player_dodge(self):
+        """Called when the player presses the space bar"""
         if self.my_turn:
             return
         if self.dodge_timer <= 0:
@@ -109,6 +115,7 @@ class Battle(View):
             self.player.dodging = False
 
     def on_draw(self):
+        """Draw the battle view"""
         self.screen.fill("#333333")
         dialog_box_rect = (
             self.screen.get_width() * 0.1,
@@ -135,6 +142,7 @@ class Battle(View):
         self.draw_health(self.enemy)
 
     def draw_health(self, entity: Player | Enemy):
+        """Draw the health bar of an entity"""
         width = 100
         pygame.draw.rect(
             self.screen, (0, 0, 0), (entity.pos[0] - 10, entity.pos[1] - 40, width, 20)
@@ -151,6 +159,7 @@ class Battle(View):
         )
 
     def on_click(self):
+        """Called when the user clicks the mouse"""
         pass
 
 
@@ -161,6 +170,7 @@ class Projectile(Sprite):
         direction: tuple[int, int],
         is_player=True,
     ) -> None:
+        """Create a new projectile"""
         self.x, self.y = pos
         self.direction = direction
         self.is_player = is_player
@@ -173,13 +183,16 @@ class Projectile(Sprite):
         self.rect = self.image.get_rect()
 
     def update(self):
+        """Update the projectile position"""
         self.x += self.direction[0] * self.speed * 1
         self.y += self.direction[1] * self.speed * 1
 
     def draw(self, screen: Surface):
+        """Draw the projectile on the screen"""
         screen.blit(self.image, (self.x, self.y))
 
     def check_collision(self, entity: Player | Enemy):
+        """Check if the projectile is colliding with the entity"""
         return not (
             self.x + self.rect.w / 2 < entity.pos[0]
             or self.x + self.rect.w / 2 > entity.pos[0] + entity.rect.w

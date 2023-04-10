@@ -85,11 +85,13 @@ class Map(View):
                             self._cur.append(self._w_hash[(x, y)])
 
     def save_data(self):
+        """Save the data"""
         data["player_pos"] = self.level.loc
         data["e_hash"] = self._e_hash
         data["w_hash"] = self._w_hash
         print("saved data!")
 
     def terminate(self):
+        """Terminate the view"""
         self.not_player.disappear(self._cur)
         self.level.loc = [0, 0]
