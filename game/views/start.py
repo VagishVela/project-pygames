@@ -5,7 +5,7 @@ import pygame
 
 from game.config import GAME_TITLE
 from game.utils import Text
-from views import View
+from game.views import View
 
 
 class Start(View):
@@ -15,7 +15,6 @@ class Start(View):
         super().__init__(*args, **kwargs)
 
     def on_draw(self):
-        self.screen.fill("black")
         Text(
             GAME_TITLE,
             self.font,
@@ -33,7 +32,7 @@ class Start(View):
             "white",
         ).blit_into(self.screen)
 
-    def on_click(self):
+    def on_click(self, event):
         self.change_views("menu.Menu", caption="Menu")
 
     @staticmethod

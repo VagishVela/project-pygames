@@ -1,7 +1,7 @@
 """ Implements the Menu view """
 
 from game.utils import Text, Button
-from views import View
+from game.views import View
 
 
 class Menu(View):

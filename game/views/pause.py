@@ -1,9 +1,7 @@
 """ Implements the Pause view """
 
 from game.utils import Text
-
-# from game.helper import Button
-from views import View
+from game.views import View
 
 
 class Pause(View):
@@ -48,5 +46,5 @@ class Pause(View):
             "white",
         ).blit_into(self.screen)
 
-    def on_click(self):
+    def on_click(self, event):
         self.change_views("map.Map", caption="Map")

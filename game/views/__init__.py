@@ -47,13 +47,18 @@ class View:
             print(event)
             self._running = False
 
+        # on_click
+        self.events.register(pygame.MOUSEBUTTONDOWN)(self.on_click)
+        # on_keydown
+        self.events.register(pygame.KEYDOWN)(self.on_keydown)
+
     def on_draw(self):
         """Draw things onto the View surface"""
 
     @staticmethod
     def exit():
         """Quit the view"""
-        pygame.quit()
+        pygame.display.quit()
 
     @classmethod
     def from_view(
@@ -73,12 +78,7 @@ class View:
         pygame.display.flip()
 
     def _handle_events(self):
-        for event in pygame.event.get():
-            match event.type:
-                case pygame.QUIT:
-                    self._running = False
-                case pygame.MOUSEBUTTONDOWN:
-                    self.on_click()
+        self.events.run()
 
     def on_update(self):
         """To override"""
@@ -94,11 +94,18 @@ class View:
                 self.screen.fill(self.bg_color)
                 self.on_draw()
                 self.on_update()
-                self._refresh()
+                try:
+                    self._refresh()
+                except pygame.error as e:
+                    # TODO: figure this out
+                    print("clean exit failed:", e)
         self.exit()
 
-    def on_click(self):
+    def on_click(self, event):
         """Called when the mouse is clicked"""
+
+    def on_keydown(self, event):
+        """Called when a key is pressed"""
 
     # pylint: disable=too-many-arguments
     def change_views(
@@ -141,5 +148,5 @@ class View:
             )
         )
         self._running = False
-        print("switching views from", self, "to", _class, flush=True)
+        print("switching views from", self, "to", next_view, flush=True)
         next_view.run()
