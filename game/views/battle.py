@@ -150,35 +150,58 @@ class Battle(View):
         )
 
         # draw the attack menu
-        menu_rect = pygame.Rect(self.width // 2 - 100, self.height - 100, 200, 80)
+        attacks = [
+            {"name": "Quick Attack", "power": 10},
+            {"name": "Power Attack", "power": 20},
+            {"name": "Super Attack", "power": 30},
+            {"name": "Mega Attack", "power": 40},
+        ]
+
+        menu_width = 400
+        menu_height = 300
+        menu_x = self.width - menu_width - 20
+        menu_y = self.height - menu_height - 20
+        menu_rect = pygame.Rect(menu_x, menu_y, menu_width, menu_height)
         pygame.draw.rect(self.screen, (255, 255, 255), menu_rect, 2)
 
         Text(
             "Select an Attack",
             "sans-serif",
-            self.width // 2,
-            menu_rect.y + 10,
+            menu_x + menu_width // 2,
+            menu_y + 20,
             24,
             (255, 255, 255),
         ).blit_into(self.screen)
 
-        Text(
-            "1. Quick Attack",
-            "sans-serif",
-            self.width // 2,
-            menu_rect.y + 40,
-            20,
-            (255, 255, 255),
-        ).blit_into(self.screen)
+        button_width = 160
+        button_height = 60
+        button_spacing = 20
+        num_buttons_per_row = 2
+        num_rows = (len(attacks) + num_buttons_per_row - 1) // num_buttons_per_row
 
-        Text(
-            "2. Power Attack",
-            "sans-serif",
-            self.width // 2,
-            menu_rect.y + 60,
-            20,
-            (255, 255, 255),
-        ).blit_into(self.screen)
+        for i, attack in enumerate(attacks):
+            row = i // num_buttons_per_row
+            col = i % num_buttons_per_row
+            button_x = menu_x + col * (button_width + button_spacing) + button_spacing
+            button_y = menu_y + row * (button_height + button_spacing) + 80
+            button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
+            pygame.draw.rect(self.screen, (255, 255, 255), button_rect, 2)
+            Text(
+                attack["name"],
+                "sans-serif",
+                button_x + button_width // 2,
+                button_y + 20,
+                20,
+                (255, 255, 255),
+            ).blit_into(self.screen)
+            Text(
+                f"Power: {attack['power']}",
+                "sans-serif",
+                button_x + button_width // 2,
+                button_y + 40,
+                14,
+                (255, 255, 255),
+            ).blit_into(self.screen)
 
     def on_click(self):
         """Called when the user clicks the mouse"""
