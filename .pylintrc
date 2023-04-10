@@ -2,4 +2,4 @@
 extension-pkg-whitelist=pygame
 
 [MESSAGE CONTROL]
-disable=invalid-name, fixme, duplicate-code
+disable=invalid-name, fixme, duplicate-code, too-many-arguments, too-many-instance-attributes

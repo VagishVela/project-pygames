@@ -1,3 +1,4 @@
+"""Generate a level"""
 # P is player
 # E is Enemy -> En can be a way to have many different enemies
 # W is wall -> Wn can be a way to have more obstacles
@@ -10,7 +11,10 @@ import numpy as np
 
 
 class Level:
+    """Class for generating a level"""
+
     def __init__(self, x=None, y=None):
+        """Initialize the level"""
         self.x = 0
         self.y = 0
         self.arr = np.zeros((9, 9), dtype=np.int32)
@@ -19,10 +23,12 @@ class Level:
         self.loc = [x, y] if x is not None and y is not None else [0, 0]
 
     def _get_tile(self, pos):
+        """Get a tile"""
         self.rng.seed(str(pos))
         return ord(self.rng.choice("x" * 800 + "w" * 185 + "e" * 15))
 
     def generate(self, m=9, n=9):
+        """Generate a level"""
         x, y = self.loc
         for i, j in itertools.product(range(m), range(n)):
             if i == m // 2 and j == n // 2:

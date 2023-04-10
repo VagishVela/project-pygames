@@ -24,6 +24,7 @@ class Button:
         on_click: Callable = None,
         once: bool = False,
     ):
+        """Initialize the button"""
         self.x = x
         self.y = y
         self.width = width
@@ -117,6 +118,7 @@ class LinkButton(Button):
         super().__init__(x, y, width, height, text, on_click=self._link, once=True)
 
     def _link(self):
+        """Switch views"""
         if self._on_click:
             # if there's something to do before switching views
             self._on_click()

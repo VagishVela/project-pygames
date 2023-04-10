@@ -22,6 +22,7 @@ class View:
         icon: pygame.Surface = None,
         bg_color: ColorValue = None,
     ):
+        """Initialize the View"""
         self.width: NumType = width
         self.height: NumType = height
         self.size = Vector2(self.width, self.height)

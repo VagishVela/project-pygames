@@ -1,10 +1,14 @@
+"""This module contains the Player class"""
 import pygame.image
 from pygame import Surface
 from pygame.sprite import Sprite
 
 
 class Player(Sprite):
+    """Class for the player"""
+
     def __init__(self):
+        """Initialize the player"""
         super().__init__()
         self.image = pygame.transform.scale(
             pygame.image.load("assets/player.png"), (64, 96)
@@ -21,6 +25,7 @@ class Player(Sprite):
         self.dodging = False
 
     def take_damage(self, e_ability):
+        """Take damage from the enemy"""
         self.abilities["health"] -= (
             e_ability["attack"] * (100 - self.abilities["damage"]) / 100
         )
@@ -28,6 +33,7 @@ class Player(Sprite):
         return self.abilities["health"] <= 0
 
     def draw(self, screen: Surface, world_spece=False):
+        """Draw the player"""
         if not world_spece:
             pos = (
                 screen.get_width() / 2 - self.pos[0],
