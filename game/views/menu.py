@@ -2,7 +2,7 @@
 
 import importlib
 
-from game.helper import Text, Button
+from game.utils import Text, Button
 from views import View
 
 

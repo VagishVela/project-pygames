@@ -4,7 +4,7 @@ import sys
 import pygame
 
 from game.config import GAME_TITLE
-from game.helper import Text
+from game.utils import Text
 from views import View
 
 

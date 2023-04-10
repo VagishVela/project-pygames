@@ -1,6 +1,6 @@
 """ Implements the Pause view """
 
-from game.helper import Text
+from game.utils import Text
 
 # from game.helper import Button
 from views import View
