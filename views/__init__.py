@@ -3,7 +3,9 @@
 import pygame
 
 from game.config import FPS
-from views.cache import views_cache
+from game.utils import Cache
+
+views_cache = Cache()
 
 
 class View:

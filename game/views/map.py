@@ -9,7 +9,8 @@ from game.entities.player import Player
 from game.entities.walls import Wall
 from game.level_gen import Level
 from views import View
-from views.cache import data
+
+data = {}
 
 
 class Map(View):

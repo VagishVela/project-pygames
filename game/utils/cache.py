@@ -24,7 +24,3 @@ class Cache:
         """Clears the cache"""
 
         self._cache.clear()
-
-
-views_cache = Cache()
-data = {}

@@ -2,5 +2,6 @@
 
 from .text import Text
 from .button import Button
+from .cache import Cache
 
-__all__ = ["Text", "Button"]
+__all__ = ["Text", "Button", "Cache"]
