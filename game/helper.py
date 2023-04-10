@@ -128,7 +128,7 @@ class Button:
         self.y = y
         self.width = width
         self.height = height
-        self.on_click = onclick
+        self.onclick = onclick
         self.once = once
         self.text = text
         self.module = module
@@ -153,17 +153,22 @@ class Button:
 
         mouse_pos = pygame.mouse.get_pos()
         self.button_surface.fill(self.fill_colors["normal"])
-        if self.button_rect.collidepoint(mouse_pos):
-            self.button_surface.fill(self.fill_colors["hover"])
-            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and self.button_rect.collidepoint(
+                mouse_pos
+            ):
                 self.button_surface.fill(self.fill_colors["pressed"])
                 if self.once:
-                    self.on_click(self)
+                    self.onclick(self)
                 elif not self.already_pressed:
-                    self.on_click(self)
+                    self.onclick(self)
                     self.already_pressed = True
-            else:
-                self.already_pressed = False
+
+        if self.button_rect.collidepoint(mouse_pos):
+            self.button_surface.fill(self.fill_colors["hover"])
+        else:
+            self.already_pressed = False
 
     def blit_into(
         self,
