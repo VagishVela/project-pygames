@@ -149,19 +149,34 @@ class Battle(View):
             ),
         )
 
-        # draw the attack button
-        pygame.draw.rect(
-            self.screen,
-            (255, 255, 255),
-            pygame.Rect(self.width // 2 - 60, self.height - 60, 120, 40),
-            2,
-        )
+        # draw the attack menu
+        menu_rect = pygame.Rect(self.width // 2 - 100, self.height - 100, 200, 80)
+        pygame.draw.rect(self.screen, (255, 255, 255), menu_rect, 2)
+
         Text(
-            "ATTACK",
+            "Select an Attack",
             "sans-serif",
             self.width // 2,
-            self.height - 40,
+            menu_rect.y + 10,
             24,
+            (255, 255, 255),
+        ).blit_into(self.screen)
+
+        Text(
+            "1. Quick Attack",
+            "sans-serif",
+            self.width // 2,
+            menu_rect.y + 40,
+            20,
+            (255, 255, 255),
+        ).blit_into(self.screen)
+
+        Text(
+            "2. Power Attack",
+            "sans-serif",
+            self.width // 2,
+            menu_rect.y + 60,
+            20,
             (255, 255, 255),
         ).blit_into(self.screen)
 
