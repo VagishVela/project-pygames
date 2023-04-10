@@ -5,7 +5,7 @@ description = ""
 authors = ["Vagish Vela <git@vagish.com>", "Arkaprabha Sinha Roy <sinharoy.ap@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "project_pygames"}]
+packages = [{include = "game"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -16,7 +16,6 @@ numpy = "^1.24.2"
 black = "^23.3.0"
 pylint = "^2.17.2"
 pre-commit = "^3.2.2"
-
 
 [build-system]
 requires = ["poetry-core"]
@@ -44,6 +43,5 @@ exclude = '''
 )/
 '''
 
-#[tool.poetry.scripts]
-#game = "main:main"
-# Doesn't work rn, "project_pygames does not contain any element"
+[tool.poetry.scripts]
+game = "main:main"
