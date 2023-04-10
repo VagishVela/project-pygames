@@ -71,15 +71,12 @@ class Map(View):
                         case pygame.K_RIGHT | pygame.K_d:
                             self._moved = self.level.move(-1, 0)
                         case pygame.K_ESCAPE:
-                            from game.views.pause import Pause
-
-                            self.change_views(Pause, self.width, self.height, "Paused")
+                            self.change_views("pause.Pause", caption="Paused")
 
                     if self._moved[0]:
                         self.not_player.disappear(self._cur)
                     elif self._moved[1] == "e":
-                        from game.views.battle import Battle
-                        self.change_views(Battle, title="Battle")
+                        self.change_views("battle.Battle", caption="Battle")
 
     def on_update(self):
         if self._moved or not self._cur:

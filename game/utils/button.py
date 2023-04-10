@@ -4,7 +4,7 @@ from typing import Iterable, Callable
 
 import pygame
 
-from game._common import ColorValue
+from game.common_types import ColorValue
 from game.utils import Text
 
 

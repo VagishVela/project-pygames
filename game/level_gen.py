@@ -47,27 +47,11 @@ class Level:
 
         match (dx, dy):
             case (0, 1):
-                return (
-                    "e"
-                    if self.arr[3][4] == ord("e")
-                    else self.arr[3][4] == ord("x")
-                )
+                return "e" if self.arr[3][4] == ord("e") else self.arr[3][4] == ord("x")
             case (0, -1):
-                return (
-                    "e"
-                    if self.arr[5][4] == ord("e")
-                    else self.arr[5][4] == ord("x")
-                )
+                return "e" if self.arr[5][4] == ord("e") else self.arr[5][4] == ord("x")
             case (1, 0):
-                return (
-                    "e"
-                    if self.arr[4][3] == ord("e")
-                    else self.arr[4][3] == ord("x")
-                )
+                return "e" if self.arr[4][3] == ord("e") else self.arr[4][3] == ord("x")
             case (-1, 0):
-                return (
-                    "e"
-                    if self.arr[4][5] == ord("e")
-                    else self.arr[4][5] == ord("x")
-                )
+                return "e" if self.arr[4][5] == ord("e") else self.arr[4][5] == ord("x")
         return False

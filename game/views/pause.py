@@ -49,8 +49,4 @@ class Pause(View):
         ).blit_into(self.screen)
 
     def on_click(self):
-        # import here to avoid circular imports
-        # pylint: disable=C0415
-        from game.views.map import Map
-
-        self.change_views(Map, self.width, self.height, "Map")
+        self.change_views("map.Map", caption="Map")

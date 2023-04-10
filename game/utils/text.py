@@ -4,7 +4,7 @@ from typing import Iterable
 
 import pygame
 
-from game._common import ColorValue
+from game.common_types import ColorValue
 
 
 # pylint: disable=too-many-instance-attributes, too-many-arguments
@@ -25,16 +25,16 @@ class Text:
     ]
 
     def __init__(
-            self,
-            text: str,
-            font: str | bytes | Iterable[str | bytes],
-            x: float | int,
-            y: float | int,
-            size: int,
-            color: ColorValue,
-            bg_color: ColorValue = None,
-            align: str = "center",
-            style: Iterable[str] = (),
+        self,
+        text: str,
+        font: str | bytes | Iterable[str | bytes],
+        x: float | int,
+        y: float | int,
+        size: int,
+        color: ColorValue,
+        bg_color: ColorValue = None,
+        align: str = "center",
+        style: Iterable[str] = (),
     ):
         self.surface = None
         self.text: str = text

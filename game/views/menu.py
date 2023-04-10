@@ -1,7 +1,5 @@
 """ Implements the Menu view """
 
-import importlib
-
 from game.utils import Text, Button
 from views import View
 
@@ -28,11 +26,8 @@ class Menu(View):
         print(self.buttons)
 
     def on_button_click(self, button):
-        new_view = importlib.import_module(f"game.views.{button.module}")
         self.change_views(
-            getattr(new_view, button.screen),
-            self.width,
-            self.height,
+            f"{button.module}.{button.screen}",
             button.screen,
         )
 

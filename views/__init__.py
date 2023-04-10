@@ -1,9 +1,12 @@
 """ This package contains the views """
+from importlib import import_module
 
 import pygame
+from pygame import Vector2
 
+from game.common_types import ColorValue, NumType
 from game.config import FPS
-from game.utils import Cache
+from game.utils import Cache, EventHandler
 
 views_cache = Cache()
 
@@ -11,21 +14,38 @@ views_cache = Cache()
 class View:
     """An object representing the current 'view' on display"""
 
-    def __init__(self, width, height, title: str = None, icon: pygame.Surface = None):
-        self.width = width
-        self.height = height
+    def __init__(
+        self,
+        width,
+        height,
+        caption: str = None,
+        icon: pygame.Surface = None,
+        bg_color: ColorValue = None,
+    ):
+        self.width: NumType = width
+        self.height: NumType = height
+        self.size = Vector2(self.width, self.height)
 
-        if title:
-            pygame.display.set_caption(title)
+        if caption:
+            self.caption = caption
+            pygame.display.set_caption(caption)
+        else:
+            self.caption = None
         if icon:
             pygame.display.set_icon(icon)
+        self.bg_color = bg_color or "black"
 
-        self.size = (self.width, self.height)
-        self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode(self.size)
         self.font = pygame.font.get_default_font()
 
         self._running = False
+        self._clock = pygame.time.Clock()
+        self.events = EventHandler()
+
+        @self.events.register(pygame.QUIT)
+        def on_close(event):
+            print(event)
+            self._running = False
 
     def on_draw(self):
         """Draw things onto the View surface"""
@@ -35,8 +55,21 @@ class View:
         """Quit the view"""
         pygame.quit()
 
+    @classmethod
+    def from_view(
+        cls, prev_view: "View", caption=None, width=None, height=None, bg_color=None
+    ):
+        """Get a class instance with attributes of the another view"""
+        return cls(
+            width or prev_view.width,
+            height or prev_view.height,
+            caption or prev_view.caption,
+            None,  # icon
+            bg_color or prev_view.bg_color,
+        )
+
     def _refresh(self, frame_rate=FPS):
-        self.clock.tick(frame_rate)
+        self._clock.tick(frame_rate)
         pygame.display.flip()
 
     def _handle_events(self):
@@ -56,13 +89,12 @@ class View:
         self._running = True
         print("Loading done!", self, flush=True)
         while self._running:
-            try:
-                self._handle_events()
+            self._handle_events()
+            if self._running:
+                self.screen.fill(self.bg_color)
                 self.on_draw()
                 self.on_update()
                 self._refresh()
-            except pygame.error:
-                self._running = False
         self.exit()
 
     def on_click(self):
@@ -71,38 +103,43 @@ class View:
     # pylint: disable=too-many-arguments
     def change_views(
         self,
-        destination_class_ptr,
+        next_view_path,
+        caption: str = None,
         width: float | int = None,
         height: float | int = None,
-        title: str = None,
+        bg_color=None,
         check_cache: bool = True,
     ):
         """
         Change views and display the next View
 
-        :param destination_class_ptr: pointer to the View class to display
-        :param title: Window title, stays the same by default
+        :param next_view_path: path to the View class within game.views
+        :param caption: Window title, stays the same by default
         :param height: Window height, stays the same by default
         :param width: Window width, stays the same by default
+        :param bg_color: Window background color
         :param check_cache: Whether to check for cached objects
         :return:
         """
 
-        if not width:
-            width = self.width
-        if not height:
-            height = self.height
-        if not title:
-            title = pygame.display.get_caption()[0]
+        # try most common usage
+        next_view_module, _class = next_view_path.split(".")
+        next_view_module = import_module(f"game.views.{next_view_module}")
 
-        if check_cache:
-            destination = views_cache.get(
-                (destination_class_ptr.__name__, width, height, title),
-                destination_class_ptr(width, height, title),
+        # implement a try-catch block here if other modules are used for views than `game.views`
+
+        next_view = (
+            views_cache.get(
+                (next_view_path, caption, width, height, bg_color),
+                getattr(next_view_module, _class).from_view(
+                    self, caption, width, height, bg_color
+                ),
             )
-        else:
-            destination = destination_class_ptr(width, height, title)
-
-        assert isinstance(destination, View), "Destination isn't of type View"
-        print("switching views from", self, "to", destination, flush=True)
-        destination.run()
+            if check_cache
+            else getattr(next_view_module, _class).from_view(
+                self, caption, width, height, bg_color
+            )
+        )
+        self._running = False
+        print("switching views from", self, "to", _class, flush=True)
+        next_view.run()
