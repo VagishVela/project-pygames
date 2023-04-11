@@ -5,7 +5,7 @@ from typing import Iterable, Callable, Tuple
 import pygame
 
 from game.common_types import ColorValue, NumType
-from game.utils import Text
+from game.utils.text import Text
 
 if typing.TYPE_CHECKING:
     from game.views import View
