@@ -39,3 +39,26 @@ class EventHandler:
         for e in pygame.event.get():
             if (key := e.type) in self.events:
                 self.invoke(key, e)
+
+
+class CustomEvent:
+    """Creates a custom event"""
+
+    # total number of custom events limited by pygame
+    num_left = 32668
+
+    def __init__(self):
+        if CustomEvent.num_left:
+            self.type = pygame.event.custom_type()
+            CustomEvent.num_left -= 1
+            self.event = pygame.event.Event(self.type)
+        else:
+            raise pygame.error("Number of custom type events exceeded pygame limit")
+
+    def post(self) -> None:
+        """post the event on the pygame events queue"""
+        pygame.event.post(self.event)
+
+    def get(self) -> bool:
+        """get the event state from the pygame events queue"""
+        return bool(pygame.event.get(self.type))
