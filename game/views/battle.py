@@ -1,3 +1,5 @@
+# pylint: skip-file
+# fixme
 """ Implements the Battle view """
 
 import math

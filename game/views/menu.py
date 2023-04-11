@@ -1,7 +1,10 @@
 """ Implements the Menu view """
 
 from game.utils import Text, MenuButton
-from game.views import View
+from game.views import View, logger
+
+# get logger
+logger = logger.getChild("menu")
 
 
 class Menu(View):
@@ -25,14 +28,15 @@ class Menu(View):
             )
             for i, option in enumerate(self.options)
         ]
-        print(self.buttons)
+        logger.debug(f" buttons: {self.buttons}")
 
     def on_update(self):
         for b in self.buttons:
-            b.update()
+            # ensure display is initiated
+            if self._running:
+                b.update()
 
     def on_draw(self):
-        self.screen.fill("black")
         Text(
             "Menu",
             self.font,
