@@ -13,16 +13,16 @@ class Menu(View):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.options = [
-            {"text": "New Game", "link_to_path": "map.Map"},
-            {"text": "Continue", "link_to_path": "map.Map"},
-            {"text": "TEST - Battle", "link_to_path": "battle.Battle"},
+            {"text": "New Game", "view_path": "map.Map"},
+            {"text": "Continue", "view_path": "map.Map"},
+            {"text": "TEST - Battle", "view_path": "battle.Battle"},
         ]
         self.buttons = [
             MenuButton(
                 self,
                 xy=(self.width / 2, self.height / 2 - 120 + i * 60),
                 dimensions=(100, 50),
-                view_path=option["link_to_path"],
+                view_path=option["view_path"],
                 text=option["text"],
                 on_click=lambda: print("pressed"),  # debug
             )
