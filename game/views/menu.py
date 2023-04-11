@@ -16,6 +16,7 @@ class Menu(View):
             {"text": "New Game", "view_path": "map.Map"},
             {"text": "Continue", "view_path": "map.Map"},
             {"text": "TEST - Battle", "view_path": "battle.Battle"},
+            {"text": "Events Demo", "view_path": "view1.View1"},
         ]
         self.buttons = [
             MenuButton(

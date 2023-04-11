@@ -7,3 +7,6 @@ from game.utils.eventhandler import CustomEvent
 MOVED = CustomEvent()
 # if player encounters an enemy
 ENEMY_ENCOUNTERED = CustomEvent()
+
+# new event
+COUNTER = CustomEvent()
