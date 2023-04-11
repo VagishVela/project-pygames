@@ -1,13 +1,15 @@
 """Generate a level"""
-# P is player
-# E is Enemy -> En can be a way to have many different enemies
-# W is wall -> Wn can be a way to have more obstacles
+# p is player
+# e is Enemy -> En can be a way to have many different enemies
+# w is wall -> Wn can be a way to have more obstacles
 # x is walkable
 
 import itertools
 import random
 
 import numpy as np
+
+from game.custom_event import ENEMY_ENCOUNTERED, MOVED
 
 
 class Level:
@@ -27,7 +29,7 @@ class Level:
         self.rng.seed(str(pos))
         return ord(self.rng.choice("x" * 800 + "w" * 185 + "e" * 15))
 
-    def generate(self, m=9, n=9):
+    def generate(self, m=9, n=9) -> list:
         """Generate a level"""
         x, y = self.loc
         for i, j in itertools.product(range(m), range(n)):
@@ -35,29 +37,32 @@ class Level:
                 self.arr[4][4] = ord("p")
             else:
                 self.arr[i][j] = self._get_tile((y - i, x - j))
-        return self.arr.tolist()
+        return list(self.arr)
 
-    def move(self, dx, dy):
+    def move(self, dx, dy) -> None:
         """Move the whole map in the given direction"""
 
-        if f := self.check_collision(dx, dy):
-            if f == "e":
-                return [False, "e"]
+        if self.check_collision(dx, dy):
             self.loc[0] += dx
             self.loc[1] += dy
-            return [True, "ok"]
-        return [False, "w"]
+            MOVED.post()
 
-    def check_collision(self, dx, dy):
-        """True, on no collision"""
+    def check_collision(self, dx, dy) -> bool:
+        """Check collision, return True if player can move to the next tile"""
+
+        def _check_and_post(x, y) -> bool:
+            if self.arr[x][y] == ord("e"):
+                ENEMY_ENCOUNTERED.post()
+                return False
+            return self.arr[x][y] == ord("x")
 
         match (dx, dy):
             case (0, 1):
-                return "e" if self.arr[3][4] == ord("e") else self.arr[3][4] == ord("x")
+                return _check_and_post(3, 4)
             case (0, -1):
-                return "e" if self.arr[5][4] == ord("e") else self.arr[5][4] == ord("x")
+                return _check_and_post(5, 4)
             case (1, 0):
-                return "e" if self.arr[4][3] == ord("e") else self.arr[4][3] == ord("x")
+                return _check_and_post(4, 3)
             case (-1, 0):
-                return "e" if self.arr[4][5] == ord("e") else self.arr[4][5] == ord("x")
+                return _check_and_post(4, 5)
         return False

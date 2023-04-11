@@ -7,5 +7,5 @@ from game.views.start import Start
 def main():
     """The main function, initiates and runs the game"""
 
-    game = Start(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE)
+    game = Start((SCREEN_WIDTH, SCREEN_HEIGHT), GAME_TITLE)
     game.run()

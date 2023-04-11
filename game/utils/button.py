@@ -1,11 +1,11 @@
 """ This module implements the Button class """
 import typing
-from typing import Iterable, Callable
+from typing import Iterable, Callable, Tuple
 
 import pygame
 
 from game.common_types import ColorValue, NumType
-from game.utils import Text
+from game.utils.text import Text
 
 if typing.TYPE_CHECKING:
     from game.views import View
@@ -53,10 +53,8 @@ class Button:
         mouse_pos = pygame.mouse.get_pos()
         self.button_surface.fill(self.fill_colors["normal"])
 
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN and self.button_rect.collidepoint(
-                mouse_pos
-            ):
+        if self.button_rect.collidepoint(mouse_pos):
+            if pygame.event.get(pygame.MOUSEBUTTONDOWN):
                 self.button_surface.fill(self.fill_colors["pressed"])
                 if self.once:
                     self.on_click()
@@ -68,6 +66,9 @@ class Button:
             self.button_surface.fill(self.fill_colors["hover"])
         else:
             self.already_pressed = False
+
+    def __repr__(self):
+        return f"<Button {self.text}>"
 
     def blit_into(
         self,
@@ -98,26 +99,28 @@ class Button:
         surface.blit(self.button_surface, self.button_rect)
 
 
-class LinkButton(Button):
+class MenuButton(Button):
     """Buttons linking two views"""
 
     def __init__(
         self,
         view: "View",
-        x: NumType,
-        y: NumType,
-        width: NumType,
-        height: NumType,
-        link_to_path: str,
+        xy: Tuple[NumType, NumType],
+        dimensions: Tuple[NumType, NumType],
+        view_path: str,
         text: str = "Button",
         on_click=None,
-    ):
+    ) -> None:
+        x, y = xy
+        width, height = dimensions
         self._on_click = on_click
         self.view = view
-        self.link_to_path = link_to_path
-        super().__init__(x, y, width, height, text, on_click=self._link, once=True)
+        self.link_to_path = view_path
+        super().__init__(
+            x, y, width, height, text, on_click=self._change_to_view, once=True
+        )
 
-    def _link(self):
+    def _change_to_view(self):
         """Switch views"""
         if self._on_click:
             # if there's something to do before switching views

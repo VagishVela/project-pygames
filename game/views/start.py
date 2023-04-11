@@ -5,7 +5,10 @@ import pygame
 
 from game.config import GAME_TITLE
 from game.utils import Text
-from game.views import View
+from game.views import View, logger
+
+# get logger
+logger = logger.getChild("start")
 
 
 class Start(View):
@@ -33,10 +36,11 @@ class Start(View):
         ).blit_into(self.screen)
 
     def on_click(self, event):
+        logger.debug(" mouse clicked")
         self.change_views("menu.Menu", caption="Menu")
 
-    @staticmethod
-    def exit():
+    def exit(self):
+        logger.debug(f" View exits: {self}")
         print("Quiting the game.", flush=True)
         pygame.quit()
         sys.exit()
