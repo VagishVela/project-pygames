@@ -1,6 +1,5 @@
 """This module implements the classes required for the store"""
 
-from abc import ABC
 from enum import Enum
 
 import pygame
@@ -8,6 +7,7 @@ from pygame import Surface
 from pygame.sprite import Sprite
 
 from game.utils import Text
+from game.utils.div import Div, Scrollable
 
 
 class ItemTypes(Enum):
@@ -19,34 +19,60 @@ class ItemTypes(Enum):
     SPECIAL = 4
 
 
-# pylint: disable=too-few-public-methods
-class StoreComponent(ABC):
-    """Store components, has scrolling behaviour"""
+# pylint: disable=no-member
+class AllItems(Enum):
+    """Enumerate all items for the store"""
 
-    def __init__(self):
-        """Initialize the component"""
+    # itemID = (img_path, itemType, itemName)
+    knife = ("assets/knife.png", ItemTypes.ATK, "knife")
+    shield = ("assets/shield.png", ItemTypes.DEF, "shield")
+    potion = ("assets/potion.png", ItemTypes.POTION, "potion")
 
-        self.offset = pygame.Vector2(0, 0)
+    @property
+    def img_path(self) -> str:
+        """get the image path of the item"""
 
-    def scroll(self, dx, dy):
-        """Scroll the component"""
+        return self._value_[0]
 
-        self.offset += pygame.Vector2(dx, dy)
+    @property
+    def type(self) -> int:
+        """get the item type of the item"""
+
+        return self._value_[1]
+
+    @property
+    def item_name(self) -> str:
+        """get the item name of the item"""
+
+        return self._value_[2]
+
+    @property
+    def id(self) -> str:
+        """get the itemID of the item"""
+
+        return self.name
 
 
-class StoreItem(Sprite, StoreComponent):
+class StoreItem(Sprite, Scrollable):
     """Class for the items in store"""
 
-    def __init__(self, img_path, item_type, name):
+    def __init__(self, itemID: str):
         """Initialize the item"""
 
-        super().__init__()
-        self.offset = pygame.Vector2(0, 0)
-        self.image = pygame.transform.scale(pygame.image.load(img_path), (72, 72))
-        self.rect = self.image.get_rect()
+        # super() doesn't initiate both
+        Sprite.__init__(self)
+        Scrollable.__init__(self)
+
+        # if locked, grey out
         self.locked = False
-        self.type = item_type
-        self.name = name
+
+        self.item = getattr(AllItems, itemID)
+        self.type = self.item.type
+        self.name = self.item.item_name
+        self.image = pygame.transform.scale(
+            pygame.image.load(self.item.img_path), (72, 72)
+        )
+        self.rect = self.image.get_rect()
 
     def draw(self, screen: Surface, pos):
         """Draw the item"""
@@ -58,46 +84,5 @@ class StoreItem(Sprite, StoreComponent):
         screen.blit(surface, pygame.Vector2(pos) + self.offset)
 
 
-class StoreDiv(StoreComponent):
-    """Makes a rect enclosing a section of the store view"""
-
-    def __init__(self, caption):
-        super().__init__()
-        self.caption = caption
-        self.rect = None
-
-    def draw(self, screen: pygame.Surface, rect):
-        """Draw the rect and caption"""
-
-        surface = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-        self.rect = pygame.Rect(rect)
-        rect = self.rect
-        rect[1] += self.offset[1]
-        pygame.draw.rect(surface, "white", rect, 10, 5)
-
-        if self.caption:
-            text = Text(
-                self.caption,
-                pygame.font.get_default_font(),
-                rect[0] + 100,
-                rect[1],
-                60,
-                "white",
-                (50, 50, 50),
-            )
-            text.blit_into(surface)
-        screen.blit(surface, (0, 0))
-
-        # on click behaviour
-        self.on_click()
-
-    def on_click(self):
-        """Called if the rect is clicked"""
-
-        mouse_pos = pygame.mouse.get_pos()
-        if self.rect.collidepoint(mouse_pos):
-            if e := pygame.event.get(pygame.MOUSEBUTTONDOWN):
-                if e[0].button != 1:
-                    pygame.event.post(e[0])
-                    return
-                print("pressed!")
+# alias
+StoreDiv = Div
