@@ -69,7 +69,7 @@ class Map(View):
             case pygame.K_ESCAPE:
                 logger.debug(" game paused")
                 self.change_views("pause.Pause", caption="Paused")
-
+                return
         if MOVED.get():
             self.not_player.disappear(self._cur)
         if ENEMY_ENCOUNTERED.get():
