@@ -2,8 +2,7 @@
 
 import bisect
 
-import pygame
-from pygame import Surface
+from pygame import Surface, Vector2
 from pygame.sprite import Group
 
 from game.config import STORE_PADDING
@@ -41,9 +40,9 @@ class StoreItems(Group):
         self.potion_list = []
 
         # store the sprite offsets
-        self.atk_offset = pygame.Vector2(0, 0)
-        self.def_offset = pygame.Vector2(0, 0)
-        self.potion_offset = pygame.Vector2(0, 0)
+        self.atk_offset = Vector2(0, 0)
+        self.def_offset = Vector2(0, 0)
+        self.potion_offset = Vector2(0, 0)
 
         # store the sprites with their positions
         self.atk_sprites = []
@@ -81,7 +80,7 @@ class StoreItems(Group):
 
     def draw(self, surface: Surface, bgsurf=None, special_flags: int = 0):
         if self._changed:
-            self.atk_offset = pygame.Vector2(0, 0)
+            self.atk_offset = Vector2(0, 0)
             for sprite in self.atk_list:
                 if (
                     self.atk_offset[0] + STORE_PADDING * 1.2
@@ -89,14 +88,12 @@ class StoreItems(Group):
                 ):
                     self.atk_offset[1] += STORE_PADDING * 1.2
                     self.atk_offset[0] = 0
-                pos = pygame.Vector2(STORE_PADDING, STORE_PADDING) + self.atk_offset
+                pos = Vector2(STORE_PADDING, STORE_PADDING) + self.atk_offset
                 self.atk_sprites.append((sprite, pos))
                 sprite.draw(surface, pos)
                 self.atk_offset[0] += STORE_PADDING * 1.2
 
-            self.def_offset = pygame.Vector2(
-                0, self.atk_offset[1] + STORE_PADDING * 2.5
-            )
+            self.def_offset = Vector2(0, self.atk_offset[1] + STORE_PADDING * 2.5)
             for sprite in self.def_list:
                 if (
                     self.def_offset[0] + STORE_PADDING * 1.2
@@ -104,14 +101,12 @@ class StoreItems(Group):
                 ):
                     self.def_offset[1] += STORE_PADDING * 1.2
                     self.def_offset[0] = 0
-                pos = pygame.Vector2(STORE_PADDING, STORE_PADDING) + self.def_offset
+                pos = Vector2(STORE_PADDING, STORE_PADDING) + self.def_offset
                 self.def_sprites.append((sprite, pos))
                 sprite.draw(surface, pos)
                 self.def_offset[0] += STORE_PADDING * 1.2
 
-            self.potion_offset = pygame.Vector2(
-                0, self.def_offset[1] + STORE_PADDING * 2.5
-            )
+            self.potion_offset = Vector2(0, self.def_offset[1] + STORE_PADDING * 2.5)
             for sprite in self.potion_list:
                 if (
                     self.potion_offset[0] + STORE_PADDING * 1.2
@@ -119,7 +114,7 @@ class StoreItems(Group):
                 ):
                     self.potion_offset[1] += STORE_PADDING * 1.2
                     self.potion_offset[0] = 0
-                pos = pygame.Vector2(STORE_PADDING, STORE_PADDING) + self.potion_offset
+                pos = Vector2(STORE_PADDING, STORE_PADDING) + self.potion_offset
                 self.potion_sprites.append((sprite, pos))
                 sprite.draw(surface, pos)
                 self.potion_offset[0] += STORE_PADDING * 1.2

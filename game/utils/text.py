@@ -1,15 +1,20 @@
 """ This module implements the Text class """
 
-from typing import Iterable
+from typing import Iterable, Optional
 
 import pygame
+from pygame import Surface
 
-from game.common_types import ColorValue
+from game.common_types import ColorValue, NumType
 
 
 # pylint: disable=too-many-instance-attributes, too-many-arguments
 class Text:
     """Class to handle text"""
+
+    RIGHT = "right"
+    CENTER = "center"
+    LEFT = "left"
 
     __slots__ = [
         "font",
@@ -27,27 +32,26 @@ class Text:
     def __init__(
         self,
         text: str,
-        font: str | bytes | Iterable[str | bytes],
-        x: float | int,
-        y: float | int,
+        font: str | bytes | Iterable[str | bytes] | pygame.font.FontType,
+        x: NumType,
+        y: NumType,
         size: int,
         color: ColorValue,
-        bg_color: ColorValue = None,
+        bg_color: Optional[ColorValue] = None,
         align: str = "center",
         style: Iterable[str] = (),
     ):
-        self.surface = None
         self.text: str = text
-        self.x: float | int = x
-        self.y: float | int = y
-        self.size = size
+        self.x: NumType = x
+        self.y: NumType = y
+        self.size: int = size
         self.color: ColorValue = color
-        self.bg_color: ColorValue = bg_color
-        self.align = align
+        self.bg_color: Optional[ColorValue] = bg_color
+        self.align: str = align
         self.style = style
         self.font = font
 
-    def render(self, antialias: bool = True) -> pygame.Surface:
+    def render(self, antialias: bool = True) -> Surface:
         """
         Render a surface with the text on it.
 
@@ -61,19 +65,17 @@ class Text:
         if isinstance(self.font, pygame.font.FontType):
             font = self.font
         else:
-            font = pygame.font.Font = pygame.font.SysFont(self.font, self.size)
+            font = pygame.font.SysFont(self.font, self.size)
 
         font.strikethrough = "strikethrough" in self.style
         font.italic = "italic" in self.style
         font.bold = "bold" in self.style
         font.underline = "underline" in self.style
 
-        self.surface: pygame.Surface = font.render(
-            self.text, antialias, self.color, self.bg_color
-        )
-        return self.surface
+        surface: Surface = font.render(self.text, antialias, self.color, self.bg_color)
+        return surface
 
-    def blit_into(self, surface: pygame.Surface):
+    def blit_into(self, surface: Surface):
         """
         Blit the text into the provided surface.
 
@@ -81,29 +83,28 @@ class Text:
         :return:
         """
 
-        if not self.surface:
-            self.surface = self.render()
+        text_surface = self.render()
 
         match self.align:
             case "right":
                 surface.blit(
-                    self.surface, (self.x, self.y - self.surface.get_height() / 2)
+                    text_surface, (self.x, self.y - text_surface.get_height() / 2)
                 )
             case "left":
                 surface.blit(
-                    self.surface,
+                    text_surface,
                     (
-                        self.surface.get_width() / 2 - self.x,
-                        self.y - self.surface.get_height() / 2,
+                        text_surface.get_width() / 2 - self.x,
+                        self.y - text_surface.get_height() / 2,
                     ),
                 )
             case "center":
                 surface.blit(
-                    self.surface,
+                    text_surface,
                     (
-                        self.x - self.surface.get_width() / 2,
-                        self.y - self.surface.get_height() / 2,
+                        self.x - text_surface.get_width() / 2,
+                        self.y - text_surface.get_height() / 2,
                     ),
                 )
             case _:
-                surface.blit(self.surface, (self.x, self.y))
+                surface.blit(text_surface, (self.x, self.y))

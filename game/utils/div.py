@@ -3,6 +3,7 @@
 from abc import ABC
 
 import pygame
+from pygame import Vector2, Surface
 
 from game.utils.text import Text
 
@@ -14,12 +15,12 @@ class Scrollable(ABC):
     def __init__(self):
         """Initialize the component"""
 
-        self.offset = pygame.Vector2(0, 0)
+        self.offset = Vector2(0, 0)
 
     def scroll(self, dx, dy):
         """Scroll the component"""
 
-        self.offset += pygame.Vector2(dx, dy)
+        self.offset += Vector2(dx, dy)
 
 
 class Div(Scrollable):
@@ -30,10 +31,10 @@ class Div(Scrollable):
         self.caption = caption
         self.rect = None
 
-    def draw(self, screen: pygame.Surface, rect):
+    def draw(self, screen: Surface, rect):
         """Draw the rect and caption"""
 
-        surface = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+        surface = Surface(screen.get_size(), pygame.SRCALPHA)
         self.rect = pygame.Rect(rect)
         rect = self.rect
         rect[1] += self.offset[1]

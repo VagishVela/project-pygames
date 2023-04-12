@@ -1,9 +1,9 @@
 """This module implements the classes required for the store"""
 
-from enum import Enum
+from enum import Enum, IntEnum
 
 import pygame
-from pygame import Surface
+from pygame import Surface, Vector2
 from pygame.sprite import Sprite
 
 from game.config import STORE_PADDING, STORE_BG, TILE_SIZE
@@ -11,7 +11,7 @@ from game.utils import Text
 from game.utils.div import Div, Scrollable
 
 
-class ItemTypes(Enum):
+class ItemTypes(IntEnum):
     """Types of items in the store"""
 
     ATK = 1
@@ -94,17 +94,17 @@ class StoreItem(Sprite, Scrollable):
         )
         name.blit_into(surface)
         surface.blit(self.image, (STORE_PADDING / 2 - 36, 0))
-        screen.blit(surface, pygame.Vector2(pos) + self.offset)
+        screen.blit(surface, Vector2(pos) + self.offset)
 
 
 # alias
 class StoreDiv(Div):
     """Div customised for use in Store"""
 
-    def draw(self, screen: pygame.Surface, rect):
+    def draw(self, screen: Surface, rect):
         """Draw the rect and caption"""
 
-        surface = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+        surface = Surface(screen.get_size(), pygame.SRCALPHA)
         self.rect = pygame.Rect(rect)
         rect = self.rect
         rect[1] += self.offset[1]

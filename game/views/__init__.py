@@ -1,11 +1,12 @@
 """ This package contains the views """
 from importlib import import_module
+from typing import Optional
 
 import pygame
-from pygame import Vector2
+from pygame import Vector2, Surface
 
-from game.common_types import ColorValue, Coordinate
-from game.config import FPS
+from game.common_types import ColorValue, Coordinate, NumType
+from game.config import FPS, SCREEN_WIDTH, SCREEN_HEIGHT
 from game.custom_event import LEFT_CLICK, RIGHT_CLICK, SCROLL_UP, SCROLL_DOWN
 from game.logger import logger
 from game.utils import Cache, EventHandler
@@ -22,10 +23,10 @@ class View:
 
     def __init__(
         self,
-        size: Coordinate = None,
-        caption: str = None,
-        icon: pygame.Surface = None,
-        bg_color: ColorValue = None,
+        size: Optional[Coordinate] = None,
+        caption: Optional[str] = None,
+        icon: Optional[Surface] = None,
+        bg_color: Optional[ColorValue] = None,
     ):
         """
         Initialize the View
@@ -36,14 +37,18 @@ class View:
         :param bg_color: View background color
         """
         logger.debug(f" initialise new view: {self}")
+        if not size:
+            size = (SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.width: NumType
+        self.height: NumType
         self.width, self.height = size
         self.size = Vector2(size)
 
         # set caption and icon
-        self.caption = caption
+        self.caption = caption or "Pygame Window"
         if self.caption:
             logger.debug(f" set caption: {self.caption}")
-            pygame.display.set_caption(caption)
+            pygame.display.set_caption(self.caption)
         if icon:
             logger.debug(f" set icon: {icon}")
             pygame.display.set_icon(icon)
@@ -145,9 +150,9 @@ class View:
     def change_views(
         self,
         next_view_path,
-        caption: str = None,
-        size: Coordinate = None,
-        bg_color=None,
+        caption: Optional[str] = None,
+        size: Optional[Coordinate] = None,
+        bg_color: Optional[ColorValue] = None,
         check_cache: bool = True,
     ):
         """
