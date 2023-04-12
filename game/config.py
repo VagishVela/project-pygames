@@ -13,6 +13,6 @@ LOGGER_LEVEL = logging.DEBUG  # development
 # LOGGER_LEVEL = logging.WARNING    # production
 
 # Store meta
-STORE_PADDING = 100
+STORE_PADDING = int(TILE_SIZE * 1.33)
 STORE_BG = (50, 50, 50)
 STORE_SCROLL_SPEED = 20
