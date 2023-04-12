@@ -4,7 +4,7 @@ import typing
 from typing import Optional, Iterable, Callable
 
 import pygame
-from pygame import Surface
+from pygame import Surface, Rect
 
 from game.common_types import ColorValue, NumType
 from game.utils.text import Text
@@ -22,7 +22,7 @@ class Button:
         dimensions: tuple[NumType, NumType],
         text: str = "Button",
         on_click: Optional[Callable] = None,
-        once: bool = False,
+        once: bool = True,
     ):
         """Initialize the button"""
         self.x, self.y = xy
@@ -38,7 +38,7 @@ class Button:
         }
 
         self.button_surface = Surface((self.width, self.height))
-        self.button_rect = pygame.Rect(
+        self.button_rect = Rect(
             self.x - self.width / 2, self.y - self.height / 2, self.width, self.height
         )
         self.already_pressed = False
@@ -118,4 +118,4 @@ class MenuButton(Button):
         if self._on_click:
             # if there's something to do before switching views
             self._on_click()
-        self.view.change_views(self.link_to_path)
+        self.view.change_views(self.link_to_path, self.link_to_path.split(".")[-1])
