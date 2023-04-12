@@ -29,14 +29,11 @@ class Div(Scrollable):
     def __init__(self, caption):
         super().__init__()
         self.caption = caption
-        self.rect = None
 
     def draw(self, screen: Surface, rect):
         """Draw the rect and caption"""
 
         surface = Surface(screen.get_size(), pygame.SRCALPHA)
-        self.rect = pygame.Rect(rect)
-        rect = self.rect
         rect[1] += self.offset[1]
         pygame.draw.rect(surface, "white", rect, 10, 5)
 
@@ -52,17 +49,3 @@ class Div(Scrollable):
             )
             text.blit_into(surface)
         screen.blit(surface, (0, 0))
-
-        # on click behaviour
-        self.on_click()
-
-    def on_click(self):
-        """Called if the rect is clicked"""
-
-        mouse_pos = pygame.mouse.get_pos()
-        if self.rect.collidepoint(mouse_pos):
-            if e := pygame.event.get(pygame.MOUSEBUTTONDOWN):
-                if e[0].button != 1:
-                    pygame.event.post(e[0])
-                    return
-                print("pressed!")

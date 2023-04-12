@@ -13,3 +13,6 @@ LEFT_CLICK = CustomEvent({"pos": ..., "button": "left"})
 RIGHT_CLICK = CustomEvent({"pos": ..., "button": "right"})
 SCROLL_UP = CustomEvent({"pos": ..., "mode": "up"})
 SCROLL_DOWN = CustomEvent({"pos": ..., "mode": "down"})
+
+# to be used in the store
+ITEM_FOCUSED = CustomEvent({"item": ...})

@@ -1,12 +1,18 @@
 """This module consists of the sprite groups used in the game"""
 
 import bisect
+from typing import Optional
 
+import pygame
 from pygame import Surface, Vector2
 from pygame.sprite import Group
 
 from game.config import STORE_PADDING
-from game.entities.item import ItemTypes
+from game.custom_event import ITEM_FOCUSED, LEFT_CLICK
+from game.entities.item import ItemTypes, StoreItem
+from game.logger import logger
+
+logger = logger.getChild("entities.item")
 
 
 class NotPlayer(Group):
@@ -45,12 +51,14 @@ class StoreItems(Group):
         self.potion_offset = Vector2(0, 0)
 
         # store the sprites with their positions
-        self.atk_sprites = []
-        self.def_sprites = []
-        self.potion_sprites = []
+        self.sprite_pos = []
+        self.sprite_rects = []
 
         # if inventory changed
         self._changed = False
+
+        # currently active item
+        self.active_item = None
 
     def add_internal(self, sprite, layer: None = None) -> None:
         self.spritedict[sprite] = None
@@ -89,8 +97,8 @@ class StoreItems(Group):
                     self.atk_offset[1] += STORE_PADDING * 1.2
                     self.atk_offset[0] = 0
                 pos = Vector2(STORE_PADDING, STORE_PADDING) + self.atk_offset
-                self.atk_sprites.append((sprite, pos))
-                sprite.draw(surface, pos)
+                self.sprite_pos.append((sprite, pos))
+                self.sprite_rects.append(sprite.draw(surface, pos))
                 self.atk_offset[0] += STORE_PADDING * 1.2
 
             self.def_offset = Vector2(0, self.atk_offset[1] + STORE_PADDING * 2.5)
@@ -102,8 +110,8 @@ class StoreItems(Group):
                     self.def_offset[1] += STORE_PADDING * 1.2
                     self.def_offset[0] = 0
                 pos = Vector2(STORE_PADDING, STORE_PADDING) + self.def_offset
-                self.def_sprites.append((sprite, pos))
-                sprite.draw(surface, pos)
+                self.sprite_pos.append((sprite, pos))
+                self.sprite_rects.append(sprite.draw(surface, pos))
                 self.def_offset[0] += STORE_PADDING * 1.2
 
             self.potion_offset = Vector2(0, self.def_offset[1] + STORE_PADDING * 2.5)
@@ -115,21 +123,46 @@ class StoreItems(Group):
                     self.potion_offset[1] += STORE_PADDING * 1.2
                     self.potion_offset[0] = 0
                 pos = Vector2(STORE_PADDING, STORE_PADDING) + self.potion_offset
-                self.potion_sprites.append((sprite, pos))
-                sprite.draw(surface, pos)
+                self.sprite_pos.append((sprite, pos))
+                self.sprite_rects.append(sprite.draw(surface, pos))
                 self.potion_offset[0] += STORE_PADDING * 1.2
 
             self._changed = False
         else:
-            for sprite in self.atk_sprites:
-                sprite, pos = sprite
+            for sprite, pos in self.sprite_pos:
                 sprite.draw(surface, pos)
-            for sprite in self.def_sprites:
-                sprite, pos = sprite
-                sprite.draw(surface, pos)
-            for sprite in self.potion_sprites:
-                sprite, pos = sprite
-                sprite.draw(surface, pos)
+                if self.active_item:
+                    if sprite.name == self.active_item.name:
+                        sprite.on_focus = True
+                    else:
+                        sprite.on_focus = False
+
+    def on_update(self) -> Optional[StoreItem]:
+        """To be invoked from the view update method"""
+
+        # onclick events
+        mouse_pos = Vector2(pygame.mouse.get_pos())
+        # item_clicked = False
+
+        for rect, sprite in self.sprite_rects:
+            if rect.collidepoint(mouse_pos):
+                if LEFT_CLICK.get():
+                    ITEM_FOCUSED.post({"item": sprite})
+                    logger.debug(f"pressed! {sprite.name}")
+                    # item_clicked = True
+                    break
+
+        # todo: if user clicks outside items, set active_item to None
+        # if not item_clicked:
+        #     if LEFT_CLICK.get():
+        #         self.active_item = None
+        #         for sprite in self.sprites():
+        #             sprite.on_focus = False
+
+        if e := ITEM_FOCUSED.get():
+            logger.debug(f"event received {e.item.name} is active")
+            self.active_item = e.item
+        return self.active_item
 
     def scroll(self, dx, dy):
         """scroll the items up or down"""

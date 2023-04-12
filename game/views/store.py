@@ -1,7 +1,7 @@
 """This module implements the Store class"""
 from game.config import STORE_PADDING, STORE_BG, STORE_SCROLL_SPEED
 from game.entities.groups import StoreItems
-from game.entities.item import StoreItem, StoreDiv
+from game.entities.item import StoreItem, StoreDiv, StoreFooter
 from game.utils.div import Div
 from game.views import View
 
@@ -94,10 +94,14 @@ class Store(View):
                 ],
             }
         )
+        self.footer = StoreFooter()
 
     def on_draw(self):
         self.items.draw(self.screen)
         self.divs.draw(self.screen)
+        self.footer.draw(self.screen)
+
+    def on_update(self):
         self.divs.update_rect(
             {
                 "ATK": (
@@ -124,6 +128,8 @@ class Store(View):
                 ),
             }
         )
+        active_item = self.items.on_update()
+        self.footer.update(active_item)
 
     def on_scroll(self, event):
         if event.mode == "up":

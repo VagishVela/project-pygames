@@ -6,9 +6,12 @@ import pygame
 from pygame import Surface, Vector2
 from pygame.sprite import Sprite
 
-from game.config import STORE_PADDING, STORE_BG, TILE_SIZE
-from game.utils import Text
+from game.config import STORE_PADDING, STORE_BG, TILE_SIZE, STORE_ON_FOCUS
+from game.logger import logger
+from game.utils import Text, Button
 from game.utils.div import Div, Scrollable
+
+logger = logger.getChild("entities.item")
 
 
 class ItemTypes(IntEnum):
@@ -79,11 +82,14 @@ class StoreItem(Sprite, Scrollable):
             pygame.image.load(self.item.img_path), (TILE_SIZE, TILE_SIZE)
         )
         self.rect = self.image.get_rect()
+        self.on_focus = False
 
     def draw(self, screen: Surface, pos):
         """Draw the item"""
 
         surface = Surface((STORE_PADDING, STORE_PADDING), pygame.SRCALPHA)
+        if self.on_focus:
+            surface.fill(STORE_ON_FOCUS)
         name = Text(
             self.name,
             pygame.font.get_default_font(),
@@ -93,8 +99,26 @@ class StoreItem(Sprite, Scrollable):
             "white",
         )
         name.blit_into(surface)
-        surface.blit(self.image, (STORE_PADDING / 2 - 36, 0))
+        surface.blit(self.image, (STORE_PADDING / 2 - TILE_SIZE / 2, 0))
         screen.blit(surface, Vector2(pos) + self.offset)
+
+        rect = surface.get_rect()
+        rect.x, rect.y = Vector2(pos) + self.offset
+
+        return rect, self
+
+    def buy(self):
+        """Buy this item"""
+        # todo: expand this
+        return f"{self} was bought!"
+
+    def use(self):
+        """Use this item"""
+        # todo: expand this
+        return f"{self} was used!"
+
+    def __repr__(self):
+        return f"<StoreItem: {self.name}>"
 
 
 # alias
@@ -105,8 +129,7 @@ class StoreDiv(Div):
         """Draw the rect and caption"""
 
         surface = Surface(screen.get_size(), pygame.SRCALPHA)
-        self.rect = pygame.Rect(rect)
-        rect = self.rect
+        rect = list(rect)
         rect[1] += self.offset[1]
         pygame.draw.rect(surface, "white", rect, 10, 5)
 
@@ -123,5 +146,56 @@ class StoreDiv(Div):
             text.blit_into(surface)
         screen.blit(surface, (0, 0))
 
-        # on click behaviour
-        self.on_click()
+
+class StoreFooter(Div):
+    """Div customised for use as Store footer"""
+
+    def __init__(self):
+        super().__init__("")
+        self.buttons = {}
+        self.active_item = None
+
+    def draw(self, screen: Surface, rect=None):
+        """Draw the rect and caption"""
+
+        height = 100
+        border = 2
+
+        surface = Surface((screen.get_width(), height))
+        rect = (0, 0, screen.get_width(), height)
+        surface.fill(STORE_BG)
+        pygame.draw.rect(surface, "white", rect, border, 5)
+
+        # -------------- buttons ------------ #
+
+        if not self.buttons.get("buy"):
+            self.buttons["buy"] = Button(
+                (surface.get_width() / 2 - 150, screen.get_height() - height / 2),
+                (50, 50),
+                "Buy",
+                on_click=lambda: print(
+                    "pressed!", self.active_item.buy() if self.active_item else None
+                ),
+            )
+        if not self.buttons.get("use"):
+            self.buttons["use"] = Button(
+                (surface.get_width() / 2 + 150, screen.get_height() - height / 2),
+                (50, 50),
+                "Use",
+                on_click=lambda: print(
+                    "pressed!", self.active_item.use() if self.active_item else None
+                ),
+            )
+
+        # -------------- blit --------------- #
+
+        screen.blit(surface, (0, screen.get_height() - height))
+        for buttons in self.buttons.values():
+            buttons.blit_into(screen, size=STORE_PADDING // 3)
+
+    def update(self, active_item):
+        """To be invoked from the view update method"""
+
+        self.active_item = active_item
+        for buttons in self.buttons.values():
+            buttons.update()
