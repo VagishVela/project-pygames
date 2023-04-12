@@ -7,3 +7,9 @@ from game.utils.eventhandler import CustomEvent
 MOVED = CustomEvent()
 # if player encounters an enemy
 ENEMY_ENCOUNTERED = CustomEvent()
+
+# make mouse controls easier
+LEFT_CLICK = CustomEvent({"pos": ..., "button": "left"})
+RIGHT_CLICK = CustomEvent({"pos": ..., "button": "right"})
+SCROLL_UP = CustomEvent({"pos": ..., "mode": "up"})
+SCROLL_DOWN = CustomEvent({"pos": ..., "mode": "down"})

@@ -4,6 +4,7 @@ from importlib import import_module
 import pygame
 from pygame import Vector2
 
+from game.custom_event import LEFT_CLICK, RIGHT_CLICK, SCROLL_UP, SCROLL_DOWN
 from game.logger import logger
 from game.common_types import ColorValue, Coordinate
 from game.config import FPS
@@ -64,9 +65,14 @@ class View:
             logger.debug(f" {event}")
             self._running = False
 
+        # on_mouse_down
+        self.events.register(pygame.MOUSEBUTTONDOWN)(self._on_mouse_down)
         # on_click
-        self.events.register(pygame.MOUSEBUTTONDOWN)(self.on_click)
-        # on_keydown
+        self.events.register(LEFT_CLICK.type)(self.on_click)
+        self.events.register(RIGHT_CLICK.type)(self.on_click)
+        # on_scroll
+        self.events.register(SCROLL_UP.type)(self.on_scroll)
+        self.events.register(SCROLL_DOWN.type)(self.on_scroll)
         self.events.register(pygame.KEYDOWN)(self.on_keydown)
 
     def on_draw(self):
@@ -113,8 +119,23 @@ class View:
                 self._refresh()
         self.exit()
 
+    @staticmethod
+    def _on_mouse_down(event):
+        match event.button:
+            case 1:
+                LEFT_CLICK.post({"pos": event.pos})
+            case 3:
+                RIGHT_CLICK.post({"pos": event.pos})
+            case 4:
+                SCROLL_UP.post({"pos": event.pos})
+            case 5:
+                SCROLL_DOWN.post({"pos": event.pos})
+
     def on_click(self, event):
         """Called when the mouse is clicked"""
+
+    def on_scroll(self, event):
+        """Called when the mouse is scrolled"""
 
     def on_keydown(self, event):
         """Called when a key is pressed"""
