@@ -5,7 +5,8 @@ import pygame
 from pygame.sprite import Group
 
 from game.custom_event import MOVED, ENEMY_ENCOUNTERED
-from game.entities.enemy import Enemy, NotPlayer
+from game.entities.enemy import Enemy
+from game.entities.groups import NotPlayer
 from game.entities.player import Player
 from game.entities.walls import Wall
 from game.level_gen import Level

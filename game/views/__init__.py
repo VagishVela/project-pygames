@@ -4,10 +4,10 @@ from importlib import import_module
 import pygame
 from pygame import Vector2
 
-from game.custom_event import LEFT_CLICK, RIGHT_CLICK, SCROLL_UP, SCROLL_DOWN
-from game.logger import logger
 from game.common_types import ColorValue, Coordinate
 from game.config import FPS
+from game.custom_event import LEFT_CLICK, RIGHT_CLICK, SCROLL_UP, SCROLL_DOWN
+from game.logger import logger
 from game.utils import Cache, EventHandler
 
 # used to cache views
@@ -73,6 +73,7 @@ class View:
         # on_scroll
         self.events.register(SCROLL_UP.type)(self.on_scroll)
         self.events.register(SCROLL_DOWN.type)(self.on_scroll)
+        # on_keydown
         self.events.register(pygame.KEYDOWN)(self.on_keydown)
 
     def on_draw(self):
