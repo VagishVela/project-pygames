@@ -1,5 +1,5 @@
 """This module implements the Store class"""
-
+from game.config import STORE_PADDING, STORE_BG, STORE_SCROLL_SPEED
 from game.entities.groups import StoreItems
 from game.entities.item import StoreItem, StoreDiv
 from game.utils.div import Div
@@ -40,12 +40,21 @@ class Store(View):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.bg_color = (50, 50, 50)
+        self.bg_color = STORE_BG
 
         self.items = StoreItems()
 
         # list the items
-        _items = ["knife", "shield", "potion"]
+        _items = [
+            "knife1",
+            "knife2",
+            "knife3",
+            "knife4",
+            "knife5",
+            "shield1",
+            "shield2",
+            "potion",
+        ]
         for item in _items:
             item = StoreItem(item)
             item.add(self.items)
@@ -54,24 +63,33 @@ class Store(View):
             {
                 "ATK": [
                     StoreDiv("ATK"),
-                    (50, 50, self.width - 100, self.items.atk_offset[1] + 200),
+                    (
+                        STORE_PADDING / 2,
+                        STORE_PADDING / 2,
+                        self.width - STORE_PADDING,
+                        self.items.atk_offset[1] + 2 * STORE_PADDING,
+                    ),
                 ],
                 "DEF": [
                     StoreDiv("DEF"),
                     (
-                        50,
-                        self.items.atk_offset[1] + 300,
-                        self.width - 100,
-                        self.items.def_offset[1] - self.items.atk_offset[1] - 50,
+                        STORE_PADDING / 2,
+                        self.items.atk_offset[1] + 3 * STORE_PADDING,
+                        self.width - STORE_PADDING,
+                        self.items.def_offset[1]
+                        - self.items.atk_offset[1]
+                        - STORE_PADDING / 2,
                     ),
                 ],
                 "POTION": [
                     StoreDiv("POTION"),
                     (
-                        50,
-                        self.items.def_offset[1] + 300,
-                        self.width - 100,
-                        self.items.potion_offset[1] - self.items.def_offset[1] - 50,
+                        STORE_PADDING / 2,
+                        self.items.def_offset[1] + 3 * STORE_PADDING,
+                        self.width - STORE_PADDING,
+                        self.items.potion_offset[1]
+                        - self.items.def_offset[1]
+                        - STORE_PADDING / 2,
                     ),
                 ],
             }
@@ -82,26 +100,35 @@ class Store(View):
         self.divs.draw(self.screen)
         self.divs.update_rect(
             {
-                "ATK": (50, 50, self.width - 100, self.items.atk_offset[1] + 200),
+                "ATK": (
+                    STORE_PADDING / 2,
+                    STORE_PADDING / 2,
+                    self.width - STORE_PADDING,
+                    self.items.atk_offset[1] + 2 * STORE_PADDING,
+                ),
                 "DEF": (
-                    50,
-                    self.items.atk_offset[1] + 300,
-                    self.width - 100,
-                    self.items.def_offset[1] - self.items.atk_offset[1] - 50,
+                    STORE_PADDING / 2,
+                    self.items.atk_offset[1] + 3 * STORE_PADDING,
+                    self.width - STORE_PADDING,
+                    self.items.def_offset[1]
+                    - self.items.atk_offset[1]
+                    - STORE_PADDING / 2,
                 ),
                 "POTION": (
-                    50,
-                    self.items.def_offset[1] + 300,
-                    self.width - 100,
-                    self.items.potion_offset[1] - self.items.def_offset[1] - 50,
+                    STORE_PADDING / 2,
+                    self.items.def_offset[1] + 3 * STORE_PADDING,
+                    self.width - STORE_PADDING,
+                    self.items.potion_offset[1]
+                    - self.items.def_offset[1]
+                    - STORE_PADDING / 2,
                 ),
             }
         )
 
     def on_scroll(self, event):
         if event.mode == "up":
-            self.items.scroll(0, 20)
-            self.divs.scroll(0, 20)
+            self.items.scroll(0, STORE_SCROLL_SPEED)
+            self.divs.scroll(0, STORE_SCROLL_SPEED)
         elif event.mode == "down":
-            self.items.scroll(0, -20)
-            self.divs.scroll(0, -20)
+            self.items.scroll(0, -STORE_SCROLL_SPEED)
+            self.divs.scroll(0, -STORE_SCROLL_SPEED)
