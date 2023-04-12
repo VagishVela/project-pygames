@@ -57,8 +57,10 @@ class CustomEvent:
         else:
             raise pygame.error("Number of custom type events exceeded pygame limit")
 
-    def post(self, _dict: dict[str, ...] = ...) -> None:
+    def post(self, _dict=None) -> None:
         """post the event on the pygame events queue"""
+        if _dict is None:
+            _dict = {}
         self.event.dict.update(_dict)
         pygame.event.post(self.event)
 
