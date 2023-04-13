@@ -1,6 +1,7 @@
 """ This module implements the Button class """
+import importlib
 import typing
-from typing import Iterable, Callable, Tuple
+from typing import Iterable, Callable
 
 import pygame
 
@@ -44,26 +45,25 @@ class Button:
             self.x - self.width / 2, self.y - self.height / 2, self.width, self.height
         )
         self.already_pressed = False
+        self.left_click = getattr(
+            importlib.import_module("game.custom_event"), "LEFT_CLICK"
+        )
 
     def update(self):
         """Process mouse input"""
-
-        pygame.event.pump()  # Update internal state of pygame
 
         mouse_pos = pygame.mouse.get_pos()
         self.button_surface.fill(self.fill_colors["normal"])
 
         if self.button_rect.collidepoint(mouse_pos):
-            if pygame.event.get(pygame.MOUSEBUTTONDOWN):
+            self.button_surface.fill(self.fill_colors["hover"])
+            if self.left_click.get():
                 self.button_surface.fill(self.fill_colors["pressed"])
                 if self.once:
                     self.on_click()
                 elif not self.already_pressed:
                     self.on_click()
                     self.already_pressed = True
-
-        if self.button_rect.collidepoint(mouse_pos):
-            self.button_surface.fill(self.fill_colors["hover"])
         else:
             self.already_pressed = False
 
@@ -105,8 +105,8 @@ class MenuButton(Button):
     def __init__(
         self,
         view: "View",
-        xy: Tuple[NumType, NumType],
-        dimensions: Tuple[NumType, NumType],
+        xy: tuple[NumType, NumType],
+        dimensions: tuple[NumType, NumType],
         view_path: str,
         text: str = "Button",
         on_click=None,
