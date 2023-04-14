@@ -1,4 +1,5 @@
 """This module implements the Store class"""
+
 from game.config import STORE_PADDING, STORE_BG, STORE_SCROLL_SPEED
 from game.entities.groups import StoreItems
 from game.entities.item import StoreItem, StoreDiv, StoreFooter
