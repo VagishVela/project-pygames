@@ -56,6 +56,7 @@ class DataIO:
     """Work with the savefile and perform FileIO operations"""
 
     def __init__(self, file="game/data/game.dat"):
+        self.temp = None
         self.slot = None
         self.file = file
         self._data = None  # raw
@@ -108,6 +109,10 @@ class DataIO:
     def get(self, key):
         """get attributes from a loaded slot"""
         return self.data.get_slot(self.slot)[key]
+
+    def save_temp(self, loc, defeated):
+        """Save a slot temporarily"""
+        self.temp = (loc, defeated)
 
 
 game_data = DataIO()

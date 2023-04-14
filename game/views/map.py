@@ -58,7 +58,7 @@ class Map(View):
             case pygame.K_RIGHT | pygame.K_d:
                 self.level.move(-1, 0)
             case pygame.K_ESCAPE:
-                self.save_data()
+                self.save_data(temp=True)
                 logger.debug(" game paused")
                 self.change_views("pause.Pause", caption="Paused")
                 return
@@ -83,11 +83,14 @@ class Map(View):
                             self._cur.append(self._w_hash[(x, y)])
             self._moved = False
 
-    def save_data(self):
+    def save_data(self, temp=False):
         """Save the data"""
 
         logger.debug(" saving data...")
-        game_data.save(self.level.loc, [])
+        if not temp:
+            game_data.save(self.level.loc, [])
+        else:
+            game_data.save_temp(self.level.loc, [])
         logger.debug(" saved data!")
 
     def load_data(self, state):
