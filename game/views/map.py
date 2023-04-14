@@ -4,13 +4,18 @@ import itertools
 import pygame
 from pygame.sprite import Group
 
-from game.entities.enemy import Enemy, NotPlayer
+from game.custom_event import MOVED, ENEMY_ENCOUNTERED
+from game.entities.enemy import Enemy
+from game.entities.groups import NotPlayer
 from game.entities.player import Player
 from game.entities.walls import Wall
 from game.level_gen import Level
-from game.views import View
+from game.views import View, logger
 
+# store game data
 data = {}
+# get logger
+logger.getChild("map")
 
 
 class Map(View):
@@ -48,27 +53,27 @@ class Map(View):
             self._w_hash[(i, j)].visible = False
 
     def on_draw(self):
-        self.screen.fill("black")
         self.not_player.draw(self.screen)
         self.player.draw(self.screen)
 
     def on_keydown(self, event):
-        self._moved = [False, "nr"]
         match event.key:
             case pygame.K_UP | pygame.K_w:
-                self._moved = self.level.move(0, 1)
+                self.level.move(0, 1)
             case pygame.K_DOWN | pygame.K_s:
-                self._moved = self.level.move(0, -1)
+                self.level.move(0, -1)
             case pygame.K_LEFT | pygame.K_a:
-                self._moved = self.level.move(1, 0)
+                self.level.move(1, 0)
             case pygame.K_RIGHT | pygame.K_d:
-                self._moved = self.level.move(-1, 0)
+                self.level.move(-1, 0)
             case pygame.K_ESCAPE:
+                logger.debug(" game paused")
                 self.change_views("pause.Pause", caption="Paused")
-
-        if self._moved[0]:
+                return
+        if MOVED.get():
             self.not_player.disappear(self._cur)
-        elif self._moved[1] == "e":
+        if ENEMY_ENCOUNTERED.get():
+            logger.debug(" enemy encountered!")
             self.change_views("battle.Battle", caption="Battle")
 
     def on_update(self):

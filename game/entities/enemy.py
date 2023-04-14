@@ -2,7 +2,7 @@
 
 import pygame.image
 from pygame import Surface
-from pygame.sprite import Sprite, Group
+from pygame.sprite import Sprite
 
 
 class Enemy(Sprite):
@@ -36,23 +36,3 @@ class Enemy(Sprite):
     def draw(self, screen: Surface):
         """Draw the enemy"""
         screen.blit(self.image, self.pos)
-
-
-class NotPlayer(Group):
-    """Group for the enemies"""
-
-    def __init__(self):
-        """Initialize the NotPlayer group"""
-        super().__init__()
-
-    def draw(self, surface: Surface, bgsurf=None, special_flags: int = 0):
-        """Draw the enemies"""
-        for sprite in self.sprites():
-            if sprite.visible:
-                sprite.draw(surface)
-
-    def disappear(self, sprites):
-        """Make the enemies disappear"""
-        for sprite in sprites:
-            if sprite in self.sprites():
-                sprite.visible = False

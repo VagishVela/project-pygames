@@ -1,7 +1,5 @@
 """ This module implements the EventHandler class """
 
-from collections import defaultdict
-
 import pygame.event
 
 
@@ -10,10 +8,12 @@ class EventHandler:
 
     def __init__(self):
         """Initialize the event handler"""
-        self.events = defaultdict(list)
+        self.events = {}
 
-    def register(self, key):
+    def register(self, key: int):
         """Register a function to an event"""
+        if key not in self.events:
+            self.events[key] = []
 
         def _register(func):
             """Register a function to an event"""
@@ -21,7 +21,7 @@ class EventHandler:
 
         return _register
 
-    def unregister(self, key):
+    def unregister(self, key: int):
         """Unregister a function from an event"""
         self.events.get(key).clear()
 
@@ -39,3 +39,33 @@ class EventHandler:
         for e in pygame.event.get():
             if (key := e.type) in self.events:
                 self.invoke(key, e)
+
+
+class CustomEvent:
+    """Creates a custom event"""
+
+    # total number of custom events limited by pygame
+    num_left = 32668
+
+    def __init__(self, _dict=None):
+        if _dict is None:
+            _dict = {}
+        if CustomEvent.num_left:
+            self.type = pygame.event.custom_type()
+            CustomEvent.num_left -= 1
+            self.event = pygame.event.Event(self.type, _dict)
+        else:
+            raise pygame.error("Number of custom type events exceeded pygame limit")
+
+    def post(self, _dict=None) -> None:
+        """post the event on the pygame events queue"""
+        if _dict is None:
+            _dict = {}
+        self.event.dict.update(_dict)
+        pygame.event.post(self.event)
+
+    def get(self) -> pygame.event.Event | None:
+        """get the event state from the pygame events queue"""
+        if e := pygame.event.get(self.type):
+            return e[0]
+        return None
