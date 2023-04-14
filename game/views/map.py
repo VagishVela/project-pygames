@@ -4,6 +4,7 @@ import itertools
 import pygame
 from pygame.sprite import Group
 
+from game.config import SCREEN_WIDTH, SCREEN_HEIGHT
 from game.custom_event import MOVED, ENEMY_ENCOUNTERED
 from game.entities.enemy import Enemy
 from game.entities.groups import NotPlayer
@@ -21,36 +22,24 @@ logger.getChild("map")
 class Map(View):
     """Map view"""
 
-    player: Player
-    not_player: NotPlayer
+    player = Player()
+    not_player = NotPlayer()
+    enemies = Group()
+    level = Level()
+    _e_hash = {}
+    _w_hash = {}
+    _initiated = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.player = Player()
-        self.not_player = NotPlayer()
-        self.enemies = Group()
-        self.level = Level()
 
         self.speed = 5
 
-        self._e_hash = {}
-        self._w_hash = {}
         self._cur = []
-        self._moved = [False, "nr"]
+        self._moved = False
 
-        for i, j in itertools.product(range(9), range(9)):
-            self._e_hash[(i, j)] = Enemy(
-                (i - 4.5) * self.width / 9 + self.width / 2,
-                (j - 4.5) * self.height / 9 + self.height / 2,
-            )
-            self._e_hash[(i, j)].add(self.enemies, self.not_player)
-            self._e_hash[(i, j)].visible = False
-            self._w_hash[(i, j)] = Wall(
-                (i - 4.5) * self.width / 9 + self.width / 2,
-                (j - 4.5) * self.height / 9 + self.height / 2,
-            )
-            self._w_hash[(i, j)].add(self.not_player)
-            self._w_hash[(i, j)].visible = False
+        if not Map._initiated:
+            Map.initiate()
 
     def on_draw(self):
         self.not_player.draw(self.screen)
@@ -72,6 +61,7 @@ class Map(View):
                 return
         if MOVED.get():
             self.not_player.disappear(self._cur)
+            self._moved = True
         if ENEMY_ENCOUNTERED.get():
             logger.debug(" enemy encountered!")
             self.change_views("battle.Battle", caption="Battle")
@@ -88,6 +78,7 @@ class Map(View):
                         case "w":
                             self._w_hash[(x, y)].visible = True
                             self._cur.append(self._w_hash[(x, y)])
+            self._moved = False
 
     def save_data(self):
         """Save the data"""
@@ -100,3 +91,25 @@ class Map(View):
         """Terminate the view"""
         self.not_player.disappear(self._cur)
         self.level.loc = [0, 0]
+
+    @classmethod
+    def initiate(cls):
+        """Initiate all the sprites the map ever needs"""
+
+        # generating sprites is an expensive process, so if done mid-game,
+        # it would make the game very clunky
+
+        for i, j in itertools.product(range(9), range(9)):
+            cls._e_hash[(i, j)] = Enemy(
+                (i - 4.5) * SCREEN_WIDTH / 9 + SCREEN_WIDTH / 2,
+                (j - 4.5) * SCREEN_HEIGHT / 9 + SCREEN_HEIGHT / 2,
+            )
+            cls._e_hash[(i, j)].add(cls.enemies, cls.not_player)
+            cls._e_hash[(i, j)].visible = False
+            cls._w_hash[(i, j)] = Wall(
+                (i - 4.5) * SCREEN_WIDTH / 9 + SCREEN_WIDTH / 2,
+                (j - 4.5) * SCREEN_HEIGHT / 9 + SCREEN_HEIGHT / 2,
+            )
+            cls._w_hash[(i, j)].add(cls.not_player)
+            cls._w_hash[(i, j)].visible = False
+            cls._initiated = True
