@@ -43,10 +43,12 @@ class Battle(View):
     def on_update(self):
         """Called every frame"""
 
-    def win_game(self):
+    def win_battle(self):
         """Called when the player wins"""
+        # TODO have a screen that shows the player won
         # TODO Set the player abilities and health
         # TODO Go the the win view or map view
+        self.change_views("map.Map", caption="Map")
 
     def game_over(self):
         """Called when the player dies"""
@@ -72,7 +74,7 @@ class Battle(View):
         elif isinstance(_to, Enemy):
             _to.abilities["health"] -= power
             if _to.abilities["health"] <= 0:
-                self.win_game()
+                self.win_battle()
 
         self.waiting_for_enemy = True
         attack_name = [
@@ -231,5 +233,4 @@ class Battle(View):
                     # TODO if the player dies, have a screen that shows the player lost
                     self.waiting_for_enemy = False
                 else:
-                    # TODO have a screen that shows the player won
-                    self.change_views("map.Map", caption="Map")
+                    self.win_battle()
