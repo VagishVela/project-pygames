@@ -6,6 +6,7 @@ from pygame.sprite import Group
 
 from game.config import SCREEN_WIDTH, SCREEN_HEIGHT
 from game.custom_event import MOVED, ENEMY_ENCOUNTERED
+from game.data import game_data
 from game.entities.enemy import Enemy
 from game.entities.groups import NotPlayer
 from game.entities.player import Player
@@ -13,8 +14,6 @@ from game.entities.walls import Wall
 from game.level_gen import Level
 from game.views import View, logger
 
-# store game data
-data = {}
 # get logger
 logger.getChild("map")
 
@@ -30,7 +29,7 @@ class Map(View):
     _w_hash = {}
     _initiated = False
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, load_from=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.speed = 5
@@ -40,6 +39,9 @@ class Map(View):
 
         if not Map._initiated:
             Map.initiate()
+
+        if load_from is not None:
+            self.load_data(load_from)
 
     def on_draw(self):
         self.not_player.draw(self.screen)
@@ -56,6 +58,7 @@ class Map(View):
             case pygame.K_RIGHT | pygame.K_d:
                 self.level.move(-1, 0)
             case pygame.K_ESCAPE:
+                self.save_data()
                 logger.debug(" game paused")
                 self.change_views("pause.Pause", caption="Paused")
                 return
@@ -82,10 +85,20 @@ class Map(View):
 
     def save_data(self):
         """Save the data"""
-        data["player_pos"] = self.level.loc
-        data["e_hash"] = self._e_hash
-        data["w_hash"] = self._w_hash
-        print("saved data!")
+
+        logger.debug(" saving data...")
+        game_data.save(self.level.loc, [])
+        logger.debug(" saved data!")
+
+    def load_data(self, state):
+        """Load a saved state from the data"""
+
+        logger.debug(" loading data")
+        game_data.load(state)
+
+        # clear screen and set level state
+        self.not_player.disappear(self._cur)
+        self.level.loc = game_data.get("loc")
 
     def terminate(self):
         """Terminate the view"""
