@@ -13,9 +13,9 @@ from game.views import View
 class Battle(View):
     """The Battle view"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, size, caption, icon, bg_color):
         """Initialize the battle view"""
-        super().__init__(*args, **kwargs)
+        super().__init__(size, caption, icon, bg_color)
         self.my_turn = True
 
         self.player = Player()
