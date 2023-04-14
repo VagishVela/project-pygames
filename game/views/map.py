@@ -74,7 +74,7 @@ class Map(View):
             self.not_player.disappear(self._cur)
         if ENEMY_ENCOUNTERED.get():
             logger.debug(" enemy encountered!")
-            self.change_views("battle.Battle", caption="Battle")
+            self.change_views("battle.Battle", caption="Battle", check_cache=False)
 
     def on_update(self):
         if self._moved or not self._cur:
