@@ -22,9 +22,6 @@ logger = logger.getChild("views")
 class View:
     """An object representing the current 'view' on display"""
 
-    # special global status to the map view
-    game_view = None
-
     def __init__(
         self,
         size: Optional[Coordinate] = None,

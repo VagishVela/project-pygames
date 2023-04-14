@@ -1,4 +1,6 @@
 """This module implements the Store class"""
+import pygame
+
 from game.config import STORE_PADDING, STORE_BG, STORE_SCROLL_SPEED
 from game.entities.groups import StoreItems
 from game.entities.item import StoreItem, StoreDiv, StoreFooter
@@ -40,6 +42,7 @@ class Store(View):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.escape_to = None
         self.bg_color = STORE_BG
 
         self.items = StoreItems()
@@ -138,3 +141,10 @@ class Store(View):
         elif event.mode == "down":
             self.items.scroll(0, -STORE_SCROLL_SPEED)
             self.divs.scroll(0, -STORE_SCROLL_SPEED)
+
+    def pre_run(self, _spl_args):
+        self.escape_to = _spl_args["escape"]
+
+    def on_keydown(self, event):
+        if event.key == pygame.K_ESCAPE:
+            self.change_views(self.escape_to)

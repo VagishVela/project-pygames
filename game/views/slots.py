@@ -21,6 +21,7 @@ class Slots(View):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.escape_to = None
         self.bg_color = STORE_BG
         self.slot = 0
 
@@ -131,6 +132,9 @@ class Slots(View):
         logger.debug(f" switching views from {self} to {next_view}")
         next_view.run()
 
+    def pre_run(self, _spl_args):
+        self.escape_to = _spl_args["escape"]
+
     def on_keydown(self, event):
         if event.key == pygame.K_ESCAPE:
-            self.change_views("menu.Menu")
+            self.change_views(self.escape_to)
