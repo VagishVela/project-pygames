@@ -1,11 +1,11 @@
 """This module implements the classes required for the store"""
 
 from enum import Enum, IntEnum
-from typing import Self
+from typing import Self, NamedTuple
 
 import pygame
 from pygame import Surface, Vector2
-from pygame.rect import RectType
+from pygame.rect import RectType, Rect
 from pygame.sprite import Sprite
 
 from game.config import STORE_PADDING, STORE_BG, TILE_SIZE, STORE_ON_FOCUS
@@ -25,19 +25,23 @@ class ItemTypes(IntEnum):
     SPECIAL = 4
 
 
+# named tuples reduce the chance of error while entering data
+ITEM = NamedTuple("item", [("img_path", str), ("type", ItemTypes), ("name", str)])
+
+
 # pylint: disable=no-member
 class AllItems(Enum):
     """Enumerate all items for the store"""
 
     # itemID = (img_path, itemType, itemName)
-    knife1 = ("assets/knife.png", ItemTypes.ATK, "knife 1")
-    knife2 = ("assets/knife.png", ItemTypes.ATK, "knife 2")
-    knife3 = ("assets/knife.png", ItemTypes.ATK, "knife 3")
-    knife4 = ("assets/knife.png", ItemTypes.ATK, "knife 4")
-    knife5 = ("assets/knife.png", ItemTypes.ATK, "knife 5")
-    shield1 = ("assets/shield.png", ItemTypes.DEF, "shield 1")
-    shield2 = ("assets/shield.png", ItemTypes.DEF, "shield 2")
-    potion = ("assets/potion.png", ItemTypes.POTION, "potion")
+    knife1 = ITEM("assets/knife.png", ItemTypes.ATK, "knife 1")
+    knife2 = ITEM("assets/knife.png", ItemTypes.ATK, "knife 2")
+    knife3 = ITEM("assets/knife.png", ItemTypes.ATK, "knife 3")
+    knife4 = ITEM("assets/knife.png", ItemTypes.ATK, "knife 4")
+    knife5 = ITEM("assets/knife.png", ItemTypes.ATK, "knife 5")
+    shield1 = ITEM("assets/shield.png", ItemTypes.DEF, "shield 1")
+    shield2 = ITEM("assets/shield.png", ItemTypes.DEF, "shield 2")
+    potion = ITEM("assets/potion.png", ItemTypes.POTION, "potion")
 
     @property
     def img_path(self) -> str:
@@ -127,16 +131,17 @@ class StoreItem(Sprite, Scrollable):
 class StoreDiv(Div):
     """Div customised for use in Store"""
 
-    def draw(self, screen: Surface, rect):
+    def draw(self, screen: Surface, rect: RectType):
         """Draw the rect and caption"""
 
         surface = Surface(screen.get_size(), pygame.SRCALPHA)
-        rect = list(rect)
+        if isinstance(rect, tuple):
+            rect = Rect(rect)
         rect[1] += self.offset[1]
         pygame.draw.rect(surface, "white", rect, 10, 5)
 
         if self.caption:
-            text = Text(
+            Text(
                 self.caption,
                 pygame.font.get_default_font(),
                 rect[0] + STORE_PADDING,
@@ -144,8 +149,7 @@ class StoreDiv(Div):
                 STORE_PADDING // 3 * 2,
                 "white",
                 STORE_BG,
-            )
-            text.blit_into(surface)
+            ).blit_into(surface)
         screen.blit(surface, (0, 0))
 
 
@@ -160,7 +164,7 @@ class StoreFooter(Div):
     def draw(self, screen: Surface, rect=None):
         """Draw the rect and caption"""
 
-        height = 100
+        height = STORE_PADDING
         border = 2
 
         surface = Surface((screen.get_width(), height))
@@ -172,8 +176,11 @@ class StoreFooter(Div):
 
         if not self.buttons.get("buy"):
             self.buttons["buy"] = Button(
-                (surface.get_width() / 2 - 150, screen.get_height() - height / 2),
-                (50, 50),
+                (
+                    surface.get_width() / 2 - STORE_PADDING * 1.5,
+                    screen.get_height() - height / 2,
+                ),
+                (STORE_PADDING / 2, STORE_PADDING / 2),
                 "Buy",
                 on_click=lambda: print(
                     "pressed!", self.active_item.buy() if self.active_item else None
@@ -181,8 +188,11 @@ class StoreFooter(Div):
             )
         if not self.buttons.get("use"):
             self.buttons["use"] = Button(
-                (surface.get_width() / 2 + 150, screen.get_height() - height / 2),
-                (50, 50),
+                (
+                    surface.get_width() / 2 + STORE_PADDING * 1.5,
+                    screen.get_height() - height / 2,
+                ),
+                (STORE_PADDING / 2, STORE_PADDING / 2),
                 "Use",
                 on_click=lambda: print(
                     "pressed!", self.active_item.use() if self.active_item else None
