@@ -228,4 +228,8 @@ class Battle(View):
                         self.player,
                         random.choice(self.enemy.attacks)["power"],
                     )
+                    # TODO if the player dies, have a screen that shows the player lost
                     self.waiting_for_enemy = False
+                else:
+                    # TODO have a screen that shows the player won
+                    self.change_views("map.Map", caption="Map")
