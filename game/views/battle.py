@@ -16,21 +16,30 @@ class Battle(View):
         """Initialize the battle view"""
         super().__init__(size, caption, icon, bg_color)
         self.my_turn = True
+
         self.player = Player()
+        self.player.name = "Player"
         self.player.pos = (self.width * 0.1, self.height * 0.6)
+
         self.enemy = Enemy(self.width * 0.7, self.height * 0.25, (64, 64))
-        # attacks and menu
+        self.enemy.name = "Alien"
+
+        # -------- attacks and menu ----------- #
+
         self.attacks = [
             {"name": "Quick Attack", "power": 10},
             {"name": "Power Attack", "power": 20},
             {"name": "Super Attack", "power": 30},
             {"name": "Mega Attack", "power": 40},
         ]
+
         self.menu_width = 400
         self.menu_height = 300
         self.menu_x = self.width - self.menu_width - 20
         self.menu_y = self.height - self.menu_height - 20
-        # buttons
+
+        # -------- buttons ----------- #
+
         self.button_width = 160
         self.button_height = 60
         self.button_spacing = 20
@@ -38,6 +47,7 @@ class Battle(View):
         self.num_rows = (
             len(self.attacks) + self.num_buttons_per_row - 1
         ) // self.num_buttons_per_row
+
         self.current_attack = None
         self.waiting_for_enemy = False
 
@@ -57,28 +67,32 @@ class Battle(View):
 
     def attack(self, _from: Player | Enemy, _to: Player | Enemy, power: int):
         """Called when the player selects an attack"""
-        if self.waiting_for_enemy:
-            return
-
-        self.current_attack = {"name": "Player Attack", "power": power}
         if _from == self.player:
             if not self.my_turn:
                 return
             self.my_turn = False
-            self.waiting_for_enemy = True
         else:
             if self.my_turn:
                 return
             self.my_turn = True
-            self.waiting_for_enemy = False
 
-        _to.abilities["health"] -= power
-
-        if _to.abilities["health"] <= 0:
-            if isinstance(_to, Enemy):
-                self.win_game()
-            else:
+        if isinstance(_to, Player):
+            _to.abilities["health"] -= power
+            if _to.abilities["health"] <= 0:
                 self.game_over()
+        elif isinstance(_to, Enemy):
+            _to.abilities["health"] -= power
+            if _to.abilities["health"] <= 0:
+                self.win_game()
+
+        self.waiting_for_enemy = True
+        attack_name = [
+            attack["name"] for attack in _from.attacks if attack["power"] == power
+        ][0]
+        self.current_attack = {
+            "name": f"{_from.name} used {attack_name}!",
+            "power": power,
+        }
 
     def enemy_attack(self):
         """Randomly select an attack for the enemy and attack the player"""
@@ -224,9 +238,9 @@ class Battle(View):
             if button_rect.collidepoint(mouse_pos):
                 self.attack(self.player, self.enemy, attack["power"])
                 if self.enemy.abilities["health"] > 0:
-                    self.waiting_for_enemy = True
                     self.enemy_attack()
-                    pygame.time.set_timer(pygame.USEREVENT, 2000)
+                    # self.waiting_for_enemy = True
+                    # pygame.time.set_timer(pygame.USEREVENT, 2000)
                 return
 
     def on_timer(self, event):
