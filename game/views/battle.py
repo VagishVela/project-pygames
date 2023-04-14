@@ -24,9 +24,6 @@ class Battle(View):
         self.enemy = Enemy(self.width * 0.7, self.height * 0.25, (64, 64))
         self.dodge_timer = 0
         self.dodge_for_frames = 60
-        #        self.buttons
-
-        self.attack(self.player, self.enemy)  # remove this when inputs are working
 
     def on_update(self):
         """Called every frame"""
@@ -44,9 +41,24 @@ class Battle(View):
         # TODO Give the player some coins
         # TODO Go the the Game over view
 
-    def attack(self, _from: Player | Enemy, _to: Player | Enemy):
-        """Called when the player presses the A key"""
-        pass
+    def attack(self, _from: Player | Enemy, _to: Player | Enemy, power: int):
+        """Called when the player selects an attack"""
+        if _from == self.player:
+            if not self.my_turn:
+                return
+            self.my_turn = False
+        else:
+            if self.my_turn:
+                return
+            self.my_turn = True
+
+        _to.abilities["health"] -= power
+
+        if _to.abilities["health"] <= 0:
+            if isinstance(_to, Enemy):
+                self.win_game()
+            else:
+                self.game_over()
 
     def player_dodge(self):
         """Called when the player presses the space bar"""
@@ -143,4 +155,21 @@ class Battle(View):
 
     def on_click(self):
         """Called when the user clicks the mouse"""
-        pass
+        mouse_pos = pygame.mouse.get_pos()
+        for i, attack in enumerate(self.attacks):
+            row = i // self.num_buttons_per_row
+            col = i % self.num_buttons_per_row
+            button_x = (
+                self.menu_x
+                + col * (self.button_width + self.button_spacing)
+                + self.button_spacing
+            )
+            button_y = (
+                self.menu_y + row * (self.button_height + self.button_spacing) + 80
+            )
+            button_rect = pygame.Rect(
+                button_x, button_y, self.button_width, self.button_height
+            )
+            if button_rect.collidepoint(mouse_pos):
+                self.attack(self.player, self.enemy, attack["power"])
+                return
