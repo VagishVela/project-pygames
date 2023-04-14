@@ -3,6 +3,8 @@ import pygame
 from pygame import Surface
 from pygame.sprite import Sprite
 
+from game.config import TILE_SIZE
+
 
 class Wall(Sprite):
     """Class for the wall"""
@@ -11,7 +13,7 @@ class Wall(Sprite):
         """Initialize the wall"""
         super().__init__()
         self.image = pygame.transform.scale(
-            pygame.image.load("assets/wall.png"), (72, 72)
+            pygame.image.load("assets/wall.png"), (TILE_SIZE, TILE_SIZE)
         )
         self.pos = x, y
         self.rect = self.image.get_rect()

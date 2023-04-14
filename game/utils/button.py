@@ -1,11 +1,13 @@
 """ This module implements the Button class """
+import importlib
 import typing
-from typing import Iterable, Callable
+from typing import Optional, Iterable, Callable
 
 import pygame
+from pygame import Surface, Rect
 
 from game.common_types import ColorValue, NumType
-from game.utils import Text
+from game.utils.text import Text
 
 if typing.TYPE_CHECKING:
     from game.views import View
@@ -16,19 +18,15 @@ class Button:
 
     def __init__(
         self,
-        x: NumType,
-        y: NumType,
-        width: NumType,
-        height: NumType,
+        xy: tuple[NumType, NumType],
+        dimensions: tuple[NumType, NumType],
         text: str = "Button",
-        on_click: Callable = None,
-        once: bool = False,
+        on_click: Optional[Callable] = None,
+        once: bool = True,
     ):
         """Initialize the button"""
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
+        self.x, self.y = xy
+        self.width, self.height = dimensions
         self.on_click = on_click
         self.once = once
         self.text = text
@@ -39,40 +37,40 @@ class Button:
             "pressed": "#333333",
         }
 
-        self.button_surface = pygame.Surface((self.width, self.height))
-        self.button_rect = pygame.Rect(
+        self.button_surface = Surface((self.width, self.height))
+        self.button_rect = Rect(
             self.x - self.width / 2, self.y - self.height / 2, self.width, self.height
         )
         self.already_pressed = False
+        self.left_click = getattr(
+            importlib.import_module("game.custom_event"), "LEFT_CLICK"
+        )
 
     def update(self):
         """Process mouse input"""
 
-        pygame.event.pump()  # Update internal state of pygame
-
         mouse_pos = pygame.mouse.get_pos()
         self.button_surface.fill(self.fill_colors["normal"])
 
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN and self.button_rect.collidepoint(
-                mouse_pos
-            ):
+        if self.button_rect.collidepoint(mouse_pos):
+            self.button_surface.fill(self.fill_colors["hover"])
+            if self.left_click.get():
                 self.button_surface.fill(self.fill_colors["pressed"])
                 if self.once:
                     self.on_click()
                 elif not self.already_pressed:
                     self.on_click()
                     self.already_pressed = True
-
-        if self.button_rect.collidepoint(mouse_pos):
-            self.button_surface.fill(self.fill_colors["hover"])
         else:
             self.already_pressed = False
 
+    def __repr__(self):
+        return f"<Button {self.text}>"
+
     def blit_into(
         self,
-        surface: pygame.Surface,
-        font: str | bytes | Iterable[str | bytes] = None,
+        surface: Surface,
+        font: Optional[str | bytes | Iterable[str | bytes]] = None,
         size: int = 20,
         color: ColorValue = (20, 20, 20),
     ):
@@ -98,28 +96,26 @@ class Button:
         surface.blit(self.button_surface, self.button_rect)
 
 
-class LinkButton(Button):
+class MenuButton(Button):
     """Buttons linking two views"""
 
     def __init__(
         self,
         view: "View",
-        x: NumType,
-        y: NumType,
-        width: NumType,
-        height: NumType,
-        link_to_path: str,
+        xy: tuple[NumType, NumType],
+        dimensions: tuple[NumType, NumType],
+        view_path: str,
         text: str = "Button",
         on_click=None,
-    ):
+    ) -> None:
         self._on_click = on_click
         self.view = view
-        self.link_to_path = link_to_path
-        super().__init__(x, y, width, height, text, on_click=self._link, once=True)
+        self.link_to_path = view_path
+        super().__init__(xy, dimensions, text, on_click=self._change_to_view, once=True)
 
-    def _link(self):
+    def _change_to_view(self):
         """Switch views"""
         if self._on_click:
             # if there's something to do before switching views
             self._on_click()
-        self.view.change_views(self.link_to_path)
+        self.view.change_views(self.link_to_path, self.link_to_path.split(".")[-1])

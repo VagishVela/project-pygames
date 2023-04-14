@@ -1,8 +1,8 @@
 """ Contains helper functions and classes to speed up development"""
 
-from .text import Text
-from .button import Button, LinkButton
+from .button import Button, MenuButton
 from .cache import Cache
 from .eventhandler import EventHandler
+from .text import Text
 
-__all__ = ["Text", "Button", "LinkButton", "Cache", "EventHandler"]
+__all__ = ["Text", "Button", "MenuButton", "Cache", "EventHandler"]
