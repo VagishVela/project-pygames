@@ -1,4 +1,5 @@
 """ This package contains the views """
+import json
 from importlib import import_module
 from typing import Optional
 
@@ -20,6 +21,9 @@ logger = logger.getChild("views")
 
 class View:
     """An object representing the current 'view' on display"""
+
+    # special global status to the map view
+    game_view = None
 
     def __init__(
         self,
@@ -111,8 +115,17 @@ class View:
     def on_update(self):
         """To override"""
 
-    def run(self):
-        """Runs the main loop for this view"""
+    def pre_run(self, _spl_args):
+        """Called just before running the view"""
+
+    def run(self, _spl_args=None):
+        """
+        Runs the main loop for this view
+        :param _spl_args: special serializable kwargs
+        """
+
+        if _spl_args:
+            self.pre_run(_spl_args)
 
         self._running = True
         logger.debug(f" Loading done! {self}")
@@ -149,7 +162,7 @@ class View:
     # pylint: disable=too-many-arguments
     def change_views(
         self,
-        next_view_path,
+        next_view_path: str,
         caption: Optional[str] = None,
         size: Optional[Coordinate] = None,
         bg_color: Optional[ColorValue] = None,
@@ -167,12 +180,17 @@ class View:
         """
 
         # try most common usage
+        if "#" in next_view_path:
+            next_view_path, _spl_args = next_view_path.split("#")
+            _spl_args = json.loads(_spl_args)
+        else:
+            _spl_args = None
         next_view_module, _class = next_view_path.split(".")
         next_view_module = import_module(f"game.views.{next_view_module}")
 
         # implement a try-catch block here if other modules are used for views than `game.views`
 
-        next_view = (
+        next_view: "View" = (
             views_cache.get(
                 (next_view_path, caption, size, bg_color),
                 getattr(next_view_module, _class).from_view(
@@ -186,4 +204,4 @@ class View:
         )
         self._running = False
         logger.debug(f" switching views from {self} to {next_view}")
-        next_view.run()
+        next_view.run(_spl_args if _spl_args else None)
