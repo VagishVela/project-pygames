@@ -120,7 +120,9 @@ class Battle(View):
             pygame.Rect(
                 10,
                 10,
-                150 * self.player.abilities["health"] / self.player.max_health,
+                150 * self.player.abilities["health"] / self.player.max_health
+                if self.player.abilities["health"] > 0
+                else 0,
                 20,
             ),
         )
@@ -134,7 +136,9 @@ class Battle(View):
             pygame.Rect(
                 self.width - 160,
                 50,
-                150 * self.enemy.abilities["health"] / self.enemy.max_health,
+                150 * self.enemy.abilities["health"] / self.enemy.max_health
+                if self.enemy
+                else 0,
                 20,
             ),
         )
@@ -237,8 +241,10 @@ class Battle(View):
             )
             if button_rect.collidepoint(mouse_pos):
                 self.attack(self.player, self.enemy, attack["power"])
-                if self.enemy.abilities["health"] > 0:
-                    self.enemy_attack()
+                if self.enemy:
+                    if self.enemy.abilities["health"] <= 0:
+                        self.enemy_attack()
+                        return
                     # self.waiting_for_enemy = True
                     # pygame.time.set_timer(pygame.USEREVENT, 2000)
                 return
@@ -246,5 +252,5 @@ class Battle(View):
     def on_timer(self, event):
         """Called when the timer goes off"""
         self.enemy_attack()
-        pygame.time.set_timer(pygame.USEREVENT, 0)
+        # pygame.time.set_timer(pygame.USEREVENT, 0)
         print(event)
