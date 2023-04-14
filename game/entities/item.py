@@ -1,9 +1,11 @@
 """This module implements the classes required for the store"""
 
 from enum import Enum, IntEnum
+from typing import Self
 
 import pygame
 from pygame import Surface, Vector2
+from pygame.rect import RectType
 from pygame.sprite import Sprite
 
 from game.config import STORE_PADDING, STORE_BG, TILE_SIZE, STORE_ON_FOCUS
@@ -84,7 +86,7 @@ class StoreItem(Sprite, Scrollable):
         self.rect = self.image.get_rect()
         self.on_focus = False
 
-    def draw(self, screen: Surface, pos):
+    def draw(self, screen: Surface, pos) -> dict["Self", RectType]:
         """Draw the item"""
 
         surface = Surface((STORE_PADDING, STORE_PADDING), pygame.SRCALPHA)
@@ -105,7 +107,7 @@ class StoreItem(Sprite, Scrollable):
         rect = surface.get_rect()
         rect.x, rect.y = Vector2(pos) + self.offset
 
-        return rect, self
+        return {self: rect}
 
     def buy(self):
         """Buy this item"""

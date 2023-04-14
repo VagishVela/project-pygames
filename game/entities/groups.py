@@ -52,7 +52,7 @@ class StoreItems(Group):
 
         # store the sprites with their positions
         self.sprite_pos = []
-        self.sprite_rects = []
+        self.sprite_rects = {}
 
         # if inventory changed
         self._changed = False
@@ -98,7 +98,7 @@ class StoreItems(Group):
                     self.atk_offset[0] = 0
                 pos = Vector2(STORE_PADDING, STORE_PADDING) + self.atk_offset
                 self.sprite_pos.append((sprite, pos))
-                self.sprite_rects.append(sprite.draw(surface, pos))
+                self.sprite_rects.update(sprite.draw(surface, pos))
                 self.atk_offset[0] += STORE_PADDING * 1.2
 
             self.def_offset = Vector2(0, self.atk_offset[1] + STORE_PADDING * 2.5)
@@ -111,7 +111,7 @@ class StoreItems(Group):
                     self.def_offset[0] = 0
                 pos = Vector2(STORE_PADDING, STORE_PADDING) + self.def_offset
                 self.sprite_pos.append((sprite, pos))
-                self.sprite_rects.append(sprite.draw(surface, pos))
+                self.sprite_rects.update(sprite.draw(surface, pos))
                 self.def_offset[0] += STORE_PADDING * 1.2
 
             self.potion_offset = Vector2(0, self.def_offset[1] + STORE_PADDING * 2.5)
@@ -124,13 +124,13 @@ class StoreItems(Group):
                     self.potion_offset[0] = 0
                 pos = Vector2(STORE_PADDING, STORE_PADDING) + self.potion_offset
                 self.sprite_pos.append((sprite, pos))
-                self.sprite_rects.append(sprite.draw(surface, pos))
+                self.sprite_rects.update(sprite.draw(surface, pos))
                 self.potion_offset[0] += STORE_PADDING * 1.2
 
             self._changed = False
         else:
             for sprite, pos in self.sprite_pos:
-                sprite.draw(surface, pos)
+                self.sprite_rects.update(sprite.draw(surface, pos))
                 if self.active_item:
                     if sprite.name == self.active_item.name:
                         sprite.on_focus = True
@@ -144,7 +144,7 @@ class StoreItems(Group):
         mouse_pos = Vector2(pygame.mouse.get_pos())
         # item_clicked = False
 
-        for rect, sprite in self.sprite_rects:
+        for sprite, rect in self.sprite_rects.items():
             if rect.collidepoint(mouse_pos):
                 if LEFT_CLICK.get():
                     ITEM_FOCUSED.post({"item": sprite})
