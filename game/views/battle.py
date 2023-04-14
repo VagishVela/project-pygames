@@ -22,8 +22,6 @@ class Battle(View):
         self.player.pos = (self.width * 0.1, self.height * 0.6)
 
         self.enemy = Enemy(self.width * 0.7, self.height * 0.25, (64, 64))
-        self.dodge_timer = 0
-        self.dodge_for_frames = 60
 
     def on_update(self):
         """Called every frame"""
@@ -59,10 +57,6 @@ class Battle(View):
                 self.win_game()
             else:
                 self.game_over()
-
-    def player_dodge(self):
-        """Called when the player presses the space bar"""
-        pass
 
     def on_draw(self):
         """Draw the battle view"""
