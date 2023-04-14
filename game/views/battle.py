@@ -1,5 +1,3 @@
-# pylint: skip-file
-# fixme
 """ Implements the Battle view """
 
 import pygame
@@ -23,21 +21,43 @@ class Battle(View):
 
         self.enemy = Enemy(self.width * 0.7, self.height * 0.25, (64, 64))
 
+        # -------- attacks and menu ----------- #
+
+        self.attacks = [
+            {"name": "Quick Attack", "power": 10},
+            {"name": "Power Attack", "power": 20},
+            {"name": "Super Attack", "power": 30},
+            {"name": "Mega Attack", "power": 40},
+        ]
+
+        self.menu_width = 400
+        self.menu_height = 300
+        self.menu_x = self.width - self.menu_width - 20
+        self.menu_y = self.height - self.menu_height - 20
+
+        # -------- buttons ----------- #
+
+        self.button_width = 160
+        self.button_height = 60
+        self.button_spacing = 20
+        self.num_buttons_per_row = 2
+        self.num_rows = (
+            len(self.attacks) + self.num_buttons_per_row - 1
+        ) // self.num_buttons_per_row
+
     def on_update(self):
         """Called every frame"""
-        pass
 
     def win_game(self):
         """Called when the player wins"""
         # TODO Set the player abilities and health
         # TODO Go the the win view or map view
-        pass
 
     def game_over(self):
         """Called when the player dies"""
-        self.enemy = self.enemy.kill()  # Kill the enemy and remove reference
+        self.enemy.kill()  # Kill the enemy and remove reference
+        self.enemy = None
         # TODO Give the player some coins
-        # TODO Go the the Game over view
 
     def attack(self, _from: Player | Enemy, _to: Player | Enemy, power: int):
         """Called when the player selects an attack"""
@@ -94,46 +114,39 @@ class Battle(View):
         )
 
         # draw the attack menu
-        attacks = [
-            {"name": "Quick Attack", "power": 10},
-            {"name": "Power Attack", "power": 20},
-            {"name": "Super Attack", "power": 30},
-            {"name": "Mega Attack", "power": 40},
-        ]
-
-        menu_width = 400
-        menu_height = 300
-        menu_x = self.width - menu_width - 20
-        menu_y = self.height - menu_height - 20
-        menu_rect = pygame.Rect(menu_x, menu_y, menu_width, menu_height)
+        menu_rect = pygame.Rect(
+            self.menu_x, self.menu_y, self.menu_width, self.menu_height
+        )
         pygame.draw.rect(self.screen, (255, 255, 255), menu_rect, 2)
 
         Text(
             "Select an Attack",
             "sans-serif",
-            menu_x + menu_width // 2,
-            menu_y + 20,
+            self.menu_x + self.menu_width // 2,
+            self.menu_y + 20,
             24,
             (255, 255, 255),
         ).blit_into(self.screen)
 
-        button_width = 160
-        button_height = 60
-        button_spacing = 20
-        num_buttons_per_row = 2
-        num_rows = (len(attacks) + num_buttons_per_row - 1) // num_buttons_per_row
-
-        for i, attack in enumerate(attacks):
-            row = i // num_buttons_per_row
-            col = i % num_buttons_per_row
-            button_x = menu_x + col * (button_width + button_spacing) + button_spacing
-            button_y = menu_y + row * (button_height + button_spacing) + 80
-            button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
+        for i, attack in enumerate(self.attacks):
+            row = i // self.num_buttons_per_row
+            col = i % self.num_buttons_per_row
+            button_x = (
+                self.menu_x
+                + col * (self.button_width + self.button_spacing)
+                + self.button_spacing
+            )
+            button_y = (
+                self.menu_y + row * (self.button_height + self.button_spacing) + 80
+            )
+            button_rect = pygame.Rect(
+                button_x, button_y, self.button_width, self.button_height
+            )
             pygame.draw.rect(self.screen, (255, 255, 255), button_rect, 2)
             Text(
                 attack["name"],
                 "sans-serif",
-                button_x + button_width // 2,
+                button_x + self.button_width // 2,
                 button_y + 20,
                 20,
                 (255, 255, 255),
@@ -141,15 +154,16 @@ class Battle(View):
             Text(
                 f"Power: {attack['power']}",
                 "sans-serif",
-                button_x + button_width // 2,
+                button_x + self.button_width // 2,
                 button_y + 40,
                 14,
                 (255, 255, 255),
             ).blit_into(self.screen)
 
-    def on_click(self):
+    def on_click(self, event):
         """Called when the user clicks the mouse"""
-        mouse_pos = pygame.mouse.get_pos()
+
+        mouse_pos = event.pos
         for i, attack in enumerate(self.attacks):
             row = i // self.num_buttons_per_row
             col = i % self.num_buttons_per_row
