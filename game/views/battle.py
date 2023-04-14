@@ -18,20 +18,9 @@ class Battle(View):
         self.my_turn = True
 
         self.player = Player()
-        self.player.name = "Player"
         self.player.pos = (self.width * 0.1, self.height * 0.6)
 
         self.enemy = Enemy(self.width * 0.7, self.height * 0.25, (64, 64))
-        self.enemy.name = "Alien"
-
-        # -------- attacks and menu ----------- #
-
-        self.attacks = [
-            {"name": "Quick Attack", "power": 10},
-            {"name": "Power Attack", "power": 20},
-            {"name": "Super Attack", "power": 30},
-            {"name": "Mega Attack", "power": 40},
-        ]
 
         self.menu_width = 400
         self.menu_height = 300
@@ -45,7 +34,7 @@ class Battle(View):
         self.button_spacing = 20
         self.num_buttons_per_row = 2
         self.num_rows = (
-            len(self.attacks) + self.num_buttons_per_row - 1
+            len(self.player.attacks) + self.num_buttons_per_row - 1
         ) // self.num_buttons_per_row
 
         self.current_attack = None
@@ -93,16 +82,6 @@ class Battle(View):
             "name": f"{_from.name} used {attack_name}!",
             "power": power,
         }
-
-    def enemy_attack(self):
-        """Randomly select an attack for the enemy and attack the player"""
-        attack = random.choice(self.attacks)
-        self.current_attack = attack
-        self.player.abilities["health"] -= attack["power"]
-        if self.player.abilities["health"] <= 0:
-            self.game_over()
-        else:
-            self.waiting_for_enemy = False
 
     def on_draw(self):
         """Draw the battle view"""
@@ -168,7 +147,7 @@ class Battle(View):
                 (255, 255, 255),
             ).blit_into(self.screen)
 
-            for i, attack in enumerate(self.attacks):
+            for i, attack in enumerate(self.player.attacks):
                 row = i // self.num_buttons_per_row
                 col = i % self.num_buttons_per_row
                 button_x = (
@@ -225,7 +204,7 @@ class Battle(View):
         mouse_pos = event.pos
         if self.waiting_for_enemy:
             return
-        for i, attack in enumerate(self.attacks):
+        for i, attack in enumerate(self.player.attacks):
             row = i // self.num_buttons_per_row
             col = i % self.num_buttons_per_row
             button_x = (
@@ -241,16 +220,12 @@ class Battle(View):
             )
             if button_rect.collidepoint(mouse_pos):
                 self.attack(self.player, self.enemy, attack["power"])
-                if self.enemy:
-                    if self.enemy.abilities["health"] <= 0:
-                        self.enemy_attack()
-                        return
-                    # self.waiting_for_enemy = True
+                if self.enemy.abilities["health"] >= 0:
+                    self.waiting_for_enemy = True
                     # pygame.time.set_timer(pygame.USEREVENT, 2000)
-                return
-
-    def on_timer(self, event):
-        """Called when the timer goes off"""
-        self.enemy_attack()
-        # pygame.time.set_timer(pygame.USEREVENT, 0)
-        print(event)
+                    self.attack(
+                        self.enemy,
+                        self.player,
+                        random.choice(self.enemy.attacks)["power"],
+                    )
+                    self.waiting_for_enemy = False
