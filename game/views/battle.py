@@ -81,13 +81,14 @@ class Battle(View):
                 self.game_over()
 
     def enemy_attack(self):
-        """Randomly choose an attack for the enemy"""
-        attack_name = random.choice(
-            ["Alien Attack 1", "Alien Attack 2", "Alien Attack 3"]
-        )
-        power = random.choice([10, 20, 30, 40])
-        self.current_attack = {"name": attack_name, "power": power}
-        self.attack(self.enemy, self.player, power)
+        """Randomly select an attack for the enemy and attack the player"""
+        attack = random.choice(self.attacks)
+        self.current_attack = attack
+        self.player.abilities["health"] -= attack["power"]
+        if self.player.abilities["health"] <= 0:
+            self.game_over()
+        else:
+            self.waiting_for_enemy = False
 
     def on_draw(self):
         """Draw the battle view"""
@@ -223,5 +224,13 @@ class Battle(View):
             if button_rect.collidepoint(mouse_pos):
                 self.attack(self.player, self.enemy, attack["power"])
                 if self.enemy.abilities["health"] > 0:
+                    self.waiting_for_enemy = True
                     self.enemy_attack()
+                    pygame.time.set_timer(pygame.USEREVENT, 2000)
                 return
+
+    def on_timer(self, event):
+        """Called when the timer goes off"""
+        self.enemy_attack()
+        pygame.time.set_timer(pygame.USEREVENT, 0)
+        print(event)
