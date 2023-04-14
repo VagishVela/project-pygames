@@ -56,11 +56,12 @@ class Button:
             self.button_surface.fill(self.fill_colors["hover"])
             if self.left_click.get():
                 self.button_surface.fill(self.fill_colors["pressed"])
-                if self.once:
-                    self.on_click()
-                elif not self.already_pressed:
-                    self.on_click()
-                    self.already_pressed = True
+                if self.on_click:
+                    if self.once:
+                        self.on_click()
+                    elif not self.already_pressed:
+                        self.on_click()
+                        self.already_pressed = True
         else:
             self.already_pressed = False
 
