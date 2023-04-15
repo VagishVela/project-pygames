@@ -2,7 +2,6 @@
 import itertools
 
 import pygame
-from pygame.sprite import Group
 
 from game.config import SCREEN_WIDTH, SCREEN_HEIGHT
 from game.custom_event import MOVED, ENEMY_ENCOUNTERED
@@ -23,13 +22,12 @@ class Map(View):
 
     player = Player()
     not_player = NotPlayer()
-    enemies = Group()
     level = Level()
     _e_hash = {}
     _w_hash = {}
     _initiated = False
 
-    def __init__(self, *args, load_from=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.speed = 5
@@ -39,9 +37,6 @@ class Map(View):
 
         if not Map._initiated:
             Map.initiate()
-
-        if load_from is not None:
-            self.load_data(load_from)
 
     def on_draw(self):
         self.not_player.draw(self.screen)
@@ -71,6 +66,7 @@ class Map(View):
 
     def on_update(self):
         if self._moved or not self._cur:
+            self._cur.clear()
             floor = self.level.generate(9, 9)
             for y, row in enumerate(floor):
                 for x, e in enumerate(row):
@@ -100,13 +96,19 @@ class Map(View):
         game_data.load(state)
 
         # clear screen and set level state
-        self.not_player.disappear(self._cur)
-        self.level.loc = game_data.get("loc")
+        self.reset(game_data.get("loc"))
+        # redraw
+        self.on_draw()
 
-    def terminate(self):
-        """Terminate the view"""
-        self.not_player.disappear(self._cur)
-        self.level.loc = [0, 0]
+    def reset(self, loc=None):
+        """Reset the view"""
+        if loc is None:
+            loc = [0, 0]
+        self.level.loc = loc
+        self._cur.clear()
+        self.not_player.disappear(self._w_hash)
+        self.not_player.disappear(self._e_hash)
+        self._moved = True
 
     @classmethod
     def initiate(cls):
@@ -120,7 +122,7 @@ class Map(View):
                 (i - 4.5) * SCREEN_WIDTH / 9 + SCREEN_WIDTH / 2,
                 (j - 4.5) * SCREEN_HEIGHT / 9 + SCREEN_HEIGHT / 2,
             )
-            cls._e_hash[(i, j)].add(cls.enemies, cls.not_player)
+            cls._e_hash[(i, j)].add(cls.not_player)
             cls._e_hash[(i, j)].visible = False
             cls._w_hash[(i, j)] = Wall(
                 (i - 4.5) * SCREEN_WIDTH / 9 + SCREEN_WIDTH / 2,
@@ -128,4 +130,10 @@ class Map(View):
             )
             cls._w_hash[(i, j)].add(cls.not_player)
             cls._w_hash[(i, j)].visible = False
-            cls._initiated = True
+        cls._initiated = True
+
+    def pre_run(self, _spl_args):
+        if _spl_args.get("reset"):
+            self.reset()
+        elif _spl_args.get("load"):
+            self.load_data(_spl_args["load"])

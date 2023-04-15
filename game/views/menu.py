@@ -13,7 +13,7 @@ class Menu(View):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.options = [
-            {"text": "New Game", "view_path": "map.Map"},
+            {"text": "New Game", "view_path": 'map.Map#{"reset":true}'},
             {"text": "Continue", "view_path": 'slots.Slots#{"escape": "menu.Menu"}'},
             {"text": "TEST - Battle", "view_path": "battle.Battle"},
             {
