@@ -121,4 +121,4 @@ class MenuButton(Button):
             self._on_click()
         if self.link_to_path:
             # if path was empty, act like a normal button
-            self.view.change_views(self.link_to_path, self.link_to_path.split(".")[-1])
+            self.view.change_views(self.link_to_path)

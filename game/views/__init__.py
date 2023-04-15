@@ -46,7 +46,7 @@ class View:
         self.size = Vector2(size)
 
         # set caption and icon
-        self.caption = caption or "Pygame Window"
+        self.caption = caption or self.__class__.__name__
         if self.caption:
             logger.debug(f" set caption: {self.caption}")
             pygame.display.set_caption(self.caption)
@@ -96,7 +96,7 @@ class View:
         """Get a class instance with attributes of the another view"""
         return cls(
             size or prev_view.size,
-            caption or prev_view.caption,
+            caption or cls.__name__,
             None,  # icon
             bg_color or prev_view.bg_color,
         )
@@ -183,20 +183,24 @@ class View:
             _spl_args = json.loads(_spl_args)
         else:
             _spl_args = None
-        next_view_module, _class = next_view_path.split(".")
+        next_view_module, _class_name = next_view_path.split(".")
         next_view_module = import_module(f"game.views.{next_view_module}")
+
+        if not caption:
+            #     default to class name
+            caption = _class_name
 
         # implement a try-catch block here if other modules are used for views than `game.views`
 
         next_view: "View" = (
             views_cache.get(
                 (next_view_path, caption, size, bg_color),
-                getattr(next_view_module, _class).from_view(
+                getattr(next_view_module, _class_name).from_view(
                     self, caption, size, bg_color
                 ),
             )
             if check_cache
-            else getattr(next_view_module, _class).from_view(
+            else getattr(next_view_module, _class_name).from_view(
                 self, caption, size, bg_color
             )
         )
