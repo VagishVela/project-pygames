@@ -20,7 +20,7 @@ class Battle(View):
         self.player = Player()
         self.player.pos = (self.width * 0.1, self.height * 0.6)
 
-        self.enemy = Enemy(self.width * 0.7, self.height * 0.25, (64, 64))
+        self.enemy = Enemy(scale=(64, 64))
 
         self.menu_width = 400
         self.menu_height = 300

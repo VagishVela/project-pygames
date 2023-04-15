@@ -8,13 +8,12 @@ from pygame.sprite import Sprite
 class Enemy(Sprite):
     """Class for the enemy"""
 
-    def __init__(self, x, y, scale=(32, 32)):
+    def __init__(self, scale=(32, 32)):
         """Initialize the enemy"""
         super().__init__()
         self.image = pygame.transform.scale(
             pygame.image.load("assets/enemy.png"), scale
         )
-        self.pos = x, y
         self.rect = self.image.get_rect()
         self.abilities = {
             "attack": 5,
@@ -41,6 +40,6 @@ class Enemy(Sprite):
         # Return true if the enemy dies
         return self.abilities["health"] <= 0
 
-    def draw(self, screen: Surface):
+    def draw(self, screen: Surface, pos_x, pos_y):
         """Draw the enemy"""
-        screen.blit(self.image, self.pos)
+        screen.blit(self.image, (pos_x, pos_y))

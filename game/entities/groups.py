@@ -15,26 +15,6 @@ from game.logger import logger
 logger = logger.getChild("entities.item")
 
 
-class NotPlayer(Group):
-    """Group for anything in map view that is not the player"""
-
-    def __init__(self):
-        """Initialize the NotPlayer group"""
-        super().__init__()
-
-    def draw(self, surface: Surface, bgsurf=None, special_flags: int = 0):
-        """Draw the objects"""
-        for sprite in self.sprites():
-            if sprite.visible:
-                sprite.draw(surface)
-
-    def disappear(self, sprites):
-        """Make the objects disappear"""
-        for sprite in sprites:
-            if sprite in self.sprites():
-                sprite.visible = False
-
-
 class StoreItems(Group):
     """Group for StoreItem"""
 

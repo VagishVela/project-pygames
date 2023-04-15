@@ -3,66 +3,53 @@
 # e is Enemy -> En can be a way to have many different enemies
 # w is wall -> Wn can be a way to have more obstacles
 # x is walkable
-
-import itertools
 import random
 
 import numpy as np
+from numpy.typing import NDArray
 
-from game.custom_event import ENEMY_ENCOUNTERED, MOVED
+from game.custom_event import ENEMY_ENCOUNTERED
 
 
 class Level:
     """Class for generating a level"""
 
-    def __init__(self, x=None, y=None):
+    def __init__(self):
         """Initialize the level"""
-        self.x = 0
-        self.y = 0
-        self.arr = np.zeros((9, 9), dtype=np.int32)
-        self.arr.fill(ord("x"))
-        self.rng = random.Random()
-        self.loc = [x, y] if x is not None and y is not None else [0, 0]
 
-    def _get_tile(self, pos):
+        self.loc = [0, 0]
+        self.matrix = np.full((9, 9), ord("x"), dtype=np.int8)
+        self.rng = random.Random(str(self.loc))
+
+    def set_loc(self, loc) -> None:
+        """set the location"""
+
+        self.loc = list(loc)
+
+    def _get_tile(self, at) -> int:
         """Get a tile"""
-        self.rng.seed(str(pos))
+
+        if at == (4, 4):
+            return ord("p")
+        seed = str([self.loc[0] - at[1], self.loc[1] - at[0]])
+        self.rng.seed(seed)
         return ord(self.rng.choice("x" * 800 + "w" * 185 + "e" * 15))
 
-    def generate(self, m=9, n=9) -> list:
+    def generate(self) -> NDArray:
         """Generate a level"""
-        x, y = self.loc
-        for i, j in itertools.product(range(m), range(n)):
-            if i == m // 2 and j == n // 2:
-                self.arr[4][4] = ord("p")
-            else:
-                self.arr[i][j] = self._get_tile((y - i, x - j))
-        return list(self.arr)
 
-    def move(self, dx, dy) -> None:
+        for idx, _ in np.ndenumerate(self.matrix):
+            self.matrix[idx] = self._get_tile(idx)
+        self.matrix[(4, 4)] = ord("p")
+        return self.matrix
+
+    def move(self, dx, dy) -> bool:
         """Move the whole map in the given direction"""
 
-        if self.check_collision(dx, dy):
-            self.loc[0] += dx
-            self.loc[1] += dy
-            MOVED.post()
-
-    def check_collision(self, dx, dy) -> bool:
-        """Check collision, return True if player can move to the next tile"""
-
-        def _check_and_post(x, y) -> bool:
-            if self.arr[x][y] == ord("e"):
-                ENEMY_ENCOUNTERED.post()
-                return False
-            return self.arr[x][y] == ord("x")
-
-        match (dx, dy):
-            case (0, 1):
-                return _check_and_post(3, 4)
-            case (0, -1):
-                return _check_and_post(5, 4)
-            case (1, 0):
-                return _check_and_post(4, 3)
-            case (-1, 0):
-                return _check_and_post(4, 5)
+        if self.matrix[(4 - dy, 4 - dx)] == ord("e"):
+            ENEMY_ENCOUNTERED.post()
+            return False
+        if self.matrix[(4 - dy, 4 - dx)] == ord("x"):
+            self.set_loc((self.loc[0] + dx, self.loc[1] + dy))
+            return True
         return False

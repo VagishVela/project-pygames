@@ -1,13 +1,13 @@
 """ Implements the Map view, TopDown2D """
 import itertools
 
+import numpy as np
 import pygame
 
 from game.config import SCREEN_WIDTH, SCREEN_HEIGHT
-from game.custom_event import MOVED, ENEMY_ENCOUNTERED
+from game.custom_event import ENEMY_ENCOUNTERED
 from game.data import game_data
 from game.entities.enemy import Enemy
-from game.entities.groups import NotPlayer
 from game.entities.player import Player
 from game.entities.walls import Wall
 from game.level_gen import Level
@@ -17,76 +17,107 @@ from game.views import View, logger
 logger.getChild("map")
 
 
+class Screen:
+    """Represents the screen for the map view"""
+
+    screen = {}
+    enemies = {}
+    walls = {}
+    level = Level()
+    _initiated = False
+    _regenerate = False
+
+    @classmethod
+    def initiate(cls):
+        """initiate the sprites"""
+        for i, j in itertools.product(range(9), range(9)):
+            cls.enemies[(i, j)] = Enemy()
+            cls.walls[(i, j)] = Wall()
+        cls._initiated = True
+        cls._regenerate = True
+
+    @classmethod
+    def load(cls, loc=None):
+        """load and generate the screen"""
+        if cls._regenerate:
+            cls.clear()
+        if loc:
+            cls.clear()
+            cls.level.set_loc(loc)
+        if not cls._initiated:
+            cls.initiate()
+        map_ = cls.level.generate()
+        for idx, x in np.ndenumerate(map_):
+            match chr(x):
+                case "w":
+                    cls.screen[idx] = cls.walls[idx]
+                case "e":
+                    cls.screen[idx] = cls.enemies[idx]
+
+    @classmethod
+    def move(cls, dx, dy):
+        """move the map in 2D"""
+        # move the level
+
+        if cls.level.move(dx, dy):
+            cls._regenerate = True
+            # update the screen
+            cls.load()
+
+    @classmethod
+    def clear(cls):
+        """clear the screen"""
+        cls.screen.clear()
+
+    @classmethod
+    def draw(cls, screen):
+        """draw the screen"""
+        for idx, sprite in cls.screen.items():
+            sprite.draw(screen, idx[1] * SCREEN_WIDTH / 9, idx[0] * SCREEN_HEIGHT / 9)
+
+
 class Map(View):
     """Map view"""
 
     player = Player()
-    not_player = NotPlayer()
-    level = Level()
-    _e_hash = {}
-    _w_hash = {}
-    _initiated = False
+    screen_map = Screen
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.speed = 5
 
-        self._cur = []
-        self._moved = False
-
-        if not Map._initiated:
-            Map.initiate()
-
     def on_draw(self):
-        self.not_player.draw(self.screen)
+        self.screen_map.draw(self.screen)
         self.player.draw(self.screen)
 
     def on_keydown(self, event):
         match event.key:
             case pygame.K_UP | pygame.K_w:
-                self.level.move(0, 1)
+                self.screen_map.move(0, 1)
             case pygame.K_DOWN | pygame.K_s:
-                self.level.move(0, -1)
+                self.screen_map.move(0, -1)
             case pygame.K_LEFT | pygame.K_a:
-                self.level.move(1, 0)
+                self.screen_map.move(1, 0)
             case pygame.K_RIGHT | pygame.K_d:
-                self.level.move(-1, 0)
+                self.screen_map.move(-1, 0)
             case pygame.K_ESCAPE:
                 self.save_data(temp=True)
                 logger.debug(" game paused")
                 self.change_views("pause.Pause", caption="Paused")
                 return
-        if MOVED.get():
-            self.not_player.disappear(self._cur)
-            self._moved = True
         if ENEMY_ENCOUNTERED.get():
             logger.debug(" enemy encountered!")
             self.change_views("battle.Battle", caption="Battle", check_cache=False)
-
-    def on_update(self):
-        if self._moved or not self._cur:
-            self._cur.clear()
-            floor = self.level.generate(9, 9)
-            for y, row in enumerate(floor):
-                for x, e in enumerate(row):
-                    match chr(e):
-                        case "e":
-                            self._e_hash[(x, y)].visible = True
-                            self._cur.append(self._e_hash[(x, y)])
-                        case "w":
-                            self._w_hash[(x, y)].visible = True
-                            self._cur.append(self._w_hash[(x, y)])
-            self._moved = False
 
     def save_data(self, temp=False):
         """Save the data"""
 
         logger.debug(" saving data...")
         if not temp:
-            game_data.save(self.level.loc, [])
+            game_data.save(self.screen_map.level.loc, [])
         else:
-            game_data.save_temp(self.level.loc, [])
+            game_data.save_temp(self.screen_map.level.loc, [])
         logger.debug(" saved data!")
 
     def load_data(self, state):
@@ -96,44 +127,12 @@ class Map(View):
         game_data.load(state)
 
         # clear screen and set level state
-        self.reset(game_data.get("loc"))
+        self.screen_map.load(game_data.get("loc"))
         # redraw
         self.on_draw()
 
-    def reset(self, loc=None):
-        """Reset the view"""
-        if loc is None:
-            loc = [0, 0]
-        self.level.loc = loc
-        self._cur.clear()
-        self.not_player.disappear(self._w_hash)
-        self.not_player.disappear(self._e_hash)
-        self._moved = True
-
-    @classmethod
-    def initiate(cls):
-        """Initiate all the sprites the map ever needs"""
-
-        # generating sprites is an expensive process, so if done mid-game,
-        # it would make the game very clunky
-
-        for i, j in itertools.product(range(9), range(9)):
-            cls._e_hash[(i, j)] = Enemy(
-                (i - 4.5) * SCREEN_WIDTH / 9 + SCREEN_WIDTH / 2,
-                (j - 4.5) * SCREEN_HEIGHT / 9 + SCREEN_HEIGHT / 2,
-            )
-            cls._e_hash[(i, j)].add(cls.not_player)
-            cls._e_hash[(i, j)].visible = False
-            cls._w_hash[(i, j)] = Wall(
-                (i - 4.5) * SCREEN_WIDTH / 9 + SCREEN_WIDTH / 2,
-                (j - 4.5) * SCREEN_HEIGHT / 9 + SCREEN_HEIGHT / 2,
-            )
-            cls._w_hash[(i, j)].add(cls.not_player)
-            cls._w_hash[(i, j)].visible = False
-        cls._initiated = True
-
     def pre_run(self, _spl_args):
         if _spl_args.get("reset"):
-            self.reset()
+            self.screen_map.load((0, 0))
         elif _spl_args.get("load"):
             self.load_data(_spl_args["load"])
