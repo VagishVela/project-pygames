@@ -1,4 +1,5 @@
 """This module implements the Store class"""
+
 import pygame
 
 from game.config import STORE_PADDING, STORE_BG, STORE_SCROLL_SPEED

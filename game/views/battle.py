@@ -1,12 +1,7 @@
-# pylint: skip-file
-# fixme
 """ Implements the Battle view """
-
-import math
+import random
 
 import pygame
-from pygame import Surface
-from pygame.sprite import Sprite
 
 from game.entities.enemy import Enemy
 from game.entities.player import Player
@@ -17,187 +12,225 @@ from game.views import View
 class Battle(View):
     """The Battle view"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, size, caption, icon, bg_color):
         """Initialize the battle view"""
-        super().__init__(*args, **kwargs)
+        super().__init__(size, caption, icon, bg_color)
         self.my_turn = True
 
         self.player = Player()
-        self.player.pos = (self.width * 0.2, self.height * 0.5)
+        self.player.pos = (self.width * 0.1, self.height * 0.6)
 
-        self.enemy = Enemy(self.width * 0.7, self.height * 0.4, (64, 64))
-        self.projectiles = []
-        self.dodge_timer = 0
-        self.dodge_for_frames = 60
-        #        self.buttons
+        self.enemy = Enemy(self.width * 0.7, self.height * 0.25, (64, 64))
 
-        self.attack(self.player, self.enemy)  # remove this when inputs are working
+        self.menu_width = 400
+        self.menu_height = 300
+        self.menu_x = self.width - self.menu_width - 20
+        self.menu_y = self.height - self.menu_height - 20
+
+        # -------- buttons ----------- #
+
+        self.button_width = 160
+        self.button_height = 60
+        self.button_spacing = 20
+        self.num_buttons_per_row = 2
+        self.num_rows = (
+            len(self.player.attacks) + self.num_buttons_per_row - 1
+        ) // self.num_buttons_per_row
+
+        self.current_attack = None
+        self.waiting_for_enemy = False
 
     def on_update(self):
         """Called every frame"""
-        for projectile in self.projectiles:
-            projectile.update()
-            if projectile.check_collision(self.enemy) or projectile.check_collision(
-                self.player
-            ):
-                self.projectiles.remove(projectile)
-                if projectile.is_player:
-                    died = self.enemy.take_damage(self.player.abilities)
-                    if died:
-                        self.win_game()
-                else:
-                    if self.dodge_timer <= 0:
-                        died = self.player.take_damage(self.enemy.abilities)
-                        if died:
-                            self.game_over()
-                    self.my_turn = True
 
-                # TODO Somehow wait for some seconds and execute the next line
-                if not self.my_turn:
-                    self.attack(self.enemy, self.player)
-
-        ##### EVENTS ARE NOT WORKING AT ALL !!!!!!!!!!!!!1
-        # TODO fix the keyboard input :(
-
-        for event in pygame.event.get():
-            print("EVENT")
-            if event.type == pygame.KEYDOWN:
-                if self.my_turn:
-                    if event.key == pygame.K_a:
-                        self.attack(self.player, self.enemy)
-                else:
-                    if event.key == pygame.K_SPACE:
-                        self.player_dodge()
-
-    def win_game(self):
+    def win_battle(self):
         """Called when the player wins"""
+        # TODO have a screen that shows the player won
         # TODO Set the player abilities and health
         # TODO Go the the win view or map view
-        pass
+        self.change_views("map.Map", caption="Map")
 
     def game_over(self):
         """Called when the player dies"""
-        self.enemy = self.enemy.kill()  # Kill the enemy and remove reference
+        self.enemy.kill()  # Kill the enemy and remove reference
+        self.enemy = None
         # TODO Give the player some coins
-        # TODO Go the the Game over view
 
-    def attack(self, _from: Player | Enemy, _to: Player | Enemy):
-        """Called when the player presses the A key"""
-        # play some Attack animation
-        projectile_direction = pygame.math.Vector2(
-            (_to.pos[0] + _to.rect[0] / 2) - _from.pos[0],
-            (_to.pos[1] + _to.rect[1] / 2) - _from.pos[1],
-        )
-        projectile_direction = projectile_direction.normalize()
-        projectile_position = (
-            _from.pos[0] + projectile_direction.x * 50,
-            _from.pos[1] + projectile_direction.y * 50,
-        )
-        self.projectiles.append(
-            Projectile(
-                projectile_position, tuple(projectile_direction), type(_from) == Player
-            )
-        )
-        if type(_from) == Player:
+    def attack(self, _from: Player | Enemy, _to: Player | Enemy, power: int):
+        """Called when the player selects an attack"""
+        if _from == self.player:
+            if not self.my_turn:
+                return
             self.my_turn = False
-
-    def player_dodge(self):
-        """Called when the player presses the space bar"""
-        if self.my_turn:
-            return
-        if self.dodge_timer <= 0:
-            self.dodge_timer = self.dodge_for_frames
-            self.player.dodging = True
         else:
-            self.dodge_timer -= 1
-            self.dodge_timer = pygame.math.clamp(
-                self.dodge_timer, 0, self.dodge_for_frames
-            )
-        if self.dodge_timer == 0:
-            self.player.dodging = False
+            if self.my_turn:
+                return
+            self.my_turn = True
+
+        if isinstance(_to, Player):
+            _to.abilities["health"] -= power
+            if _to.abilities["health"] <= 0:
+                self.game_over()
+        elif isinstance(_to, Enemy):
+            _to.abilities["health"] -= power
+            if _to.abilities["health"] <= 0:
+                self.win_battle()
+
+        self.waiting_for_enemy = True
+        attack_name = [
+            attack["name"] for attack in _from.attacks if attack["power"] == power
+        ][0]
+        self.current_attack = {
+            "name": f"{_from.name} used {attack_name}!",
+            "power": power,
+        }
 
     def on_draw(self):
         """Draw the battle view"""
-        self.screen.fill("#333333")
-        dialog_box_rect = (
-            self.screen.get_width() * 0.1,
-            20,
-            self.screen.get_width() * 0.8,
-            100,
-        )
-        dialog_box_color = (200, 200, 200)
-        pygame.draw.rect(self.screen, dialog_box_color, dialog_box_rect, 0, 20)
-        for i, text in enumerate(self.enemy.details):
-            Text(
-                text,
-                "sans-serif",
-                self.screen.get_width() / 2,
-                dialog_box_rect[1] + 30 * (i + 1),
-                24,
-                (0, 0, 0),
-            ).blit_into(self.screen)
-        self.player.draw(self.screen, True)
-        self.enemy.draw(self.screen)
-        for projectile in self.projectiles:
-            projectile.draw(self.screen)
-        self.draw_health(self.player)
-        self.draw_health(self.enemy)
+        self.screen.fill((0, 0, 0))
 
-    def draw_health(self, entity: Player | Enemy):
-        """Draw the health bar of an entity"""
-        width = 100
-        pygame.draw.rect(
-            self.screen, (0, 0, 0), (entity.pos[0] - 10, entity.pos[1] - 40, width, 20)
-        )
+        # draw the player and the enemy
+        self.screen.blit(pygame.image.load("assets/player.png"), (50, 200))
+        self.screen.blit(pygame.image.load("assets/enemy.png"), (self.width - 150, 50))
+
+        # draw the health bars
+        pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect(10, 10, 150, 20))
         pygame.draw.rect(
             self.screen,
             (255, 0, 0),
-            (
-                entity.pos[0] - 10,
-                entity.pos[1] - 40,
-                width * entity.abilities["health"] / entity.max_health,
+            pygame.Rect(
+                10,
+                10,
+                150 * self.player.abilities["health"] / self.player.max_health
+                if self.player.abilities["health"] > 0
+                else 0,
                 20,
             ),
         )
 
-    def on_click(self):
+        pygame.draw.rect(
+            self.screen, (255, 255, 255), pygame.Rect(self.width - 160, 50, 150, 20)
+        )
+        pygame.draw.rect(
+            self.screen,
+            (255, 0, 0),
+            pygame.Rect(
+                self.width - 160,
+                50,
+                150 * self.enemy.abilities["health"] / self.enemy.max_health
+                if self.enemy
+                else 0,
+                20,
+            ),
+        )
+
+        # draw the attack menu
+        menu_rect = pygame.Rect(
+            self.menu_x, self.menu_y, self.menu_width, self.menu_height
+        )
+        pygame.draw.rect(self.screen, (255, 255, 255), menu_rect, 2)
+
+        if self.waiting_for_enemy:
+            Text(
+                "Waiting for Alien to make a move...",
+                "sans-serif",
+                self.menu_x + self.menu_width // 2,
+                self.menu_y + 20,
+                24,
+                (255, 255, 255),
+            ).blit_into(self.screen)
+        else:
+            Text(
+                "Select an Attack",
+                "sans-serif",
+                self.menu_x + self.menu_width // 2,
+                self.menu_y + 20,
+                24,
+                (255, 255, 255),
+            ).blit_into(self.screen)
+
+            for i, attack in enumerate(self.player.attacks):
+                row = i // self.num_buttons_per_row
+                col = i % self.num_buttons_per_row
+                button_x = (
+                    self.menu_x
+                    + col * (self.button_width + self.button_spacing)
+                    + self.button_spacing
+                )
+                button_y = (
+                    self.menu_y + row * (self.button_height + self.button_spacing) + 80
+                )
+                button_rect = pygame.Rect(
+                    button_x, button_y, self.button_width, self.button_height
+                )
+                pygame.draw.rect(self.screen, (255, 255, 255), button_rect, 2)
+                Text(
+                    attack["name"],
+                    "sans-serif",
+                    button_x + self.button_width // 2,
+                    button_y + 20,
+                    20,
+                    (255, 255, 255),
+                ).blit_into(self.screen)
+                Text(
+                    f"Power: {attack['power']}",
+                    "sans-serif",
+                    button_x + self.button_width // 2,
+                    button_y + 40,
+                    14,
+                    (255, 255, 255),
+                ).blit_into(self.screen)
+
+        # draw current attack info
+        if self.current_attack is not None:
+            Text(
+                f"{self.current_attack['name']}!",
+                "sans-serif",
+                self.width // 2,
+                self.height - 100,
+                30,
+                (255, 255, 255),
+            ).blit_into(self.screen)
+            Text(
+                f"Power: {self.current_attack['power']}",
+                "sans-serif",
+                self.width // 2,
+                self.height - 60,
+                20,
+                (255, 255, 255),
+            ).blit_into(self.screen)
+
+    def on_click(self, event):
         """Called when the user clicks the mouse"""
-        pass
 
-
-class Projectile(Sprite):
-    def __init__(
-        self,
-        pos: tuple[int, int] | list[int, int],
-        direction: tuple[int, int],
-        is_player=True,
-    ) -> None:
-        """Create a new projectile"""
-        self.x, self.y = pos
-        self.direction = direction
-        self.is_player = is_player
-        self.speed = 5
-        self.image = pygame.transform.rotozoom(
-            pygame.image.load("assets/fireball_1.png"),
-            -math.degrees(math.atan2(self.direction[1], self.direction[0])),
-            1.5,
-        )
-        self.rect = self.image.get_rect()
-
-    def update(self):
-        """Update the projectile position"""
-        self.x += self.direction[0] * self.speed * 1
-        self.y += self.direction[1] * self.speed * 1
-
-    def draw(self, screen: Surface):
-        """Draw the projectile on the screen"""
-        screen.blit(self.image, (self.x, self.y))
-
-    def check_collision(self, entity: Player | Enemy):
-        """Check if the projectile is colliding with the entity"""
-        return not (
-            self.x + self.rect.w / 2 < entity.pos[0]
-            or self.x + self.rect.w / 2 > entity.pos[0] + entity.rect.w
-            or self.y + self.rect.h / 2 < entity.pos[1]
-            or self.y + self.rect.h / 2 > entity.pos[1] + entity.rect.h
-        )
+        mouse_pos = event.pos
+        if self.waiting_for_enemy:
+            return
+        for i, attack in enumerate(self.player.attacks):
+            row = i // self.num_buttons_per_row
+            col = i % self.num_buttons_per_row
+            button_x = (
+                self.menu_x
+                + col * (self.button_width + self.button_spacing)
+                + self.button_spacing
+            )
+            button_y = (
+                self.menu_y + row * (self.button_height + self.button_spacing) + 80
+            )
+            button_rect = pygame.Rect(
+                button_x, button_y, self.button_width, self.button_height
+            )
+            if button_rect.collidepoint(mouse_pos):
+                self.attack(self.player, self.enemy, attack["power"])
+                if self.enemy.abilities["health"] >= 0:
+                    self.waiting_for_enemy = True
+                    # pygame.time.set_timer(pygame.USEREVENT, 2000)
+                    self.attack(
+                        self.enemy,
+                        self.player,
+                        random.choice(self.enemy.attacks)["power"],
+                    )
+                    # TODO if the player dies, have a screen that shows the player lost
+                    self.waiting_for_enemy = False
+                else:
+                    self.win_battle()

@@ -51,11 +51,11 @@ class StoreItems(Group):
         self.potion_offset = Vector2(0, 0)
 
         # store the sprites with their positions
-        self.sprite_pos = []
-        self.sprite_rects = []
+        self.sprite_pos = {}
+        self.sprite_rects = {}
 
         # if inventory changed
-        self._changed = False
+        self.items_changed = False
 
         # currently active item
         self.active_item = None
@@ -70,7 +70,7 @@ class StoreItems(Group):
             bisect.insort(self.def_list, sprite, key=lambda x: x.name)
         elif sprite.type == ItemTypes.POTION:
             bisect.insort(self.potion_list, sprite, key=lambda x: x.name)
-        self._changed = True
+        self.items_changed = True
 
     def remove_internal(self, sprite) -> None:
         lost_rect = self.spritedict[sprite]
@@ -84,10 +84,10 @@ class StoreItems(Group):
             self.def_list.remove(sprite)
         elif sprite.type == ItemTypes.POTION:
             self.potion_list.remove(sprite)
-        self._changed = True
+        self.items_changed = True
 
     def draw(self, surface: Surface, bgsurf=None, special_flags: int = 0):
-        if self._changed:
+        if self.items_changed:
             self.atk_offset = Vector2(0, 0)
             for sprite in self.atk_list:
                 if (
@@ -97,8 +97,8 @@ class StoreItems(Group):
                     self.atk_offset[1] += STORE_PADDING * 1.2
                     self.atk_offset[0] = 0
                 pos = Vector2(STORE_PADDING, STORE_PADDING) + self.atk_offset
-                self.sprite_pos.append((sprite, pos))
-                self.sprite_rects.append(sprite.draw(surface, pos))
+                self.sprite_pos.update({sprite: pos})
+                self.sprite_rects.update(sprite.draw(surface, pos))
                 self.atk_offset[0] += STORE_PADDING * 1.2
 
             self.def_offset = Vector2(0, self.atk_offset[1] + STORE_PADDING * 2.5)
@@ -110,8 +110,8 @@ class StoreItems(Group):
                     self.def_offset[1] += STORE_PADDING * 1.2
                     self.def_offset[0] = 0
                 pos = Vector2(STORE_PADDING, STORE_PADDING) + self.def_offset
-                self.sprite_pos.append((sprite, pos))
-                self.sprite_rects.append(sprite.draw(surface, pos))
+                self.sprite_pos.update({sprite: pos})
+                self.sprite_rects.update(sprite.draw(surface, pos))
                 self.def_offset[0] += STORE_PADDING * 1.2
 
             self.potion_offset = Vector2(0, self.def_offset[1] + STORE_PADDING * 2.5)
@@ -123,14 +123,14 @@ class StoreItems(Group):
                     self.potion_offset[1] += STORE_PADDING * 1.2
                     self.potion_offset[0] = 0
                 pos = Vector2(STORE_PADDING, STORE_PADDING) + self.potion_offset
-                self.sprite_pos.append((sprite, pos))
-                self.sprite_rects.append(sprite.draw(surface, pos))
+                self.sprite_pos.update({sprite: pos})
+                self.sprite_rects.update(sprite.draw(surface, pos))
                 self.potion_offset[0] += STORE_PADDING * 1.2
 
-            self._changed = False
+            self.items_changed = False
         else:
-            for sprite, pos in self.sprite_pos:
-                sprite.draw(surface, pos)
+            for sprite, pos in self.sprite_pos.items():
+                self.sprite_rects.update(sprite.draw(surface, pos))
                 if self.active_item:
                     if sprite.name == self.active_item.name:
                         sprite.on_focus = True
@@ -144,7 +144,7 @@ class StoreItems(Group):
         mouse_pos = Vector2(pygame.mouse.get_pos())
         # item_clicked = False
 
-        for rect, sprite in self.sprite_rects:
+        for sprite, rect in self.sprite_rects.items():
             if rect.collidepoint(mouse_pos):
                 if LEFT_CLICK.get():
                     ITEM_FOCUSED.post({"item": sprite})
