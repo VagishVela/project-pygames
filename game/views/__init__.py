@@ -206,4 +206,4 @@ class View:
         )
         self._running = False
         logger.debug(f" switching views from {self} to {next_view}")
-        next_view.run(_spl_args if _spl_args else None)
+        next_view.run(_spl_args or None)

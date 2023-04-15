@@ -42,13 +42,14 @@ class Player(Sprite):
 
     def draw(self, screen: Surface, world_spece=False):
         """Draw the player"""
-        if not world_spece:
-            pos = (
+        pos = (
+            (self.pos[0], self.pos[1])
+            if world_spece
+            else (
                 screen.get_width() / 2 - self.pos[0],
                 screen.get_height() / 2 - self.pos[1],
             )
-        else:
-            pos = (self.pos[0], self.pos[1])
+        )
         screen.blit(self.image, pos)
 
         if self.dodging:

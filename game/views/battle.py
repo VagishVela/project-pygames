@@ -62,9 +62,9 @@ class Battle(View):
             if not self.my_turn:
                 return
             self.my_turn = False
+        elif self.my_turn:
+            return
         else:
-            if self.my_turn:
-                return
             self.my_turn = True
 
         if isinstance(_to, Player):

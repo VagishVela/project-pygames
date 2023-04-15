@@ -66,6 +66,4 @@ class CustomEvent:
 
     def get(self) -> pygame.event.Event | None:
         """get the event state from the pygame events queue"""
-        if e := pygame.event.get(self.type):
-            return e[0]
-        return None
+        return e[0] if (e := pygame.event.get(self.type)) else None

@@ -23,9 +23,7 @@ class Data:
 
     def get_slot(self, slot) -> dict:
         """get a slot from the stored slots"""
-        if slot <= self.max_slots:
-            return self.slots[slot]
-        return {}
+        return self.slots[slot] if slot <= self.max_slots else {}
 
     def save_slot(self, slot_data) -> None:
         """save a slot"""
