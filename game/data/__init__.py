@@ -108,9 +108,9 @@ class DataIO:
         """get attributes from a loaded slot"""
         return self.data.get_slot(self.slot)[key]
 
-    def save_temp(self, loc, defeated):
-        """Save a slot temporarily"""
-        self.temp = (loc, defeated)
+    def save_temp(self, data):
+        """Save something temporarily"""
+        self.temp = data
 
 
 game_data = DataIO()

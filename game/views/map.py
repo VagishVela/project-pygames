@@ -117,7 +117,7 @@ class Map(View):
         if not temp:
             game_data.save(self.screen_map.level.loc, [])
         else:
-            game_data.save_temp(self.screen_map.level.loc, [])
+            game_data.save_temp((self.screen_map.level.loc, []))
         logger.debug(" saved data!")
 
     def load_data(self, state):
@@ -132,7 +132,7 @@ class Map(View):
         self.on_draw()
 
     def pre_run(self, _spl_args):
-        if _spl_args.get("reset"):
+        if "reset" in _spl_args:
             self.screen_map.load((0, 0))
-        elif _spl_args.get("load"):
+        elif "load" in _spl_args:
             self.load_data(_spl_args["load"])
