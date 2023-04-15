@@ -11,6 +11,7 @@ from game.config import FPS, SCREEN_WIDTH, SCREEN_HEIGHT
 from game.custom_event import LEFT_CLICK, RIGHT_CLICK, SCROLL_UP, SCROLL_DOWN
 from game.logger import logger
 from game.utils import Cache, EventHandler
+from game.utils.text import Font
 
 # used to cache views
 views_cache = Cache()
@@ -59,7 +60,9 @@ class View:
 
         # initiate the screen and font
         self.screen = pygame.display.set_mode(self.size)
-        self.font = pygame.font.get_default_font()
+        # self.font = pygame.font.get_default_font()
+
+        self.font = Font("assets/Pokemon Hollow.ttf", 23)
 
         # keep track of states, time and events
         self._running = False
