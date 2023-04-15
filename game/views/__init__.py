@@ -88,6 +88,7 @@ class View:
     def exit(self):
         """Quit the view"""
         logger.debug(f" View {self} exits")
+        self._running = False
         pygame.display.quit()
 
     @classmethod

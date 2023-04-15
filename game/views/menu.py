@@ -20,6 +20,7 @@ class Menu(View):
                 "text": "TEST - Store",
                 "view_path": 'store.Store#{"escape": "menu.Menu"}',
             },
+            {"text": "Quit", "view_path": "", "on_click": self.exit},
         ]
         self.buttons = [
             MenuButton(
@@ -28,7 +29,7 @@ class Menu(View):
                 dimensions=(100, 50),
                 view_path=option["view_path"],
                 text=option["text"],
-                on_click=lambda: print("pressed"),  # debug
+                on_click=option.get("on_click"),
             )
             for i, option in enumerate(self.options)
         ]
