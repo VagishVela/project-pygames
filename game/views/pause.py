@@ -21,11 +21,11 @@ class Pause(View):
             {
                 "text": "Save progress",
                 "view_path": "map.Map",
+                "on_click": partial(game_data.save, *game_data.temp),
             },
             {
                 "text": "Load a previous game",
                 "view_path": 'slots.Slots#{"escape": "pause.Pause"}',
-                "on_click": partial(game_data.save, *game_data.temp),
             },
             {"text": "Store", "view_path": 'store.Store#{"escape": "pause.Pause"}'},
         ]
@@ -33,10 +33,10 @@ class Pause(View):
             MenuButton(
                 self,
                 xy=(self.width / 2, self.height / 2 - 120 + i * 60),
-                dimensions=(100, 50),
+                dimensions=(200, 50),
                 view_path=option["view_path"],
                 text=option["text"],
-                on_click=option.get("on_click"),  # debug
+                on_click=option.get("on_click"),
             )
             for i, option in enumerate(self.options)
         ]
