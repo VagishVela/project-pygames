@@ -5,7 +5,7 @@ import numpy as np
 import pygame
 
 from game.config import SCREEN_WIDTH, SCREEN_HEIGHT
-from game.custom_event import ENEMY_ENCOUNTERED
+from game.custom_event import ENEMY_ENCOUNTERED, PASS_VIEW
 from game.data import game_data
 from game.entities.enemy import Enemy
 from game.entities.player import Player
@@ -108,7 +108,11 @@ class Map(View):
                 return
         if ENEMY_ENCOUNTERED.get():
             logger.debug(" enemy encountered!")
-            self.change_views("battle.Battle", caption="Battle", check_cache=False)
+            PASS_VIEW.post({"view": self})
+            self.change_views(
+                'battle.Battle#{"dummy":0}', caption="Battle", check_cache=False
+            )
+            return
 
     def save_data(self, temp=False):
         """Save the data"""
