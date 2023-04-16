@@ -91,7 +91,7 @@ class Battle(View):
 
         # draw the player and the enemy
         self.screen.blit(pygame.image.load("assets/player.png"), (50, 200))
-        self.screen.blit(pygame.image.load("assets/enemy.png"), (self.width - 150, 50))
+        self.screen.blit(pygame.image.load("assets/enemy.png"), (self.width - 150, 100))
 
         # draw the health bars
         pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect(10, 10, 150, 20))
