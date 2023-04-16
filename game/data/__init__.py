@@ -99,6 +99,7 @@ class DataIO:
                     self._data = {}
                 self.data = Data(self._data)
         except FileNotFoundError:
+            logger.warning("File was not found, creating new savefile")
             with open(self.file, "w+", encoding="utf-8") as f:
                 # create an empty file
                 f.write("")
