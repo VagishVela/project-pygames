@@ -40,16 +40,18 @@ class Player(Sprite):
         # Return true if the player dies
         return self.abilities["health"] <= 0
 
-    def draw(self, screen: Surface, world_spece=False):
+    def draw(self, screen: Surface, pos=None):
         """Draw the player"""
-        if not world_spece:
-            pos = (
-                screen.get_width() / 2 - self.pos[0],
-                screen.get_height() / 2 - self.pos[1],
+        if pos is None:
+            screen.blit(
+                self.image,
+                (
+                    screen.get_width() / 2 - self.pos[0],
+                    screen.get_height() / 2 - self.pos[1],
+                ),
             )
         else:
-            pos = (self.pos[0], self.pos[1])
-        screen.blit(self.image, pos)
+            screen.blit(self.image, pos)
 
         if self.dodging:
             pygame.draw.circle(

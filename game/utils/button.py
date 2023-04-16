@@ -119,4 +119,6 @@ class MenuButton(Button):
         if self._on_click:
             # if there's something to do before switching views
             self._on_click()
-        self.view.change_views(self.link_to_path, self.link_to_path.split(".")[-1])
+        if self.link_to_path:
+            # if path was empty, act like a normal button
+            self.view.change_views(self.link_to_path)

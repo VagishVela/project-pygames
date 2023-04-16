@@ -54,6 +54,7 @@ class CustomEvent:
             self.type = pygame.event.custom_type()
             CustomEvent.num_left -= 1
             self.event = pygame.event.Event(self.type, _dict)
+            self.event.dict.update({"was_waited": False})
         else:
             raise pygame.error("Number of custom type events exceeded pygame limit")
 
@@ -67,5 +68,17 @@ class CustomEvent:
     def get(self) -> pygame.event.Event | None:
         """get the event state from the pygame events queue"""
         if e := pygame.event.get(self.type):
-            return e[0]
+            event = e[0]
+            if event.was_waited and not event.repeat_wait:
+                # remove the timer
+                pygame.time.set_timer(self.type, 0)
+            return event
         return None
+
+    def wait(self, time, _dict=None, repeat=False) -> None:
+        """post this event after waiting for `time` ms"""
+        if _dict is None:
+            _dict = {}
+        self.event.dict.update({"was_waited": True, "repeat_wait": repeat} | _dict)
+        # set the timer
+        pygame.time.set_timer(self.event, time)

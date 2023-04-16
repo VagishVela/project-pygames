@@ -23,9 +23,7 @@ class Data:
 
     def get_slot(self, slot) -> dict:
         """get a slot from the stored slots"""
-        if slot <= self.max_slots:
-            return self.slots[slot]
-        return {}
+        return self.slots[slot] if slot <= self.max_slots else {}
 
     def save_slot(self, slot_data) -> None:
         """save a slot"""
@@ -56,6 +54,7 @@ class DataIO:
     """Work with the savefile and perform FileIO operations"""
 
     def __init__(self, file="game/data/game.dat"):
+        self.temp = None
         self.slot = None
         self.file = file
         self._data = None  # raw
@@ -100,6 +99,7 @@ class DataIO:
                     self._data = {}
                 self.data = Data(self._data)
         except FileNotFoundError:
+            logger.warning("File was not found, creating new savefile")
             with open(self.file, "w+", encoding="utf-8") as f:
                 # create an empty file
                 f.write("")
@@ -108,6 +108,10 @@ class DataIO:
     def get(self, key):
         """get attributes from a loaded slot"""
         return self.data.get_slot(self.slot)[key]
+
+    def save_temp(self, data):
+        """Save something temporarily"""
+        self.temp = data
 
 
 game_data = DataIO()

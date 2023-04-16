@@ -14,7 +14,7 @@ LOGGER_LEVEL = logging.DEBUG  # development
 
 # Store meta
 STORE_PADDING = int(TILE_SIZE * 1.33)
-STORE_BG = (50, 50, 50)
+STORE_BG = (0, 0, 0)
 STORE_SCROLL_SPEED = 20
 STORE_ON_FOCUS = (25, 25, 25)
 

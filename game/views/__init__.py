@@ -1,5 +1,7 @@
 """ This package contains the views """
+import json
 from importlib import import_module
+from json import JSONDecodeError
 from typing import Optional
 
 import pygame
@@ -10,6 +12,7 @@ from game.config import FPS, SCREEN_WIDTH, SCREEN_HEIGHT
 from game.custom_event import LEFT_CLICK, RIGHT_CLICK, SCROLL_UP, SCROLL_DOWN
 from game.logger import logger
 from game.utils import Cache, EventHandler
+from game.utils.text import Font
 
 # used to cache views
 views_cache = Cache()
@@ -45,7 +48,7 @@ class View:
         self.size = Vector2(size)
 
         # set caption and icon
-        self.caption = caption or "Pygame Window"
+        self.caption = caption or self.__class__.__name__
         if self.caption:
             logger.debug(f" set caption: {self.caption}")
             pygame.display.set_caption(self.caption)
@@ -58,7 +61,9 @@ class View:
 
         # initiate the screen and font
         self.screen = pygame.display.set_mode(self.size)
-        self.font = pygame.font.get_default_font()
+        # self.font = pygame.font.get_default_font()
+
+        self.font = Font("assets/Pokemon Hollow.ttf", 23)
 
         # keep track of states, time and events
         self._running = False
@@ -87,6 +92,7 @@ class View:
     def exit(self):
         """Quit the view"""
         logger.debug(f" View {self} exits")
+        self._running = False
         pygame.display.quit()
 
     @classmethod
@@ -94,7 +100,7 @@ class View:
         """Get a class instance with attributes of the another view"""
         return cls(
             size or prev_view.size,
-            caption or prev_view.caption,
+            caption or cls.__name__,
             None,  # icon
             bg_color or prev_view.bg_color,
         )
@@ -111,8 +117,17 @@ class View:
     def on_update(self):
         """To override"""
 
-    def run(self):
-        """Runs the main loop for this view"""
+    def pre_run(self, _spl_args):
+        """Called just before running the view"""
+
+    def run(self, _spl_args=None):
+        """
+        Runs the main loop for this view
+        :param _spl_args: special serializable kwargs
+        """
+
+        if _spl_args:
+            self.pre_run(_spl_args)
 
         self._running = True
         logger.debug(f" Loading done! {self}")
@@ -149,7 +164,7 @@ class View:
     # pylint: disable=too-many-arguments
     def change_views(
         self,
-        next_view_path,
+        next_view_path: str,
         caption: Optional[str] = None,
         size: Optional[Coordinate] = None,
         bg_color: Optional[ColorValue] = None,
@@ -167,23 +182,36 @@ class View:
         """
 
         # try most common usage
-        next_view_module, _class = next_view_path.split(".")
+        if "#" in next_view_path:
+            next_view_path, _spl_args = next_view_path.split("#", maxsplit=1)
+            try:
+                _spl_args = json.loads(_spl_args)
+            except JSONDecodeError as e:
+                logger.warning(e)
+                logger.warning(_spl_args)
+        else:
+            _spl_args = None
+        next_view_module, _class_name = next_view_path.split(".")
         next_view_module = import_module(f"game.views.{next_view_module}")
+
+        if not caption:
+            #     default to class name
+            caption = _class_name
 
         # implement a try-catch block here if other modules are used for views than `game.views`
 
-        next_view = (
+        next_view: "View" = (
             views_cache.get(
                 (next_view_path, caption, size, bg_color),
-                getattr(next_view_module, _class).from_view(
+                getattr(next_view_module, _class_name).from_view(
                     self, caption, size, bg_color
                 ),
             )
             if check_cache
-            else getattr(next_view_module, _class).from_view(
+            else getattr(next_view_module, _class_name).from_view(
                 self, caption, size, bg_color
             )
         )
         self._running = False
         logger.debug(f" switching views from {self} to {next_view}")
-        next_view.run()
+        next_view.run(_spl_args or None)

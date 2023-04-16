@@ -13,10 +13,14 @@ class Menu(View):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.options = [
-            {"text": "New Game", "view_path": "map.Map"},
-            {"text": "Continue", "view_path": "slots.Slots"},
+            {"text": "New Game", "view_path": 'map.Map#{"reset":true}'},
+            {"text": "Continue", "view_path": 'slots.Slots#{"escape": "menu.Menu"}'},
             {"text": "TEST - Battle", "view_path": "battle.Battle"},
-            {"text": "TEST - Store", "view_path": "store.Store"},
+            {
+                "text": "TEST - Store",
+                "view_path": 'store.Store#{"escape": "menu.Menu"}',
+            },
+            {"text": "Quit", "view_path": "", "on_click": self.exit},
         ]
         self.buttons = [
             MenuButton(
@@ -25,7 +29,7 @@ class Menu(View):
                 dimensions=(100, 50),
                 view_path=option["view_path"],
                 text=option["text"],
-                on_click=lambda: print("pressed"),  # debug
+                on_click=option.get("on_click"),
             )
             for i, option in enumerate(self.options)
         ]

@@ -8,6 +8,21 @@ from pygame import Surface
 from game.common_types import ColorValue, NumType
 
 
+class Font(pygame.font.Font):
+    """Expand font functionality"""
+
+    def __init__(self, name, size):
+        super().__init__(name, size)
+        self.name = name
+        self.font_size = size
+
+    # pylint: disable=unnecessary-dunder-call
+    def set_size(self, size):
+        """re-initiate with a different font size"""
+        if size != self.font_size:
+            self.__init__(self.name, size)
+
+
 # pylint: disable=too-many-instance-attributes, too-many-arguments
 class Text:
     """Class to handle text"""
@@ -62,7 +77,13 @@ class Text:
             :return: The rendered surface
         """
 
-        if isinstance(self.font, pygame.font.FontType):
+        if isinstance(self.font, Font):
+            font = self.font
+            if font.font_size != self.size:
+                font.set_size(self.size)
+                self.font = font
+        elif isinstance(self.font, pygame.font.Font):
+            # fallback
             font = self.font
         else:
             font = pygame.font.SysFont(self.font, self.size)
