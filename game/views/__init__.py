@@ -1,6 +1,7 @@
 """ This package contains the views """
 import json
 from importlib import import_module
+from json import JSONDecodeError
 from typing import Optional
 
 import pygame
@@ -182,8 +183,12 @@ class View:
 
         # try most common usage
         if "#" in next_view_path:
-            next_view_path, _spl_args = next_view_path.split("#")
-            _spl_args = json.loads(_spl_args)
+            next_view_path, _spl_args = next_view_path.split("#", maxsplit=1)
+            try:
+                _spl_args = json.loads(_spl_args)
+            except JSONDecodeError as e:
+                logger.warning(e)
+                logger.warning(_spl_args)
         else:
             _spl_args = None
         next_view_module, _class_name = next_view_path.split(".")
