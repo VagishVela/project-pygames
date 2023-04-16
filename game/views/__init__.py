@@ -2,7 +2,7 @@
 import json
 from importlib import import_module
 from json import JSONDecodeError
-from typing import Optional
+from typing import Optional, final
 
 import pygame
 from pygame import Vector2, Surface
@@ -72,6 +72,10 @@ class View:
 
         @self.events.register(pygame.QUIT)
         def on_close(event):
+            """
+            call this when quitting
+            :param event: the pygame.QUIT event
+            """
             logger.debug(f" {event}")
             self._running = False
 
@@ -96,21 +100,23 @@ class View:
         pygame.display.quit()
 
     @classmethod
+    @final
     def from_view(cls, prev_view: "View", caption=None, size=None, bg_color=None):
         """Get a class instance with attributes of the another view"""
         return cls(
             size or prev_view.size,
             caption or cls.__name__,
-            None,  # icon
-            bg_color or prev_view.bg_color,
+            bg_color=bg_color or prev_view.bg_color,
         )
 
+    @final
     def _refresh(self, frame_rate=FPS):
         # check if display is still initiated
         if self._running:
             self._clock.tick(frame_rate)
             pygame.display.flip()
 
+    @final
     def _handle_events(self):
         self.events.run()
 
@@ -120,6 +126,7 @@ class View:
     def pre_run(self, _spl_args):
         """Called just before running the view"""
 
+    @final
     def run(self, _spl_args=None):
         """
         Runs the main loop for this view
@@ -141,6 +148,7 @@ class View:
         self.exit()
 
     @staticmethod
+    @final
     def _on_mouse_down(event):
         match event.button:
             case 1:
@@ -162,6 +170,7 @@ class View:
         """Called when a key is pressed"""
 
     # pylint: disable=too-many-arguments
+    @final
     def change_views(
         self,
         next_view_path: str,

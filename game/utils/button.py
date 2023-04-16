@@ -112,7 +112,7 @@ class MenuButton(Button):
         self._on_click = on_click
         self.view = view
         self.link_to_path = view_path
-        super().__init__(xy, dimensions, text, on_click=self._change_to_view, once=True)
+        super().__init__(xy, dimensions, text, on_click=self._change_to_view)
 
     def _change_to_view(self):
         """Switch views"""

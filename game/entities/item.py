@@ -71,7 +71,7 @@ class AllItems(Enum):
 class StoreItem(Sprite, Scrollable):
     """Class for the items in store"""
 
-    def __init__(self, itemID: str):
+    def __init__(self, item_id: str):
         """Initialize the item"""
 
         # super() doesn't initiate both
@@ -81,7 +81,7 @@ class StoreItem(Sprite, Scrollable):
         # if locked, grey out
         self.locked = False
 
-        self.item = getattr(AllItems, itemID)
+        self.item = getattr(AllItems, item_id)
         self.type = self.item.type
         self.name = self.item.item_name
         self.image = pygame.transform.scale(

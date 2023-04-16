@@ -15,7 +15,7 @@ class Scrollable(ABC):
     def __init__(self):
         """Initialize the component"""
 
-        self.offset = Vector2(0, 0)
+        self.offset = Vector2((0, 0))
 
     def scroll(self, dx, dy):
         """Scroll the component"""
