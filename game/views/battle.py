@@ -7,6 +7,7 @@ import pygame
 
 from game.custom_event import PASS_VIEW, WAIT_FOR_ENEMY
 from game.data import game_data
+from game.data.states import GameState
 from game.entities.enemy import Enemy
 from game.entities.player import Player
 from game.utils import Text
@@ -220,7 +221,7 @@ class Battle(View):
     def on_keydown(self, event) -> None:
         if event.key == pygame.K_ESCAPE:
             # open the pause menu
-            game_data.save_temp((Battle.game_view.screen_map.level.loc, []))
+            game_data.save_temp(GameState(Battle.game_view.screen_map.level.state))
             self.change_views('pause.Pause#{"escape":"battle.Battle#{\\"dummy\\":0}"}')
 
     def on_click(self, event) -> None:

@@ -7,10 +7,11 @@ import pygame
 from game.config import SCREEN_WIDTH, SCREEN_HEIGHT
 from game.custom_event import ENEMY_ENCOUNTERED, PASS_VIEW
 from game.data import game_data
+from game.data.states import GameState
 from game.entities.enemy import Enemy
 from game.entities.player import Player
 from game.entities.walls import Wall
-from game.level_gen import Level
+from game.level_gen import Level, LevelState
 from game.views import View, logger
 
 # get logger
@@ -37,13 +38,14 @@ class Screen:
         cls.regenerate = True
 
     @classmethod
-    def load(cls, loc=None):
+    def load(cls, level_state: LevelState = None):
         """load and generate the screen"""
         if cls.regenerate:
             cls.clear()
-        if loc:
+        if level_state:
             cls.clear()
-            cls.level.set_loc(loc)
+            cls.level.state.reset()
+            cls.level.state.set(level_state.loc, level_state.removed)
         if not cls._initiated:
             cls.initiate()
         map_ = cls.level.generate()
@@ -60,6 +62,7 @@ class Screen:
         # move the level
 
         if cls.level.move(dx, dy):
+            logger.debug(str(cls.level.state))
             cls.regenerate = True
             # update the screen
             cls.load()
@@ -132,26 +135,28 @@ class Map(View):
     def save_data(self, temp=False):
         """Save the data"""
 
+        state = GameState(self.screen_map.level.state)
+
         logger.debug(" saving data...")
         if not temp:
-            game_data.save(self.screen_map.level.loc, [])
+            game_data.save_game_state(state)
         else:
-            game_data.save_temp((self.screen_map.level.loc, []))
+            game_data.save_temp(state)
         logger.debug(" saved data!")
 
-    def load_data(self, state):
+    def load_data(self, state_index):
         """Load a saved state from the data"""
 
         logger.debug(" loading data")
-        game_data.load(state)
+        game_data.load(state_index)
 
         # clear screen and set level state
-        self.screen_map.load(game_data.get("loc"))
+        self.screen_map.load(LevelState(game_data.get("loc"), game_data.get("removed")))
         # redraw
         self.on_draw()
 
     def pre_run(self, _spl_args):
         if "reset" in _spl_args:
-            self.screen_map.load((0, 0))
+            self.screen_map.load(LevelState([0, 0], set()))
         elif "load" in _spl_args:
             self.load_data(_spl_args["load"])
