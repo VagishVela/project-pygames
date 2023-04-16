@@ -25,7 +25,7 @@ class Screen:
     walls = {}
     level = Level()
     _initiated = False
-    _regenerate = False
+    regenerate = False
 
     @classmethod
     def initiate(cls):
@@ -34,12 +34,12 @@ class Screen:
             cls.enemies[(i, j)] = Enemy()
             cls.walls[(i, j)] = Wall()
         cls._initiated = True
-        cls._regenerate = True
+        cls.regenerate = True
 
     @classmethod
     def load(cls, loc=None):
         """load and generate the screen"""
-        if cls._regenerate:
+        if cls.regenerate:
             cls.clear()
         if loc:
             cls.clear()
@@ -60,7 +60,7 @@ class Screen:
         # move the level
 
         if cls.level.move(dx, dy):
-            cls._regenerate = True
+            cls.regenerate = True
             # update the screen
             cls.load()
 
@@ -87,6 +87,9 @@ class Map(View):
 
         self.speed = 5
 
+        # to be used for battle view
+        self.enemy_pos = None
+
     def on_draw(self):
         self.screen_map.draw(self.screen)
         self.player.draw(self.screen)
@@ -106,11 +109,17 @@ class Map(View):
                 logger.debug(" game paused")
                 self.change_views('pause.Pause#{"escape":"map.Map"}', caption="Paused")
                 return
-        if ENEMY_ENCOUNTERED.get():
+        if e := ENEMY_ENCOUNTERED.get():
+            # get enemy position
+            self.enemy_pos = e.pos
             logger.debug(" enemy encountered!")
             PASS_VIEW.post({"view": self})
             self.change_views(
-                'battle.Battle#{"dummy":0}', caption="Battle", check_cache=False
+                # dummy_var is required to run the pre_run method in Battle view
+                # pre_run method receives the above posted events
+                'battle.Battle#{"dummy_var":0}',
+                caption="Battle",
+                check_cache=False,
             )
             return
 

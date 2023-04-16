@@ -23,6 +23,7 @@ class Battle(View):
     """The Battle view"""
 
     # the map view
+    # if not passed any view, preserve the previous one
     game_view: "Map" = None
 
     def __init__(self, *args, **kwargs) -> None:
@@ -43,6 +44,8 @@ class Battle(View):
         self.num_rows = None
         self.player = None
         self.enemy = Enemy()
+        # store the enemy position on map
+        self.enemy_map_pos = None
 
         # ------ states ------ #
         self.current_attack = None
@@ -53,7 +56,15 @@ class Battle(View):
         # get the game view before running this view
         if e := PASS_VIEW.get():
             Battle.game_view = e.view
+        if not getattr(self, "game_view"):
+            raise RuntimeError(
+                "Battle was not initiated properly, use PASS_VIEW to pass the Map "
+                "view"
+            )
+        # get the player from Map view
         self.player: Player = Battle.game_view.player
+        # get enemy position on the map
+        self.enemy_map_pos = Battle.game_view.enemy_pos
         num_attacks = len(self.player.attacks)
         self.num_rows = (
             num_attacks + self.num_buttons_per_row - 1
@@ -61,12 +72,6 @@ class Battle(View):
 
     def on_draw(self) -> None:
         """Draw the battle view"""
-
-        if not getattr(self, "game_view"):
-            raise RuntimeError(
-                "Battle was not initiated properly, use PASS_VIEW to pass the Map "
-                "view"
-            )
 
         # draw the results view
         if self.result == "won":
@@ -292,6 +297,12 @@ class Battle(View):
     def win_battle(self):
         """Called when the player wins"""
         self.result = "won"
+        # enemy is killed
+        # remove enemy from map
+        Battle.game_view.screen_map.level.remove_enemy(self.enemy_map_pos)
+        # regenerate and reload the map internally
+        Battle.game_view.screen_map.regenerate = True
+        Battle.game_view.screen_map.load()
         # TODO: give player XP and rewards
 
     def game_over(self):

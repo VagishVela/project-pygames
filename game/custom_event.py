@@ -4,8 +4,9 @@ from game.utils.eventhandler import CustomEvent
 
 # to be used in level_gen, views.map and battle
 # if player encounters an enemy
-ENEMY_ENCOUNTERED = CustomEvent()
-PASS_VIEW = CustomEvent({"self": ...})
+ENEMY_ENCOUNTERED = CustomEvent({"pos": ...})
+# to pass views within views
+PASS_VIEW = CustomEvent({"view": ...})
 # wait for enemy's turn
 WAIT_FOR_ENEMY = CustomEvent()
 
