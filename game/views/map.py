@@ -105,23 +105,29 @@ class Map(View):
             case pygame.K_RIGHT | pygame.K_d:
                 self.screen_map.move(-1, 0)
             case pygame.K_ESCAPE:
+                # needed for saving game from a different view
                 self.save_data(temp=True)
                 logger.debug(" game paused")
                 self.change_views('pause.Pause#{"escape":"map.Map"}', caption="Paused")
                 return
         if e := ENEMY_ENCOUNTERED.get():
-            # get enemy position
-            self.enemy_pos = e.pos
-            logger.debug(" enemy encountered!")
-            PASS_VIEW.post({"view": self})
-            self.change_views(
-                # dummy_var is required to run the pre_run method in Battle view
-                # pre_run method receives the above posted events
-                'battle.Battle#{"dummy_var":0}',
-                caption="Battle",
-                check_cache=False,
-            )
-            return
+            self._on_enemy_encounter(e)
+
+    def _on_enemy_encounter(self, event):
+        """called when enemy is encountered"""
+        # get enemy position
+        self.enemy_pos = event.pos
+        logger.debug(" enemy encountered!")
+        PASS_VIEW.post({"view": self})
+        # needed for saving game from a different view
+        self.save_data(temp=True)
+        self.change_views(
+            # dummy_var is required to run the pre_run method in Battle view
+            # pre_run method receives the above posted events
+            'battle.Battle#{"dummy_var":0}',
+            caption="Battle",
+            check_cache=False,
+        )
 
     def save_data(self, temp=False):
         """Save the data"""
