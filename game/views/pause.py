@@ -41,6 +41,7 @@ class Pause(View):
             for i, option in enumerate(self.options)
         ]
         logger.debug(f" buttons: {self.buttons}")
+        self.escape_to = None
 
     def on_update(self):
         for b in self.buttons:
@@ -61,6 +62,9 @@ class Pause(View):
         for b in self.buttons:
             b.blit_into(self.screen)
 
+    def pre_run(self, _spl_args):
+        self.escape_to = _spl_args["escape"]
+
     def on_keydown(self, event):
         if event.key == pygame.K_ESCAPE:
-            self.change_views("map.Map")
+            self.change_views(self.escape_to)
