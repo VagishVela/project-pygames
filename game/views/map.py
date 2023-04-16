@@ -104,7 +104,7 @@ class Map(View):
             case pygame.K_ESCAPE:
                 self.save_data(temp=True)
                 logger.debug(" game paused")
-                self.change_views("pause.Pause", caption="Paused")
+                self.change_views('pause.Pause#{"escape":"map.Map"}', caption="Paused")
                 return
         if ENEMY_ENCOUNTERED.get():
             logger.debug(" enemy encountered!")
