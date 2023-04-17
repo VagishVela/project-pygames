@@ -117,8 +117,9 @@ class Map(View):
             case pygame.K_ESCAPE:
                 # needed for saving game from a different view
                 self.save_data(temp=True)
+                game_data.save_temp("Map", "paused_from")
                 logger.debug(" game paused")
-                self.change_views('pause.Pause#{"escape":"map.Map"}', caption="Paused")
+                self.change_views("pause.Pause", caption="Paused")
                 return
         if e := ENEMY_ENCOUNTERED.get():
             self._on_enemy_encounter(e)
@@ -132,9 +133,7 @@ class Map(View):
         # needed for saving game from a different view
         self.save_data(temp=True)
         self.change_views(
-            # dummy_var is required to run the pre_run method in Battle view
-            # pre_run method receives the above posted events
-            'battle.Battle#{"dummy_var":0}',
+            "battle.Battle",
             caption="Battle",
             check_cache=False,
         )
@@ -163,7 +162,8 @@ class Map(View):
         self.on_draw()
 
     def pre_run(self, _spl_args):
-        if "reset" in _spl_args:
-            self.screen_map.load(LevelState([0, 0], set()))
-        elif "load" in _spl_args:
-            self.load_data(_spl_args["load"])
+        if _spl_args:
+            if "reset" in _spl_args:
+                self.screen_map.load(LevelState([0, 0], set()))
+            elif "load" in _spl_args:
+                self.load_data(_spl_args["load"])

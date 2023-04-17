@@ -209,7 +209,8 @@ class Battle(View):
         if event.key == pygame.K_ESCAPE:
             # open the pause menu
             game_data.save_temp(GameState(Battle.game_view.screen_map.level.state))
-            self.change_views('pause.Pause#{"escape":"battle.Battle#{\\"dummy\\":0}"}')
+            game_data.save_temp("Battle", "paused_from")
+            self.change_views("pause.Pause")
 
     def on_click(self, event) -> None:
         """Called when the user clicks the mouse"""

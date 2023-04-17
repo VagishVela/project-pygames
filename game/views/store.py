@@ -3,6 +3,7 @@
 import pygame
 
 from game.config import STORE_PADDING, STORE_BG, STORE_SCROLL_SPEED
+from game.data import game_data
 from game.entities.groups import StoreItems
 from game.entities.item import StoreItem, StoreDiv, StoreFooter
 from game.utils.div import Div
@@ -144,7 +145,8 @@ class Store(View):
             self.divs.scroll(0, -STORE_SCROLL_SPEED)
 
     def pre_run(self, _spl_args):
-        self.escape_to = _spl_args["escape"]
+        escape_to_name: str = game_data.get_temp("return_to")
+        self.escape_to = f"{escape_to_name.lower()}.{escape_to_name}"
 
     def on_keydown(self, event):
         if event.key == pygame.K_ESCAPE:

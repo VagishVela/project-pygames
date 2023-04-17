@@ -21,7 +21,8 @@ class Pause(View):
         self.buttons = None
 
     def pre_run(self, _spl_args):
-        self.escape_to = _spl_args["escape"]
+        escape_to_name: str = game_data.get_temp("paused_from")
+        self.escape_to = f"{escape_to_name.lower()}.{escape_to_name}"
         self.options = [
             {"text": "Main Menu", "view_path": "menu.Menu"},
             {
@@ -31,9 +32,9 @@ class Pause(View):
             },
             {
                 "text": "Load a previous game",
-                "view_path": 'slots.Slots#{"escape": "pause.Pause"}',
+                "view_path": "slots.Slots",
             },
-            {"text": "Store", "view_path": 'store.Store#{"escape": "pause.Pause"}'},
+            {"text": "Store", "view_path": "store.Store"},
         ]
         self.buttons = [
             MenuButton(
