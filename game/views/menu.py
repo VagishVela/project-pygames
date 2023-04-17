@@ -15,11 +15,7 @@ class Menu(View):
         self.options = [
             {"text": "New Game", "view_path": 'map.Map#{"reset":true}'},
             {"text": "Continue", "view_path": "slots.Slots"},
-            {"text": "TEST - Battle", "view_path": "battle.Battle"},
-            {
-                "text": "TEST - Store",
-                "view_path": "store.Store",
-            },
+            {"text": "Store", "view_path": "store.Store"},
             {"text": "Quit", "view_path": "", "on_click": self.exit},
         ]
         self.buttons = [

@@ -23,7 +23,7 @@ class Start(View):
             "pokemon-hollow",
             self.width / 2,
             self.height / 2 - 50,
-            200,
+            100,
             "red",
         ).blit_into(self.screen)
         Text(

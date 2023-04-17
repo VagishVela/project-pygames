@@ -2,7 +2,7 @@
 import logging
 
 # Game
-GAME_TITLE = "Game"
+GAME_TITLE = "Alien Escape"
 SCREEN_HEIGHT = 640
 SCREEN_WIDTH = 640
 FPS = 60
