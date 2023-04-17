@@ -129,6 +129,14 @@ class DataIO:
         with open(self.file, "w+", encoding="utf-8") as f:
             json.dump(self._data, f)
 
+    def clean(self):
+        """clear the savefile and cleans the data"""
+        with open(self.file, "w+", encoding="utf-8") as f:
+            f.write("")
+        # re-init
+        # pylint:disable=unnecessary-dunder-call
+        self.__init__()
+
     def read(self):
         """read the file and save the data internally"""
         try:

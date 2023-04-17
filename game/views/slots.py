@@ -48,8 +48,14 @@ class Slots(View):
                 text=text,
             )
             for i, text in enumerate(self.slots)
+        ] + [
+            Button(
+                xy=(self.width / 2 + 200, self.height - 100),
+                dimensions=(150, 50),
+                text="Clear saved games",
+                on_click=game_data.clean,
+            )
         ]
-        # logger.debug(f" buttons: {self.buttons}")
 
     def on_update(self):
         self._generate_buttons()
