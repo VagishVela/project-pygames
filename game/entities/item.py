@@ -98,10 +98,10 @@ class StoreItem(Sprite, Scrollable):
             surface.fill(STORE_ON_FOCUS)
         name = Text(
             self.name,
-            pygame.font.get_default_font(),
+            "pokemon-solid",
             STORE_PADDING / 2,
             STORE_PADDING * 0.9,
-            STORE_PADDING // 3,
+            STORE_PADDING // 4,
             "white",
         )
         name.blit_into(surface)
@@ -143,10 +143,10 @@ class StoreDiv(Div):
         if self.caption:
             Text(
                 self.caption,
-                pygame.font.get_default_font(),
+                "pokemon-solid",
                 rect[0] + STORE_PADDING,
                 rect[1],
-                STORE_PADDING // 3 * 2,
+                STORE_PADDING // 3 * 1.2,
                 "white",
                 STORE_BG,
             ).blit_into(surface)
@@ -180,7 +180,7 @@ class StoreFooter(Div):
                     surface.get_width() / 2 - STORE_PADDING * 1.5,
                     screen.get_height() - height / 2,
                 ),
-                (STORE_PADDING / 2, STORE_PADDING / 2),
+                (STORE_PADDING / 1.5, STORE_PADDING / 1.5),
                 "Buy",
                 on_click=lambda: print(
                     "pressed!", self.active_item.buy() if self.active_item else None
@@ -192,7 +192,7 @@ class StoreFooter(Div):
                     surface.get_width() / 2 + STORE_PADDING * 1.5,
                     screen.get_height() - height / 2,
                 ),
-                (STORE_PADDING / 2, STORE_PADDING / 2),
+                (STORE_PADDING / 1.5, STORE_PADDING / 1.5),
                 "Use",
                 on_click=lambda: print(
                     "pressed!", self.active_item.use() if self.active_item else None

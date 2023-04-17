@@ -4,6 +4,7 @@ from typing import Iterable, Optional
 
 import pygame
 from pygame import Surface
+from pygame.font import FontType
 
 from game.common_types import ColorValue, NumType
 
@@ -21,6 +22,32 @@ class Font(pygame.font.Font):
         """re-initiate with a different font size"""
         if size != self.font_size:
             self.__init__(self.name, size)
+
+
+FONT_DICT: dict[str, Font] = {}
+
+
+def find_font(name: str, size: int) -> FontType:
+    """finds a font from string"""
+    # see if name is in FONT_DICT else use SysFont
+    if name in FONT_DICT:
+        if FONT_DICT[name].font_size != size:
+            FONT_DICT[name].set_size(size)
+        return FONT_DICT[name]
+    return pygame.font.SysFont("name", size)
+
+
+def register_font(name: str, file: str, size: int):
+    """registers a font"""
+    if name in FONT_DICT:
+        raise ValueError(f"{name}: Name already in use")
+    FONT_DICT[name] = Font(file, size)
+
+
+def unregister_font(name: str):
+    """unregisters a font"""
+    if name in FONT_DICT:
+        FONT_DICT.pop(name)
 
 
 # pylint: disable=too-many-instance-attributes, too-many-arguments
@@ -47,10 +74,10 @@ class Text:
     def __init__(
         self,
         text: str,
-        font: str | bytes | Iterable[str | bytes] | pygame.font.FontType,
+        font: str,
         x: NumType,
         y: NumType,
-        size: int,
+        size: NumType,
         color: ColorValue,
         bg_color: Optional[ColorValue] = None,
         align: str = "center",
@@ -59,7 +86,7 @@ class Text:
         self.text: str = text
         self.x: NumType = x
         self.y: NumType = y
-        self.size: int = size
+        self.size = int(size)
         self.color: ColorValue = color
         self.bg_color: Optional[ColorValue] = bg_color
         self.align: str = align
@@ -77,17 +104,7 @@ class Text:
             :return: The rendered surface
         """
 
-        if isinstance(self.font, Font):
-            font = self.font
-            if font.font_size != self.size:
-                font.set_size(self.size)
-                self.font = font
-        elif isinstance(self.font, pygame.font.Font):
-            # fallback
-            font = self.font
-        else:
-            font = pygame.font.SysFont(self.font, self.size)
-
+        font = find_font(self.font, self.size)
         font.strikethrough = "strikethrough" in self.style
         font.italic = "italic" in self.style
         font.bold = "bold" in self.style

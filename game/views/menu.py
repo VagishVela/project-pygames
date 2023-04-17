@@ -26,7 +26,7 @@ class Menu(View):
             MenuButton(
                 self,
                 xy=(self.width / 2, self.height / 2 - 120 + i * 60),
-                dimensions=(100, 50),
+                dimensions=(150, 50),
                 view_path=option["view_path"],
                 text=option["text"],
                 on_click=option.get("on_click"),
@@ -44,10 +44,10 @@ class Menu(View):
     def on_draw(self):
         Text(
             "Menu",
-            self.font,
+            "pokemon-hollow",
             self.width / 2,
             self.height / 2 - 200,
-            40,
+            60,
             "red",
         ).blit_into(self.screen)
 

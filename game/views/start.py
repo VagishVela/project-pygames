@@ -20,7 +20,7 @@ class Start(View):
     def on_draw(self):
         Text(
             GAME_TITLE,
-            self.font,
+            "pokemon-hollow",
             self.width / 2,
             self.height / 2 - 50,
             200,
@@ -28,7 +28,7 @@ class Start(View):
         ).blit_into(self.screen)
         Text(
             "Click to advance!",
-            self.font,
+            "pokemon-hollow",
             self.width / 2,
             self.height / 2 + 50,
             50,

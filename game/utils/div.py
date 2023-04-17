@@ -40,7 +40,7 @@ class Div(Scrollable):
         if self.caption:
             text = Text(
                 self.caption,
-                pygame.font.get_default_font(),
+                "pokemon-solid",
                 rect[0] + 100,
                 rect[1],
                 60,
