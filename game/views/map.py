@@ -12,6 +12,7 @@ from game.entities.enemy import Enemy
 from game.entities.player import Player
 from game.entities.walls import Wall
 from game.level_gen import Level, LevelState
+from game.utils.bar import HealthBar
 from game.views import View, logger
 
 # get logger
@@ -94,8 +95,14 @@ class Map(View):
         self.enemy_pos = None
 
     def on_draw(self):
+        scale = (64, 96) if self.player.scale != (64, 96) else None
         self.screen_map.draw(self.screen)
-        self.player.draw(self.screen)
+        self.player.draw(self.screen, scale=scale)
+
+        # draw the health bar
+        HealthBar(self.player.max_health).draw(
+            self.screen, self.player.abilities["health"], (20, 20), 150, 20
+        )
 
     def on_keydown(self, event):
         match event.key:

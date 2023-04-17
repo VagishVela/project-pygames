@@ -1,7 +1,7 @@
 """ This module implements the Button class """
 import importlib
 import typing
-from typing import Optional, Iterable, Callable
+from typing import Optional, Callable
 
 import pygame
 from pygame import Surface, Rect
@@ -71,8 +71,8 @@ class Button:
     def blit_into(
         self,
         surface: Surface,
-        font: Optional[str | bytes | Iterable[str | bytes]] = None,
-        size: int = 20,
+        font: Optional[str] = None,
+        size: int = 18,
         color: ColorValue = (20, 20, 20),
     ):
         """
@@ -85,7 +85,7 @@ class Button:
         :return:
         """
         if not font:
-            font = pygame.font.get_default_font()
+            font = "pokemon-solid"
         Text(
             self.text,
             font,

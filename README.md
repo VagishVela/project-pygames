@@ -25,3 +25,9 @@ This game was developed by [Your Name] using [programming language/tools used]. 
 ## Feedback
 
 We hope you enjoy playing Alien Escape! If you have any feedback or encounter any bugs, please don't hesitate to contact us at [email or support page].
+
+## Licence
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details, for all code apart from the [assets](assets) folder, which is licensed under the following:
+
+ - [enemy.png](assets/enemy.png) from [alien ufo pack](https://www.kenney.nl/assets/alien-ufo-pack) with license [CC0](https://creativecommons.org/publicdomain/zero/1.0/)

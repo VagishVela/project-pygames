@@ -39,7 +39,7 @@ class Pause(View):
             MenuButton(
                 self,
                 xy=(self.width / 2, self.height / 2 - 120 + i * 60),
-                dimensions=(200, 50),
+                dimensions=(250, 50),
                 view_path=option["view_path"],
                 text=option["text"],
                 on_click=option.get("on_click"),
@@ -56,8 +56,8 @@ class Pause(View):
 
     def on_draw(self):
         Text(
-            "Menu",
-            self.font,
+            "Paused",
+            "pokemon-hollow",
             self.width / 2,
             self.height / 2 - 200,
             40,
@@ -65,7 +65,7 @@ class Pause(View):
         ).blit_into(self.screen)
 
         for b in self.buttons:
-            b.blit_into(self.screen)
+            b.blit_into(self.screen, size=20)
 
     def on_keydown(self, event):
         if event.key == pygame.K_ESCAPE:

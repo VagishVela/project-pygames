@@ -10,8 +10,9 @@ class Player(Sprite):
     def __init__(self):
         """Initialize the player"""
         super().__init__()
+        self.scale = (64, 96)
         self.image = pygame.transform.scale(
-            pygame.image.load("assets/player.png"), (64, 96)
+            pygame.image.load("assets/player.png"), self.scale
         )
         self.pos = self.image.get_width() / 2, self.image.get_height() / 2
         self.rect = self.image.get_rect()
@@ -40,8 +41,12 @@ class Player(Sprite):
         # Return true if the player dies
         return self.abilities["health"] <= 0
 
-    def draw(self, screen: Surface, pos=None):
+    def draw(self, screen: Surface, pos=None, scale=None):
         """Draw the player"""
+        if scale is not None and self.scale != scale:
+            self.scale = scale
+            self.image = pygame.transform.scale(self.image, scale)
+
         if pos is None:
             screen.blit(
                 self.image,
