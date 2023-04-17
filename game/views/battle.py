@@ -7,6 +7,7 @@ import pygame
 
 from game.custom_event import PASS_VIEW, WAIT_FOR_ENEMY
 from game.data import game_data
+from game.data.states import GameState
 from game.entities.enemy import Enemy
 from game.entities.player import Player
 from game.utils import Text
@@ -56,11 +57,6 @@ class Battle(View):
         # get the game view before running this view
         if e := PASS_VIEW.get():
             Battle.game_view = e.view
-        if not getattr(self, "game_view"):
-            raise RuntimeError(
-                "Battle was not initiated properly, use PASS_VIEW to pass the Map "
-                "view"
-            )
         # get the player from Map view
         self.player: Player = Battle.game_view.player
         # get enemy position on the map
@@ -72,6 +68,11 @@ class Battle(View):
 
     def on_draw(self) -> None:
         """Draw the battle view"""
+        if not getattr(self, "game_view"):
+            raise RuntimeError(
+                "Battle was not initiated properly, use PASS_VIEW to pass the Map "
+                "view"
+            )
 
         # draw the results view
         if self.result == "won":
@@ -220,8 +221,8 @@ class Battle(View):
     def on_keydown(self, event) -> None:
         if event.key == pygame.K_ESCAPE:
             # open the pause menu
-            game_data.save_temp((Battle.game_view.screen_map.level.loc, []))
-            self.change_views('pause.Pause#{"escape":"batoru.Battle#{\\"dummy\\":0}"}')
+            game_data.save_temp(GameState(Battle.game_view.screen_map.level.state))
+            self.change_views('pause.Pause#{"escape":"battle.Battle#{\\"dummy\\":0}"}')
 
     def on_click(self, event) -> None:
         """Called when the user clicks the mouse"""
@@ -252,8 +253,8 @@ class Battle(View):
             )
             if button_rect.collidepoint(mouse_pos):
                 self.attack(self.player, self.enemy, attack)
-                # if alive after his turn
-                if self.player.abilities["health"] > 0 and not self.my_turn:
+                # if opponent is alive after player's turn
+                if not self.my_turn and self.enemy.abilities["health"] > 0:
                     # wait 2 seconds
                     WAIT_FOR_ENEMY.wait(2000)
 
@@ -270,6 +271,7 @@ class Battle(View):
 
         # if opponent's already dead
         if _to.abilities["health"] <= 0:
+            self._evaluate(_to)
             return
         # set current attack
         self.current_attack = {
@@ -281,18 +283,20 @@ class Battle(View):
         _to.abilities["health"] -= attack["power"]
         # if last attack killed the opponent
         if _to.abilities["health"] <= 0:
-            # if enemy's dead
-            if isinstance(_to, Enemy):
-                logger.debug("enemy is killed")
-                self.win_battle()
-                return
-            # if player's dead
-            if isinstance(_to, Player):
-                logger.debug("player is killed")
-                self.game_over()
-                return
+            self._evaluate(_to)
         # flip sides if opponent survived the attack
         self.my_turn ^= True
+
+    def _evaluate(self, opponent):
+        """evaluate the fight whether the player won or lost"""
+        # if enemy's dead
+        if isinstance(opponent, Enemy):
+            logger.debug("enemy is killed")
+            self.win_battle()
+        # if player's dead
+        elif isinstance(opponent, Player):
+            logger.debug("player is killed")
+            self.game_over()
 
     def win_battle(self):
         """Called when the player wins"""

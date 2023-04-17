@@ -7,10 +7,11 @@ import pygame
 from game.config import SCREEN_WIDTH, SCREEN_HEIGHT
 from game.custom_event import ENEMY_ENCOUNTERED, PASS_VIEW
 from game.data import game_data
+from game.data.states import GameState
 from game.entities.enemy import Enemy
 from game.entities.player import Player
 from game.entities.walls import Wall
-from game.level_gen import Level
+from game.level_gen import Level, LevelState
 from game.views import View, logger
 
 # get logger
@@ -37,13 +38,14 @@ class Screen:
         cls.regenerate = True
 
     @classmethod
-    def load(cls, loc=None):
+    def load(cls, level_state: LevelState = None):
         """load and generate the screen"""
         if cls.regenerate:
             cls.clear()
-        if loc:
+        if level_state:
             cls.clear()
-            cls.level.set_loc(loc)
+            cls.level.state.reset()
+            cls.level.state.set(level_state.loc, level_state.removed)
         if not cls._initiated:
             cls.initiate()
         map_ = cls.level.generate()
@@ -60,6 +62,7 @@ class Screen:
         # move the level
 
         if cls.level.move(dx, dy):
+            logger.debug(str(cls.level.state))
             cls.regenerate = True
             # update the screen
             cls.load()
@@ -105,47 +108,55 @@ class Map(View):
             case pygame.K_RIGHT | pygame.K_d:
                 self.screen_map.move(-1, 0)
             case pygame.K_ESCAPE:
+                # needed for saving game from a different view
                 self.save_data(temp=True)
                 logger.debug(" game paused")
                 self.change_views('pause.Pause#{"escape":"map.Map"}', caption="Paused")
                 return
         if e := ENEMY_ENCOUNTERED.get():
-            # get enemy position
-            self.enemy_pos = e.pos
-            logger.debug(" enemy encountered!")
-            PASS_VIEW.post({"view": self})
-            self.change_views(
-                # dummy_var is required to run the pre_run method in Battle view
-                # pre_run method receives the above posted events
-                'battle.Battle#{"dummy_var":0}',
-                caption="Battle",
-                check_cache=False,
-            )
-            return
+            self._on_enemy_encounter(e)
+
+    def _on_enemy_encounter(self, event):
+        """called when enemy is encountered"""
+        # get enemy position
+        self.enemy_pos = event.pos
+        logger.debug(" enemy encountered!")
+        PASS_VIEW.post({"view": self})
+        # needed for saving game from a different view
+        self.save_data(temp=True)
+        self.change_views(
+            # dummy_var is required to run the pre_run method in Battle view
+            # pre_run method receives the above posted events
+            'battle.Battle#{"dummy_var":0}',
+            caption="Battle",
+            check_cache=False,
+        )
 
     def save_data(self, temp=False):
         """Save the data"""
 
+        state = GameState(self.screen_map.level.state)
+
         logger.debug(" saving data...")
         if not temp:
-            game_data.save(self.screen_map.level.loc, [])
+            game_data.save_game_state(state)
         else:
-            game_data.save_temp((self.screen_map.level.loc, []))
+            game_data.save_temp(state)
         logger.debug(" saved data!")
 
-    def load_data(self, state):
+    def load_data(self, state_index):
         """Load a saved state from the data"""
 
         logger.debug(" loading data")
-        game_data.load(state)
+        game_data.load(state_index)
 
         # clear screen and set level state
-        self.screen_map.load(game_data.get("loc"))
+        self.screen_map.load(LevelState(game_data.get("loc"), game_data.get("removed")))
         # redraw
         self.on_draw()
 
     def pre_run(self, _spl_args):
         if "reset" in _spl_args:
-            self.screen_map.load((0, 0))
+            self.screen_map.load(LevelState([0, 0], set()))
         elif "load" in _spl_args:
             self.load_data(_spl_args["load"])

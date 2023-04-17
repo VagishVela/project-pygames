@@ -14,19 +14,18 @@ logger = logger.getChild("slots")
 
 
 class Slots(View):
-    """The Menu view"""
+    """The Slots view"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.escape_to = None
         self.bg_color = STORE_BG
-        self.slot = 0
         self._generate_buttons()
 
     def _generate_buttons(self):
         self.slots = [
             str(
-                datetime.fromtimestamp(slot["time"]).strftime(
+                datetime.fromtimestamp(slot.time).strftime(
                     "Load the game saved on %d-%b-%Y at %r"
                 )
             )
@@ -40,7 +39,6 @@ class Slots(View):
                 xy=(self.width / 2, self.height / 2 - 120 + i * 60),
                 dimensions=(400, 50),
                 text=text,
-                on_click=self._set_slot(i),
                 view_path=f'map.Map#{{"load":{i}}}',
             )
             if text != "EMPTY SLOT"
@@ -52,12 +50,6 @@ class Slots(View):
             for i, text in enumerate(self.slots)
         ]
         # logger.debug(f" buttons: {self.buttons}")
-
-    def _set_slot(self, num):
-        def _():
-            self.slot = num
-
-        return _
 
     def on_update(self):
         self._generate_buttons()

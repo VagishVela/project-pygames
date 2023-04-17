@@ -2,51 +2,84 @@
 
 import json
 import time
+import typing
+from dataclasses import dataclass
 from json import JSONDecodeError
 
 from game.config import MAX_SLOTS
 from game.logger import logger
 
+if typing.TYPE_CHECKING:
+    from game.views.map import GameState
+
 logger = logger.getChild("data")
 
 
+@dataclass
+class SlotData:
+    """Represents a slot of game data"""
+
+    time: int
+    loc: list
+    removed: set[tuple]
+
+    def to_dict(self) -> dict:
+        """convert the slots back to dictionary"""
+        return {
+            "time": self.time,
+            "loc": self.loc,
+            "removed": [list(pos) for pos in self.removed],
+        }
+
+
+@dataclass
 class Data:
     """Processed data loaded from savefile"""
 
-    meta = {}
-    slots = []
+    # raw data
+    _meta: dict
+    _slots: list[dict]
 
-    def __init__(self, _data):
-        self.meta: dict = _data.get("_meta") or {"max_slots": MAX_SLOTS}
-        self.max_slots: int = self.meta["max_slots"]
-        self.slots: list[dict] = _data.get("slots") or []
+    def __post_init__(self) -> None:
+        self.max_slots = self._meta.get("max_slots", MAX_SLOTS)
+        self.slots = [
+            SlotData(
+                time=slot["time"],
+                removed={tuple(s) for s in slot["removed"]},
+                loc=slot["loc"],
+            )
+            for slot in self._slots
+        ]
 
-    def get_slot(self, slot) -> dict:
+    def get_slot(self, slot_index: int) -> SlotData | None:
         """get a slot from the stored slots"""
-        return self.slots[slot] if slot <= self.max_slots else {}
+        return self.slots[slot_index] if slot_index <= self.max_slots else None
 
-    def save_slot(self, slot_data) -> None:
-        """save a slot"""
+    def save_slot(self, slot_data: SlotData) -> None:
+        """save a slot internally, constructed by construct_slot"""
+        # insert at beginning
         self.slots.insert(0, slot_data)
+        # remove the last slot
         if len(self.slots) > self.max_slots:
             self.slots.pop(-1)
 
     @staticmethod
-    def construct_slot(loc, defeated) -> dict:
+    def construct_slot(game_state: "GameState") -> SlotData:
         """construct a dict for a slot"""
-        return {
-            "time": int(time.time()),
-            "loc": [int(loc[0]), int(loc[1])],
-            "defeated": defeated,
-        }
+        level_state = game_state.level_state
+        return SlotData(
+            time=int(time.time()),
+            loc=level_state.loc,
+            removed=level_state.removed,
+        )
 
     def read(self) -> dict:
         """returns the data as a dict"""
         return {
-            "_meta": {
+            "meta": {
                 "max_slots": self.max_slots,
             },
-            "slots": self.slots,
+            "slots": [slot.to_dict() for slot in self.slots],
         }
 
 
@@ -55,33 +88,27 @@ class DataIO:
 
     def __init__(self, file="game/data/game.dat"):
         self.temp = None
-        self.slot = None
+        self.slot_index = None
         self.file = file
-        self._data = None  # raw
-        self.data = Data(
-            {
-                "_meta": {"max_slots": MAX_SLOTS},
-                "slots": [],
-            }
-        )  # processed
-        # initiate the Data if something is already stored or create the savefile if not present
+        # raw data
+        self._data = {}
         self.read()
+        # processed data
+        self.data = Data(_meta=self._data["meta"], _slots=self._data["slots"])
 
-    def save(self, loc, defeated):
-        """save the game data as a Data slot and write into the file"""
-        logger.debug(f"try to save: {loc}, {defeated}")
-        # self._data["player_pos"] =
-        _temp = Data.construct_slot(loc, defeated)
-        self.data.save_slot(_temp)
+    def save_game_state(self, game_state: "GameState"):
+        """save the game state as a Data slot and write that into the file"""
+        logger.debug(f"try to save: {game_state.level_state}")
+        self.data.save_slot(Data.construct_slot(game_state))
         self._data = self.data.read()
         self.write()
 
-    def load(self, slot: int):
+    def load(self, slot_index: int) -> SlotData:
         """load a slot from the Data"""
-        self.slot = slot
+        self.slot_index = slot_index
         if self._data is None:
             self.read()
-        return self.data.get_slot(slot)
+        return self.data.get_slot(slot_index)
 
     def write(self):
         """write the data into the savefile"""
@@ -92,22 +119,36 @@ class DataIO:
         """read the file and save the data internally"""
         try:
             with open(self.file, "r", encoding="utf-8") as f:
-                try:
-                    self._data = json.load(f)
-                except JSONDecodeError as e:
-                    logger.warning(f"CORRUPTED DATA, {e}")
-                    self._data = {}
-                self.data = Data(self._data)
+                # don't parse if the file is empty
+                if contents := f.read():
+                    try:
+                        self._data = json.loads(contents)
+                    except JSONDecodeError as e:
+                        logger.warning(f"CORRUPTED DATA, {e}")
+                        self._data = {
+                            "meta": {
+                                "max_slots": MAX_SLOTS,
+                            },
+                            "slots": [],
+                        }
+                else:
+                    self._data = {
+                        "meta": {
+                            "max_slots": MAX_SLOTS,
+                        },
+                        "slots": [],
+                    }
         except FileNotFoundError:
             logger.warning("File was not found, creating new savefile")
             with open(self.file, "w+", encoding="utf-8") as f:
                 # create an empty file
                 f.write("")
             self.read()
+        logger.debug("data read successfull")
 
     def get(self, key):
         """get attributes from a loaded slot"""
-        return self.data.get_slot(self.slot)[key]
+        return getattr(self.data.get_slot(self.slot_index), key)
 
     def save_temp(self, data):
         """Save something temporarily"""

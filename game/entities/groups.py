@@ -26,9 +26,9 @@ class StoreItems(Group):
         self.potion_list = []
 
         # store the sprite offsets
-        self.atk_offset = Vector2(0, 0)
-        self.def_offset = Vector2(0, 0)
-        self.potion_offset = Vector2(0, 0)
+        self.atk_offset = Vector2((0, 0))
+        self.def_offset = Vector2((0, 0))
+        self.potion_offset = Vector2((0, 0))
 
         # store the sprites with their positions
         self.sprite_pos = {}
@@ -78,7 +78,7 @@ class StoreItems(Group):
     def _on_item_changed(self, surface):
         """run if items were changed, recalculate the offsets and rects"""
 
-        self.atk_offset = Vector2(0, 0)
+        self.atk_offset = Vector2((0, 0))
         for sprite in self.atk_list:
             if (
                 self.atk_offset[0] + STORE_PADDING * 1.2
@@ -91,7 +91,7 @@ class StoreItems(Group):
             self.sprite_rects.update(sprite.draw(surface, pos))
             self.atk_offset[0] += STORE_PADDING * 1.2
 
-        self.def_offset = Vector2(0, self.atk_offset[1] + STORE_PADDING * 2.5)
+        self.def_offset = Vector2((0, self.atk_offset[1] + STORE_PADDING * 2.5))
         for sprite in self.def_list:
             if (
                 self.def_offset[0] + STORE_PADDING * 1.2
@@ -104,7 +104,7 @@ class StoreItems(Group):
             self.sprite_rects.update(sprite.draw(surface, pos))
             self.def_offset[0] += STORE_PADDING * 1.2
 
-        self.potion_offset = Vector2(0, self.def_offset[1] + STORE_PADDING * 2.5)
+        self.potion_offset = Vector2((0, self.def_offset[1] + STORE_PADDING * 2.5))
         for sprite in self.potion_list:
             if (
                 self.potion_offset[0] + STORE_PADDING * 1.2

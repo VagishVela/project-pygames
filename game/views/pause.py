@@ -16,12 +16,18 @@ class Pause(View):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.escape_to = None
+        self.options = None
+        self.buttons = None
+
+    def pre_run(self, _spl_args):
+        self.escape_to = _spl_args["escape"]
         self.options = [
             {"text": "Main Menu", "view_path": "menu.Menu"},
             {
                 "text": "Save progress",
-                "view_path": "map.Map",
-                "on_click": partial(game_data.save, *game_data.temp),
+                "view_path": f"{self.escape_to}",
+                "on_click": partial(game_data.save_game_state, game_data.temp),
             },
             {
                 "text": "Load a previous game",
@@ -41,7 +47,6 @@ class Pause(View):
             for i, option in enumerate(self.options)
         ]
         logger.debug(f" buttons: {self.buttons}")
-        self.escape_to = None
 
     def on_update(self):
         for b in self.buttons:
@@ -61,9 +66,6 @@ class Pause(View):
 
         for b in self.buttons:
             b.blit_into(self.screen)
-
-    def pre_run(self, _spl_args):
-        self.escape_to = _spl_args["escape"]
 
     def on_keydown(self, event):
         if event.key == pygame.K_ESCAPE:
