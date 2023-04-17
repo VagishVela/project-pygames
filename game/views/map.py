@@ -39,8 +39,6 @@ class Screen:
             cls.walls[(i, j)] = Wall()
         cls._initiated = True
         cls.regenerate = True
-        game_data.save_temp(False, "GHOST_SAVE")
-        game_data.save_temp(False, "ghost")
 
     @classmethod
     def load(cls, level_state: LevelState = None):
@@ -113,9 +111,19 @@ class Map(View):
         self.screen_map.draw(self.screen)
         self.player.draw(self.screen, scale=scale)
 
+        # visuals
+        pygame.draw.rect(self.screen, (15, 15, 15), (0, 0, self.width, 60))
+        pygame.draw.line(self.screen, "white", (0, 60), (self.width, 60))
+        pygame.draw.rect(
+            self.screen, (15, 15, 15), (0, self.height - 50, self.width, self.height)
+        )
+        pygame.draw.line(
+            self.screen, "white", (0, self.height - 50), (self.width, self.height - 50)
+        )
+
         # draw the health bar
         HealthBar(self.player.max_health).draw(
-            self.screen, self.player.attributes.health, (20, 20), 150, 20
+            self.screen, self.player.attributes.health, (self.width - 170, 20), 150, 20
         )
         if self.player.attributes.health <= 0:
             Text(
@@ -142,6 +150,24 @@ class Map(View):
             self.alert1.blit_into(self.screen)
             if not self.alert1.visible:
                 game_data.save_temp(False, "GHOST_SAVE")
+
+        # instructions
+        Text(
+            "Use W, A, S, D buttons or arrow buttons to move Up, Left, Down and Right respectively",
+            "pokemon-solid",
+            self.width / 2,
+            self.height - 25,
+            13,
+            "white",
+        ).blit_into(self.screen)
+        Text(
+            "Press escape to Pause",
+            "pokemon-solid",
+            self.width / 2 - 170,
+            33,
+            20,
+            "white",
+        ).blit_into(self.screen)
 
     def on_keydown(self, event):
         match event.key:
@@ -203,9 +229,6 @@ class Map(View):
 
         logger.debug(" loading data")
         game_data.load(state_index)
-        # ghost mode off
-        game_data.save_temp(False, "ghost")
-        game_data.save_temp(False, "GHOST_SAVE")
 
         # clear screen and set level state
         self.screen_map.load(LevelState(game_data.get("loc"), game_data.get("removed")))
@@ -214,8 +237,13 @@ class Map(View):
         self.on_draw()
 
     def pre_run(self, _spl_args):
+        # ghost mode off
+        game_data.save_temp(False, "ghost")
+        game_data.save_temp(False, "GHOST_SAVE")
         if _spl_args:
             if "reset" in _spl_args:
                 self.screen_map.load(LevelState([0, 0], set()))
+                # new player
+                self.player = Player()
             elif "load" in _spl_args:
                 self.load_data(_spl_args["load"])
