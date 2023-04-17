@@ -31,6 +31,8 @@ class Battle(View):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+        self.coins_to_gain = None
+
         # -------- buttons ----------- #
         self.menu_width = 380
         self.menu_height = 300
@@ -96,7 +98,7 @@ class Battle(View):
                 "white",
             ).blit_into(self.screen)
             Text(
-                f"You gained {self.enemy.attributes.xp} XP",
+                f"You gained {self.enemy.attributes.xp} XP and {self.coins_to_gain} coins",
                 "pokemon-hollow",
                 self.width / 2,
                 self.height / 2 + 250,
@@ -227,6 +229,7 @@ class Battle(View):
                 GameState(
                     Battle.game_view.screen_map.level.state,
                     Battle.game_view.player.attributes,
+                    Battle.game_view.coins,
                 )
             )
             if self.result:
@@ -235,14 +238,6 @@ class Battle(View):
             else:
                 game_data.save_temp("Battle", "paused_from")
             self.change_views("pause.Pause")
-        # todo remove this
-        elif event.key == pygame.K_p:
-            self.player.attributes.xp += 10
-            self.enemy.set_attributes(self.player)
-        elif event.key == pygame.K_v:
-            self.result = "won"
-        elif event.key == pygame.K_r:
-            self.result = "lost"
 
     def on_click(self, event) -> None:
         """Called when the user clicks the mouse"""
@@ -327,8 +322,13 @@ class Battle(View):
         # regenerate and reload the map internally
         Battle.game_view.screen_map.regenerate = True
         Battle.game_view.screen_map.load()
-        # TODO: give player XP and rewards
         self.player.attributes.xp += self.enemy.attributes.xp
+        self.coins_to_gain = int(
+            1000
+            * self.player.attributes.xp
+            * (self.player.attributes.health / self.player.max_health)
+        )
+        self.game_view.coins += self.coins_to_gain
 
     def game_over(self):
         """Called when the player dies"""

@@ -24,6 +24,7 @@ class SlotData:
     removed: set[tuple]
     health: int
     xp: int
+    coins: int
 
     def to_dict(self) -> dict:
         """convert the slots back to dictionary"""
@@ -31,7 +32,11 @@ class SlotData:
             "time": self.time,
             "loc": self.loc,
             "removed": [list(pos) for pos in self.removed],
-            "attributes": {"health": self.health, "xp": self.xp},
+            "attributes": {
+                "health": self.health,
+                "xp": self.xp,
+            },
+            "coins": self.coins,
         }
 
 
@@ -52,6 +57,7 @@ class Data:
                 loc=slot["loc"],
                 health=slot["attributes"]["health"],
                 xp=slot["attributes"]["xp"],
+                coins=slot["coins"],
             )
             for slot in self._slots
         ]
@@ -79,6 +85,7 @@ class Data:
             removed=level_state.removed,
             health=attributes.health,
             xp=attributes.xp,
+            coins=game_state.coins,
         )
 
     def read(self) -> dict:

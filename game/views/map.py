@@ -87,6 +87,7 @@ class Map(View):
 
     player = Player()
     screen_map = Screen
+    coins = 0
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -163,9 +164,18 @@ class Map(View):
         Text(
             "Press escape to Pause",
             "pokemon-solid",
-            self.width / 2 - 170,
+            self.width - 95,
+            self.height - 63,
+            15,
+            "white",
+        ).blit_into(self.screen)
+        # show coins
+        Text(
+            f"Coins: {self.coins}",
+            "pokemon-solid",
+            100,
             33,
-            20,
+            18,
             "white",
         ).blit_into(self.screen)
 
@@ -179,12 +189,6 @@ class Map(View):
                 self.screen_map.move(1, 0)
             case pygame.K_RIGHT | pygame.K_d:
                 self.screen_map.move(-1, 0)
-            # for debugging
-            case pygame.K_p:
-                self.player.attributes.health += 50
-            # for debugging
-            case pygame.K_l:
-                self.player.attributes.health -= 50
             case pygame.K_ESCAPE:
                 # needed for saving game from a different view
                 self.save_data(temp=True)
@@ -215,6 +219,7 @@ class Map(View):
         state = GameState(
             self.screen_map.level.state,
             self.player.attributes,
+            self.coins,
         )
 
         logger.debug(" saving data...")
@@ -234,6 +239,7 @@ class Map(View):
         self.screen_map.load(LevelState(game_data.get("loc"), game_data.get("removed")))
         self.player.attributes.health = game_data.get("health")
         self.player.attributes.xp = game_data.get("xp")
+        self.coins = game_data.get("coins")
         # redraw
         self.on_draw()
 
@@ -244,6 +250,7 @@ class Map(View):
         if _spl_args:
             if "reset" in _spl_args:
                 self.screen_map.load(LevelState([0, 0], set()))
+                self.coins = 0
                 # new player
                 self.player = Player()
             elif "load" in _spl_args:

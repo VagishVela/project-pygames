@@ -49,4 +49,5 @@ class GameState:
 
     level_state: LevelState
     attributes: PlayerAttributes
+    coins: int
     # todo: add invenetory and other states
