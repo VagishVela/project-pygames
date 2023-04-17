@@ -19,7 +19,9 @@ class HealthBar:
         """draw the healthbar"""
 
         pygame.draw.rect(
-            screen, self.back_color, (top_left[0], top_left[1], width, height)
+            screen,
+            self.back_color,
+            (top_left[0] - 2, top_left[1] - 2, width + 4, height + 4),
         )
         pygame.draw.rect(
             screen,
@@ -34,8 +36,8 @@ class HealthBar:
         Text(
             f"Health: {health}",
             self.font,
-            60 + top_left[0],
-            13 + top_left[1],
-            15,
+            50 + top_left[0],
+            12 + top_left[1],
+            14,
             self.font_color,
         ).blit_into(screen)

@@ -134,11 +134,6 @@ class StoreItems(Group):
                 break
 
         # todo: if user clicks outside items, set active_item to None
-        # if not item_clicked:
-        #     if LEFT_CLICK.get():
-        #         self.active_item = None
-        #         for sprite in self.sprites():
-        #             sprite.on_focus = False
 
         if e := ITEM_FOCUSED.get():
             logger.debug(f"event received {e.item.name} is active")

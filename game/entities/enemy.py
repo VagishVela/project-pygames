@@ -18,11 +18,6 @@ class Enemy(Sprite):
         )
         self.scale = scale
         self.rect = self.image.get_rect()
-        # self.abilities = {
-        #     "attack": 5,
-        #     "damage": 30,
-        #     "health": 70,
-        # }
         self.attributes = PlayerAttributes(
             health=100,
             max_health=100,
@@ -38,14 +33,6 @@ class Enemy(Sprite):
             {"name": "Super Attack", "power": 30},
             {"name": "Mega Attack", "power": 40},
         ]
-
-    # def take_damage(self, p_ability):
-    #     """Take damage from the player"""
-    #     self.abilities["health"] -= (
-    #         p_ability["attack"] * (100 - self.abilities["damage"]) / 100
-    #     )
-    #     # Return true if the enemy dies
-    #     return self.abilities["health"] <= 0
 
     def draw(self, screen: Surface, pos_x, pos_y, scale=None):
         """Draw the enemy"""

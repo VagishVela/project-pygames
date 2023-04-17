@@ -11,8 +11,6 @@ from game.logger import logger
 
 if typing.TYPE_CHECKING:
     from game.views.map import GameState
-    from game.data.states import PlayerAttributes
-
 
 logger = logger.getChild("data")
 

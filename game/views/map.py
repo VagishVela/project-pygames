@@ -112,10 +112,10 @@ class Map(View):
         self.player.draw(self.screen, scale=scale)
 
         # visuals
-        pygame.draw.rect(self.screen, (15, 15, 15), (0, 0, self.width, 60))
+        pygame.draw.rect(self.screen, (5, 5, 5), (0, 0, self.width, 60))
         pygame.draw.line(self.screen, "white", (0, 60), (self.width, 60))
         pygame.draw.rect(
-            self.screen, (15, 15, 15), (0, self.height - 50, self.width, self.height)
+            self.screen, (5, 5, 5), (0, self.height - 50, self.width, self.height)
         )
         pygame.draw.line(
             self.screen, "white", (0, self.height - 50), (self.width, self.height - 50)

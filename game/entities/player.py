@@ -26,11 +26,6 @@ class Player(Sprite):
         ).convert_alpha()
         self.pos = self.image.get_width() / 2, self.image.get_height() / 2
         self.rect = self.image.get_rect()
-        # self.abilities = {
-        #     "attack": 10,
-        #     "defence": 20,
-        #     "health": 100,
-        # }
         self.attributes = PlayerAttributes(
             health=100,
             max_health=100,
@@ -47,14 +42,6 @@ class Player(Sprite):
             {"name": "Super Attack", "power": 30},
             {"name": "Mega Attack", "power": 40},
         ]
-
-    # def take_damage(self, e_ability):
-    #     """Take damage from the enemy"""
-    #     self.abilities["health"] -= (
-    #         e_ability["attack"] * (100 - self.abilities["damage"]) / 100
-    #     )
-    #     # Return true if the player dies
-    #     return self.abilities["health"] <= 0
 
     def draw(self, screen: Surface, pos=None, scale=None):
         """Draw the player"""
