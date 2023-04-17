@@ -11,6 +11,7 @@ from game.data.states import GameState
 from game.entities.enemy import Enemy
 from game.entities.player import Player
 from game.utils import Text
+from game.utils.bar import HealthBar
 from game.views import View, logger
 
 if typing.TYPE_CHECKING:
@@ -113,33 +114,19 @@ class Battle(View):
             return
 
         # draw the player and the enemy
-        self.player.draw(self.screen, (50, 200))
-        self.enemy.draw(self.screen, self.width - 150, 100)
+        self.player.draw(self.screen, (70, self.height - 300), scale=(128, 192))
+        self.enemy.draw(self.screen, self.width - 170, 100, scale=(96, 96))
 
         # draw the health bars
-        pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect(10, 10, 150, 20))
-        pygame.draw.rect(
+        HealthBar(self.player.max_health).draw(
             self.screen,
-            (255, 0, 0),
-            (
-                10,
-                10,
-                150 * self.player.abilities["health"] / self.player.max_health,
-                20,
-            ),
+            self.player.abilities["health"],
+            (60, self.height - 100),
+            150,
+            20,
         )
-        pygame.draw.rect(
-            self.screen, (255, 255, 255), pygame.Rect(self.width - 160, 50, 150, 20)
-        )
-        pygame.draw.rect(
-            self.screen,
-            (255, 0, 0),
-            (
-                self.width - 160,
-                50,
-                150 * self.enemy.abilities["health"] / self.enemy.max_health,
-                20,
-            ),
+        HealthBar(self.enemy.max_health).draw(
+            self.screen, self.enemy.abilities["health"], (self.width - 190, 50), 150, 20
         )
 
         # draw the attack menu
@@ -205,7 +192,7 @@ class Battle(View):
                 f"{self.current_attack['name']}!",
                 "sans-serif",
                 self.width // 2,
-                self.height - 100,
+                self.height - 400,
                 30,
                 (255, 255, 255),
             ).blit_into(self.screen)
@@ -213,7 +200,7 @@ class Battle(View):
                 f"Power: {self.current_attack['power']}",
                 "sans-serif",
                 self.width // 2,
-                self.height - 60,
+                self.height - 360,
                 20,
                 (255, 255, 255),
             ).blit_into(self.screen)

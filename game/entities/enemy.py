@@ -14,6 +14,7 @@ class Enemy(Sprite):
         self.image = pygame.transform.scale(
             pygame.image.load("assets/enemy.png"), scale
         )
+        self.scale = scale
         self.rect = self.image.get_rect()
         self.abilities = {
             "attack": 5,
@@ -40,6 +41,10 @@ class Enemy(Sprite):
         # Return true if the enemy dies
         return self.abilities["health"] <= 0
 
-    def draw(self, screen: Surface, pos_x, pos_y):
+    def draw(self, screen: Surface, pos_x, pos_y, scale=None):
         """Draw the enemy"""
+        if scale is not None and self.scale != scale:
+            self.scale = scale
+            self.image = pygame.transform.scale(self.image, scale)
+
         screen.blit(self.image, (pos_x, pos_y))
