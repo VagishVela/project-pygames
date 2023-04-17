@@ -81,7 +81,7 @@ class Battle(View):
         if self.result == "won":
             Text(
                 "You won!",
-                self.font,
+                "pokemon-hollow",
                 self.width / 2,
                 self.height / 2 - 50,
                 100,
@@ -89,17 +89,25 @@ class Battle(View):
             ).blit_into(self.screen)
             Text(
                 "Click to return to map!",
-                self.font,
+                "pokemon-hollow",
                 self.width / 2,
                 self.height / 2 + 50,
                 50,
+                "white",
+            ).blit_into(self.screen)
+            Text(
+                f"You gained {self.enemy.attributes.xp} XP",
+                "pokemon-hollow",
+                self.width / 2,
+                self.height / 2 + 250,
+                20,
                 "white",
             ).blit_into(self.screen)
             return
         if self.result == "lost":
             Text(
                 "You lost.",
-                self.font,
+                "pokemon-hollow",
                 self.width / 2,
                 self.height / 2 - 50,
                 100,
@@ -107,10 +115,18 @@ class Battle(View):
             ).blit_into(self.screen)
             Text(
                 "Click to return to map!",
-                self.font,
+                "pokemon-hollow",
                 self.width / 2,
                 self.height / 2 + 50,
                 50,
+                "white",
+            ).blit_into(self.screen)
+            Text(
+                f"You lost {int(self.enemy.attributes.xp // 0.8)} XP",
+                "pokemon-hollow",
+                self.width / 2,
+                self.height / 2 + 250,
+                20,
                 "white",
             ).blit_into(self.screen)
             return
@@ -213,11 +229,20 @@ class Battle(View):
                     Battle.game_view.player.attributes,
                 )
             )
-            game_data.save_temp("Battle", "paused_from")
+            if self.result:
+                # don't return to battle if match is over
+                game_data.save_temp("Map", "paused_from")
+            else:
+                game_data.save_temp("Battle", "paused_from")
             self.change_views("pause.Pause")
+        # todo remove this
         elif event.key == pygame.K_p:
             self.player.attributes.xp += 10
             self.enemy.set_attributes(self.player)
+        elif event.key == pygame.K_v:
+            self.result = "won"
+        elif event.key == pygame.K_r:
+            self.result = "lost"
 
     def on_click(self, event) -> None:
         """Called when the user clicks the mouse"""
@@ -309,5 +334,5 @@ class Battle(View):
         """Called when the player dies"""
         self.result = "lost"
         self.player.attributes.xp = max(
-            0, self.player.attributes.xp - self.enemy.attributes.xp // 1.8
+            0, self.player.attributes.xp - self.enemy.attributes.xp // 0.8
         )
