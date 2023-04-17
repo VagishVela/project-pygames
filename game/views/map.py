@@ -233,6 +233,7 @@ class Map(View):
         # clear screen and set level state
         self.screen_map.load(LevelState(game_data.get("loc"), game_data.get("removed")))
         self.player.attributes.health = game_data.get("health")
+        self.player.attributes.xp = game_data.get("xp")
         # redraw
         self.on_draw()
 
