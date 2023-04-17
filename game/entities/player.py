@@ -11,7 +11,7 @@ class PlayerAttributes:
     """Represents player attributes"""
 
     health: int
-    max_health: int
+    xp: int
 
 
 class Player(Sprite):
@@ -27,10 +27,11 @@ class Player(Sprite):
         self.pos = self.image.get_width() / 2, self.image.get_height() / 2
         self.rect = self.image.get_rect()
         self.attributes = PlayerAttributes(
-            health=100,
-            max_health=100,
+            health=100,  # base
+            xp=0,
         )
-        self.max_health = 100
+        # set to max
+        self.attributes.health = self.max_health
         self.has_shield = True
         self.dodging = False
         self.name = "Player"
@@ -42,6 +43,16 @@ class Player(Sprite):
             {"name": "Super Attack", "power": 30},
             {"name": "Mega Attack", "power": 40},
         ]
+
+    @property
+    def level(self):
+        """get player level"""
+        return int(0.79 * (self.attributes.xp**0.5))
+
+    @property
+    def max_health(self):
+        """get max health"""
+        return int(100 * (1 + self.level**1.21))
 
     def draw(self, screen: Surface, pos=None, scale=None):
         """Draw the player"""

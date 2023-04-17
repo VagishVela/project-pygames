@@ -121,10 +121,10 @@ class Map(View):
             self.screen, "white", (0, self.height - 50), (self.width, self.height - 50)
         )
 
-        # draw the health bar
-        HealthBar(self.player.max_health).draw(
-            self.screen, self.player.attributes.health, (self.width - 170, 20), 150, 20
-        )
+        # draw the health bar and level
+        HealthBar(self.player).draw(self.screen, (self.width - 170, 20), 150, 20)
+
+        # ghost stuff
         if self.player.attributes.health <= 0:
             Text(
                 "You've become a ghost!",

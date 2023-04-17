@@ -32,7 +32,7 @@ class Battle(View):
         super().__init__(*args, **kwargs)
 
         # -------- buttons ----------- #
-        self.menu_width = 400
+        self.menu_width = 380
         self.menu_height = 300
         self.menu_x = self.width - self.menu_width - 20
         self.menu_y = self.height - self.menu_height - 20
@@ -60,6 +60,8 @@ class Battle(View):
             Battle.game_view = e.view
         # get the player from Map view
         self.player: Player = Battle.game_view.player
+        # set enemy hp
+        self.enemy.set_attributes(self.player)
         # get enemy position on the map
         self.enemy_map_pos = Battle.game_view.enemy_pos
         num_attacks = len(self.player.attacks)
@@ -117,17 +119,14 @@ class Battle(View):
         self.player.draw(self.screen, (70, self.height - 300), scale=(128, 192))
         self.enemy.draw(self.screen, self.width - 170, 100, scale=(96, 96))
 
-        # draw the health bars
-        HealthBar(self.player.max_health).draw(
+        # draw the health bars and levels
+        HealthBar(self.player).draw(
             self.screen,
-            self.player.attributes.health,
-            (60, self.height - 100),
+            (80, self.height - 100),
             150,
             20,
         )
-        HealthBar(self.enemy.max_health).draw(
-            self.screen, self.enemy.attributes.health, (self.width - 190, 50), 150, 20
-        )
+        HealthBar(self.enemy).draw(self.screen, (self.width - 190, 50), 150, 20)
 
         # draw the attack menu
         menu_rect = pygame.Rect(
@@ -216,6 +215,9 @@ class Battle(View):
             )
             game_data.save_temp("Battle", "paused_from")
             self.change_views("pause.Pause")
+        elif event.key == pygame.K_p:
+            self.player.attributes.xp += 10
+            self.enemy.set_attributes(self.player)
 
     def on_click(self, event) -> None:
         """Called when the user clicks the mouse"""
@@ -301,8 +303,11 @@ class Battle(View):
         Battle.game_view.screen_map.regenerate = True
         Battle.game_view.screen_map.load()
         # TODO: give player XP and rewards
+        self.player.attributes.xp += self.enemy.attributes.xp
 
     def game_over(self):
         """Called when the player dies"""
         self.result = "lost"
-        # TODO: reduce player XP
+        self.player.attributes.xp = max(
+            0, self.player.attributes.xp - self.enemy.attributes.xp // 1.8
+        )
