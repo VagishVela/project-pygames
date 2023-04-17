@@ -12,7 +12,9 @@ from game.entities.enemy import Enemy
 from game.entities.player import Player
 from game.entities.walls import Wall
 from game.level_gen import Level, LevelState
+from game.utils import Text
 from game.utils.bar import HealthBar
+from game.utils.text import DisapearingText
 from game.views import View, logger
 
 # get logger
@@ -37,6 +39,8 @@ class Screen:
             cls.walls[(i, j)] = Wall()
         cls._initiated = True
         cls.regenerate = True
+        game_data.save_temp(False, "GHOST_SAVE")
+        game_data.save_temp(False, "ghost")
 
     @classmethod
     def load(cls, level_state: LevelState = None):
@@ -94,6 +98,16 @@ class Map(View):
         # to be used for battle view
         self.enemy_pos = None
 
+        self.alert1 = DisapearingText(
+            "Nice try but ghosts can't save a game...",
+            "pokemon-solid",
+            self.width / 2,
+            self.height / 2 + 200,
+            25,
+            "white",
+            time=2000,
+        )
+
     def on_draw(self):
         scale = (64, 96) if self.player.scale != (64, 96) else None
         self.screen_map.draw(self.screen)
@@ -103,6 +117,31 @@ class Map(View):
         HealthBar(self.player.max_health).draw(
             self.screen, self.player.abilities["health"], (20, 20), 150, 20
         )
+        if self.player.abilities["health"] <= 0:
+            Text(
+                "You've become a ghost!",
+                "pokemon-solid",
+                self.width / 2,
+                self.height / 2 - 100,
+                25,
+                "white",
+            ).blit_into(self.screen)
+            Text(
+                "Drink a potion to revive or start a new game.",
+                "pokemon-solid",
+                self.width / 2,
+                self.height / 2 + 23 - 100,
+                25,
+                "white",
+            ).blit_into(self.screen)
+            game_data.save_temp(True, "ghost")
+        elif game_data.get_temp("ghost"):
+            game_data.save_temp(False, "ghost")
+
+        if game_data.get_temp("GHOST_SAVE"):
+            self.alert1.blit_into(self.screen)
+            if not self.alert1.visible:
+                game_data.save_temp(False, "GHOST_SAVE")
 
     def on_keydown(self, event):
         match event.key:
@@ -114,6 +153,12 @@ class Map(View):
                 self.screen_map.move(1, 0)
             case pygame.K_RIGHT | pygame.K_d:
                 self.screen_map.move(-1, 0)
+            # for debugging
+            case pygame.K_p:
+                self.player.abilities["health"] += 50
+            # for debugging
+            case pygame.K_l:
+                self.player.abilities["health"] -= 50
             case pygame.K_ESCAPE:
                 # needed for saving game from a different view
                 self.save_data(temp=True)
@@ -155,6 +200,9 @@ class Map(View):
 
         logger.debug(" loading data")
         game_data.load(state_index)
+        # ghost mode off
+        game_data.save_temp(False, "ghost")
+        game_data.save_temp(False, "GHOST_SAVE")
 
         # clear screen and set level state
         self.screen_map.load(LevelState(game_data.get("loc"), game_data.get("removed")))
