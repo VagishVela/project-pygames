@@ -115,9 +115,9 @@ class Map(View):
 
         # draw the health bar
         HealthBar(self.player.max_health).draw(
-            self.screen, self.player.abilities["health"], (20, 20), 150, 20
+            self.screen, self.player.attributes.health, (20, 20), 150, 20
         )
-        if self.player.abilities["health"] <= 0:
+        if self.player.attributes.health <= 0:
             Text(
                 "You've become a ghost!",
                 "pokemon-solid",
@@ -155,10 +155,10 @@ class Map(View):
                 self.screen_map.move(-1, 0)
             # for debugging
             case pygame.K_p:
-                self.player.abilities["health"] += 50
+                self.player.attributes.health += 50
             # for debugging
             case pygame.K_l:
-                self.player.abilities["health"] -= 50
+                self.player.attributes.health -= 50
             case pygame.K_ESCAPE:
                 # needed for saving game from a different view
                 self.save_data(temp=True)
@@ -186,7 +186,10 @@ class Map(View):
     def save_data(self, temp=False):
         """Save the data"""
 
-        state = GameState(self.screen_map.level.state)
+        state = GameState(
+            self.screen_map.level.state,
+            self.player.attributes,
+        )
 
         logger.debug(" saving data...")
         if not temp:
@@ -206,6 +209,7 @@ class Map(View):
 
         # clear screen and set level state
         self.screen_map.load(LevelState(game_data.get("loc"), game_data.get("removed")))
+        self.player.attributes.health = game_data.get("health")
         # redraw
         self.on_draw()
 

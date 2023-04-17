@@ -4,6 +4,8 @@ import pygame.image
 from pygame import Surface
 from pygame.sprite import Sprite
 
+from game.entities.player import PlayerAttributes
+
 
 class Enemy(Sprite):
     """Class for the enemy"""
@@ -16,11 +18,15 @@ class Enemy(Sprite):
         )
         self.scale = scale
         self.rect = self.image.get_rect()
-        self.abilities = {
-            "attack": 5,
-            "damage": 30,
-            "health": 70,
-        }
+        # self.abilities = {
+        #     "attack": 5,
+        #     "damage": 30,
+        #     "health": 70,
+        # }
+        self.attributes = PlayerAttributes(
+            health=100,
+            max_health=100,
+        )
         self.max_health = 70
         self.details = ["I am Quantalocus.", "A deadly Alien with no special abilities"]
         self.visible = True
@@ -33,13 +39,13 @@ class Enemy(Sprite):
             {"name": "Mega Attack", "power": 40},
         ]
 
-    def take_damage(self, p_ability):
-        """Take damage from the player"""
-        self.abilities["health"] -= (
-            p_ability["attack"] * (100 - self.abilities["damage"]) / 100
-        )
-        # Return true if the enemy dies
-        return self.abilities["health"] <= 0
+    # def take_damage(self, p_ability):
+    #     """Take damage from the player"""
+    #     self.abilities["health"] -= (
+    #         p_ability["attack"] * (100 - self.abilities["damage"]) / 100
+    #     )
+    #     # Return true if the enemy dies
+    #     return self.abilities["health"] <= 0
 
     def draw(self, screen: Surface, pos_x, pos_y, scale=None):
         """Draw the enemy"""

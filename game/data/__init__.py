@@ -11,6 +11,8 @@ from game.logger import logger
 
 if typing.TYPE_CHECKING:
     from game.views.map import GameState
+    from game.data.states import PlayerAttributes
+
 
 logger = logger.getChild("data")
 
@@ -22,6 +24,7 @@ class SlotData:
     time: int
     loc: list
     removed: set[tuple]
+    health: int
 
     def to_dict(self) -> dict:
         """convert the slots back to dictionary"""
@@ -29,6 +32,7 @@ class SlotData:
             "time": self.time,
             "loc": self.loc,
             "removed": [list(pos) for pos in self.removed],
+            "attributes": {"health": self.health},
         }
 
 
@@ -47,6 +51,7 @@ class Data:
                 time=slot["time"],
                 removed={tuple(s) for s in slot["removed"]},
                 loc=slot["loc"],
+                health=slot["attributes"]["health"],
             )
             for slot in self._slots
         ]
@@ -67,10 +72,12 @@ class Data:
     def construct_slot(game_state: "GameState") -> SlotData:
         """construct a dict for a slot"""
         level_state = game_state.level_state
+        attributes = game_state.attributes
         return SlotData(
             time=int(time.time()),
             loc=level_state.loc,
             removed=level_state.removed,
+            health=attributes.health,
         )
 
     def read(self) -> dict:

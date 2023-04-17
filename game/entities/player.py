@@ -1,7 +1,17 @@
 """This module contains the Player class"""
+from dataclasses import dataclass
+
 import pygame.image
 from pygame import Surface
 from pygame.sprite import Sprite
+
+
+@dataclass
+class PlayerAttributes:
+    """Represents player attributes"""
+
+    health: int
+    max_health: int
 
 
 class Player(Sprite):
@@ -16,11 +26,15 @@ class Player(Sprite):
         ).convert_alpha()
         self.pos = self.image.get_width() / 2, self.image.get_height() / 2
         self.rect = self.image.get_rect()
-        self.abilities = {
-            "attack": 20,
-            "damage": 20,
-            "health": 100,
-        }
+        # self.abilities = {
+        #     "attack": 10,
+        #     "defence": 20,
+        #     "health": 100,
+        # }
+        self.attributes = PlayerAttributes(
+            health=100,
+            max_health=100,
+        )
         self.max_health = 100
         self.has_shield = True
         self.dodging = False
@@ -34,13 +48,13 @@ class Player(Sprite):
             {"name": "Mega Attack", "power": 40},
         ]
 
-    def take_damage(self, e_ability):
-        """Take damage from the enemy"""
-        self.abilities["health"] -= (
-            e_ability["attack"] * (100 - self.abilities["damage"]) / 100
-        )
-        # Return true if the player dies
-        return self.abilities["health"] <= 0
+    # def take_damage(self, e_ability):
+    #     """Take damage from the enemy"""
+    #     self.abilities["health"] -= (
+    #         e_ability["attack"] * (100 - self.abilities["damage"]) / 100
+    #     )
+    #     # Return true if the player dies
+    #     return self.abilities["health"] <= 0
 
     def draw(self, screen: Surface, pos=None, scale=None):
         """Draw the player"""
@@ -48,7 +62,7 @@ class Player(Sprite):
             self.scale = scale
             self.image = pygame.transform.scale(self.image, scale)
 
-        if self.abilities["health"] <= 0:
+        if self.attributes.health <= 0:
             # ghost mode!
             if not self.is_ghost:
                 self.image.set_alpha(120)

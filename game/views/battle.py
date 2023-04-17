@@ -120,13 +120,13 @@ class Battle(View):
         # draw the health bars
         HealthBar(self.player.max_health).draw(
             self.screen,
-            self.player.abilities["health"],
+            self.player.attributes.health,
             (60, self.height - 100),
             150,
             20,
         )
         HealthBar(self.enemy.max_health).draw(
-            self.screen, self.enemy.abilities["health"], (self.width - 190, 50), 150, 20
+            self.screen, self.enemy.attributes.health, (self.width - 190, 50), 150, 20
         )
 
         # draw the attack menu
@@ -208,7 +208,12 @@ class Battle(View):
     def on_keydown(self, event) -> None:
         if event.key == pygame.K_ESCAPE:
             # open the pause menu
-            game_data.save_temp(GameState(Battle.game_view.screen_map.level.state))
+            game_data.save_temp(
+                GameState(
+                    Battle.game_view.screen_map.level.state,
+                    Battle.game_view.player.attributes,
+                )
+            )
             game_data.save_temp("Battle", "paused_from")
             self.change_views("pause.Pause")
 
@@ -242,7 +247,7 @@ class Battle(View):
             if button_rect.collidepoint(mouse_pos):
                 self.attack(self.player, self.enemy, attack)
                 # if opponent is alive after player's turn
-                if not self.my_turn and self.enemy.abilities["health"] > 0:
+                if not self.my_turn and self.enemy.attributes.health > 0:
                     # wait 2 seconds
                     WAIT_FOR_ENEMY.wait(2000)
 
@@ -258,7 +263,7 @@ class Battle(View):
         """Called when the player selects an attack or enemy attacks"""
 
         # if opponent's already dead
-        if _to.abilities["health"] <= 0:
+        if _to.attributes.health <= 0:
             self._evaluate(_to)
             return
         # set current attack
@@ -268,9 +273,9 @@ class Battle(View):
         }
 
         # deduct health
-        _to.abilities["health"] -= attack["power"]
+        _to.attributes.health -= attack["power"]
         # if last attack killed the opponent
-        if _to.abilities["health"] <= 0:
+        if _to.attributes.health <= 0:
             self._evaluate(_to)
         # flip sides if opponent survived the attack
         self.my_turn ^= True
