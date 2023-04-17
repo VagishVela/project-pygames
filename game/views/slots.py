@@ -72,7 +72,8 @@ class Slots(View):
             b.blit_into(self.screen)
 
     def pre_run(self, _spl_args):
-        self.escape_to = _spl_args["escape"]
+        escape_to_name: str = game_data.get_temp("return_to")
+        self.escape_to = f"{escape_to_name.lower()}.{escape_to_name}"
 
     def on_keydown(self, event):
         if event.key == pygame.K_ESCAPE:

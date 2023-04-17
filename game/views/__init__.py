@@ -10,6 +10,7 @@ from pygame import Vector2, Surface
 from game.common_types import ColorValue, Coordinate, NumType
 from game.config import FPS, SCREEN_WIDTH, SCREEN_HEIGHT
 from game.custom_event import LEFT_CLICK, RIGHT_CLICK, SCROLL_UP, SCROLL_DOWN
+from game.data import game_data
 from game.logger import logger
 from game.utils import Cache, EventHandler
 
@@ -131,8 +132,8 @@ class View:
         :param _spl_args: special serializable kwargs
         """
 
-        if _spl_args:
-            self.pre_run(_spl_args)
+        # always run
+        self.pre_run(_spl_args)
 
         self._running = True
         logger.debug(f" Loading done! {self}")
@@ -202,7 +203,7 @@ class View:
         next_view_module = import_module(f"game.views.{next_view_module}")
 
         if not caption:
-            #     default to class name
+            # default to class name
             caption = _class_name
 
         # implement a try-catch block here if other modules are used for views than `game.views`
@@ -221,4 +222,6 @@ class View:
         )
         self._running = False
         logger.debug(f" switching views from {self} to {next_view}")
-        next_view.run(_spl_args or None)
+        # remember where to come back
+        game_data.save_temp(self.__class__.__name__, "return_to")
+        next_view.run(_spl_args)

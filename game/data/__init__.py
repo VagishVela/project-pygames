@@ -87,7 +87,7 @@ class DataIO:
     """Work with the savefile and perform FileIO operations"""
 
     def __init__(self, file="game/data/game.dat"):
-        self.temp = None
+        self._temp = {}
         self.slot_index = None
         self.file = file
         # raw data
@@ -95,6 +95,15 @@ class DataIO:
         self.read()
         # processed data
         self.data = Data(_meta=self._data["meta"], _slots=self._data["slots"])
+
+    @property
+    def temp(self):
+        """access the stored game data"""
+        return self._temp["game_data"]
+
+    def get_temp(self, name):
+        """access all values stored in temp"""
+        return self._temp[name]
 
     def save_game_state(self, game_state: "GameState"):
         """save the game state as a Data slot and write that into the file"""
@@ -150,9 +159,9 @@ class DataIO:
         """get attributes from a loaded slot"""
         return getattr(self.data.get_slot(self.slot_index), key)
 
-    def save_temp(self, data):
+    def save_temp(self, data, name="game_data"):
         """Save something temporarily"""
-        self.temp = data
+        self._temp[name] = data
 
 
 game_data = DataIO()
