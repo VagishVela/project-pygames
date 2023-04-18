@@ -44,12 +44,18 @@ class Slots(View):
             if text != "EMPTY SLOT"
             else Button(
                 xy=(self.width / 2, self.height / 2 - 120 + i * 60),
-                dimensions=(200, 50),
+                dimensions=(150, 50),
                 text=text,
             )
             for i, text in enumerate(self.slots)
+        ] + [
+            Button(
+                xy=(self.width / 2 + 200, self.height - 100),
+                dimensions=(150, 50),
+                text="Clear saved games",
+                on_click=game_data.clean,
+            )
         ]
-        # logger.debug(f" buttons: {self.buttons}")
 
     def on_update(self):
         self._generate_buttons()
@@ -61,7 +67,7 @@ class Slots(View):
     def on_draw(self):
         Text(
             "Select from the saved games",
-            self.font,
+            "pokemon-hollow",
             self.width / 2,
             self.height / 2 - 200,
             40,
@@ -69,7 +75,7 @@ class Slots(View):
         ).blit_into(self.screen)
 
         for b in self.buttons:
-            b.blit_into(self.screen)
+            b.blit_into(self.screen, size=13)
 
     def pre_run(self, _spl_args):
         escape_to_name: str = game_data.get_temp("return_to")

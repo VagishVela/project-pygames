@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 
 from game.data import logger
+from game.entities.player import PlayerAttributes
 
 logger = logger.getChild("states")
 
@@ -47,4 +48,6 @@ class GameState:
     """Represents the game state"""
 
     level_state: LevelState
+    attributes: PlayerAttributes
+    coins: int
     # todo: add invenetory and other states

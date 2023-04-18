@@ -12,7 +12,9 @@ from game.entities.enemy import Enemy
 from game.entities.player import Player
 from game.entities.walls import Wall
 from game.level_gen import Level, LevelState
+from game.utils import Text
 from game.utils.bar import HealthBar
+from game.utils.text import DisapearingText
 from game.views import View, logger
 
 # get logger
@@ -85,6 +87,7 @@ class Map(View):
 
     player = Player()
     screen_map = Screen
+    coins = 0
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -94,15 +97,87 @@ class Map(View):
         # to be used for battle view
         self.enemy_pos = None
 
+        self.alert1 = DisapearingText(
+            "Nice try but ghosts can't save a game...",
+            "pokemon-solid",
+            self.width / 2,
+            self.height / 2 + 200,
+            25,
+            "white",
+            time=2000,
+        )
+
     def on_draw(self):
         scale = (64, 96) if self.player.scale != (64, 96) else None
         self.screen_map.draw(self.screen)
         self.player.draw(self.screen, scale=scale)
 
-        # draw the health bar
-        HealthBar(self.player.max_health).draw(
-            self.screen, self.player.abilities["health"], (20, 20), 150, 20
+        # visuals
+        pygame.draw.rect(self.screen, (5, 5, 5), (0, 0, self.width, 60))
+        pygame.draw.line(self.screen, "white", (0, 60), (self.width, 60))
+        pygame.draw.rect(
+            self.screen, (5, 5, 5), (0, self.height - 50, self.width, self.height)
         )
+        pygame.draw.line(
+            self.screen, "white", (0, self.height - 50), (self.width, self.height - 50)
+        )
+
+        # draw the health bar and level
+        HealthBar(self.player).draw(self.screen, (self.width - 170, 20), 150, 20)
+
+        # ghost stuff
+        if self.player.attributes.health <= 0:
+            Text(
+                "You've become a ghost!",
+                "pokemon-solid",
+                self.width / 2,
+                self.height / 2 - 100,
+                25,
+                "white",
+            ).blit_into(self.screen)
+            Text(
+                "Drink a potion to revive or start a new game.",
+                "pokemon-solid",
+                self.width / 2,
+                self.height / 2 + 23 - 100,
+                25,
+                "white",
+            ).blit_into(self.screen)
+            game_data.save_temp(True, "ghost")
+        elif game_data.get_temp("ghost"):
+            game_data.save_temp(False, "ghost")
+
+        if game_data.get_temp("GHOST_SAVE"):
+            self.alert1.blit_into(self.screen)
+            if not self.alert1.visible:
+                game_data.save_temp(False, "GHOST_SAVE")
+
+        # instructions
+        Text(
+            "Use W, A, S, D buttons or arrow buttons to move Up, Left, Down and Right respectively",
+            "pokemon-solid",
+            self.width / 2,
+            self.height - 25,
+            13,
+            "white",
+        ).blit_into(self.screen)
+        Text(
+            "Press escape to Pause",
+            "pokemon-solid",
+            self.width - 95,
+            self.height - 63,
+            15,
+            "white",
+        ).blit_into(self.screen)
+        # show coins
+        Text(
+            f"Coins: {self.coins}",
+            "pokemon-solid",
+            100,
+            33,
+            18,
+            "white",
+        ).blit_into(self.screen)
 
     def on_keydown(self, event):
         match event.key:
@@ -141,7 +216,11 @@ class Map(View):
     def save_data(self, temp=False):
         """Save the data"""
 
-        state = GameState(self.screen_map.level.state)
+        state = GameState(
+            self.screen_map.level.state,
+            self.player.attributes,
+            self.coins,
+        )
 
         logger.debug(" saving data...")
         if not temp:
@@ -158,12 +237,24 @@ class Map(View):
 
         # clear screen and set level state
         self.screen_map.load(LevelState(game_data.get("loc"), game_data.get("removed")))
+        self.player.attributes.health = game_data.get("health")
+        self.player.attributes.xp = game_data.get("xp")
+        self.coins = game_data.get("coins")
         # redraw
         self.on_draw()
 
     def pre_run(self, _spl_args):
+        # ghost mode off
+        game_data.save_temp(False, "ghost")
+        game_data.save_temp(False, "GHOST_SAVE")
         if _spl_args:
             if "reset" in _spl_args:
                 self.screen_map.load(LevelState([0, 0], set()))
+                self.coins = 0
+                # new player
+                self.player = Player()
             elif "load" in _spl_args:
                 self.load_data(_spl_args["load"])
+            # make sure levels not set to ghost mode
+            self.screen_map.preghost = None
+            self.screen_map.is_ghost = False

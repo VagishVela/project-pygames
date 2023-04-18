@@ -18,3 +18,6 @@ SCROLL_DOWN = CustomEvent({"pos": ..., "mode": "down"})
 
 # to be used in the store
 ITEM_FOCUSED = CustomEvent({"item": ...})
+
+# disappearing texts
+TEXT_DISAPEAR = CustomEvent({"id": ...})

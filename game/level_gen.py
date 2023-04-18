@@ -11,6 +11,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from game.custom_event import ENEMY_ENCOUNTERED
+from game.data import game_data
 from game.data.states import LevelState
 from game.logger import logger
 
@@ -26,6 +27,10 @@ class Level:
         self.matrix = np.full((9, 9), ord("x"), dtype=np.int8)
         self.state = LevelState([0, 0], set())
         self.rng = random.Random(str(self.state.loc))
+
+        # save state before becoming a ghost
+        self.preghost = None
+        self.is_ghost = False
 
     def _get_tile(self, at: tuple) -> int:
         """Get a tile"""
@@ -54,6 +59,19 @@ class Level:
 
     def move(self, dx, dy) -> bool:
         """Move the whole map in the given direction"""
+        # no collision
+        if game_data.get_temp("ghost"):
+            if not self.is_ghost:
+                self.is_ghost = True
+                self.preghost = (
+                    list(self._get_abs_pos((-dy, -dx))),
+                    self.state.removed,
+                )
+            self.state.set(list(self._get_abs_pos((-dy, -dx))), self.state.removed)
+            return True
+        if self.is_ghost:
+            self.is_ghost = False
+            self.state.set(*self.preghost)
 
         if self.matrix[(4 - dy, 4 - dx)] == ord("e"):
             ENEMY_ENCOUNTERED.post({"pos": (4 - dy, 4 - dx)})

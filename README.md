@@ -24,6 +24,8 @@ We hope you enjoy playing Alien Escape! If you have any feedback or encounter an
 
 ## Licence
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details, for all code apart from the [assets](assets) folder, which is licensed under the following:
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details, for all code apart from the [assets](assets) folder, which is licensed under the following:
 
  - [enemy.png](assets/enemy.png) from [alien ufo pack](https://www.kenney.nl/assets/alien-ufo-pack) with license [CC0](https://creativecommons.org/publicdomain/zero/1.0/)
+ - [player.png](assets/player.png) from [2d character animation sprite](https://opengameart.org/content/2d-character-animation-sprite) with license [CC0](https://creativecommons.org/publicdomain/zero/1.0/)
+ - fonts used from (pokmon font)[https://fontmeme.com/fonts/pokmon-font/]

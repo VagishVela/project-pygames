@@ -20,6 +20,14 @@ class Pause(View):
         self.options = None
         self.buttons = None
 
+    @staticmethod
+    def _save():
+        if not game_data.get_temp("ghost"):
+            return partial(game_data.save_game_state, game_data.temp)
+        logger.debug("ghost tried to save")
+        game_data.save_temp(True, "GHOST_SAVE")
+        return None
+
     def pre_run(self, _spl_args):
         escape_to_name: str = game_data.get_temp("paused_from")
         self.escape_to = f"{escape_to_name.lower()}.{escape_to_name}"
@@ -28,7 +36,7 @@ class Pause(View):
             {
                 "text": "Save progress",
                 "view_path": f"{self.escape_to}",
-                "on_click": partial(game_data.save_game_state, game_data.temp),
+                "on_click": self._save(),
             },
             {
                 "text": "Load a previous game",

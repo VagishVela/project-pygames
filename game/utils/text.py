@@ -1,5 +1,5 @@
 """ This module implements the Text class """
-
+import importlib
 from typing import Iterable, Optional
 
 import pygame
@@ -103,8 +103,13 @@ class Text:
             background is transparent a pixel alpha will be included.
             :return: The rendered surface
         """
-
-        font = find_font(self.font, self.size)
+        try:
+            font = find_font(self.font, self.size)
+        # using bare 'except' as a quick fix
+        # todo: fix this
+        # pylint:disable=bare-except
+        except:
+            font = pygame.font.get_default_font()
         font.strikethrough = "strikethrough" in self.style
         font.italic = "italic" in self.style
         font.bold = "bold" in self.style
@@ -146,3 +151,39 @@ class Text:
                 )
             case _:
                 surface.blit(text_surface, (self.x, self.y))
+
+
+class DisapearingText(Text):
+    """Text that disappears after a while"""
+
+    def __init__(
+        self,
+        text: str,
+        font: str,
+        x: NumType,
+        y: NumType,
+        size: NumType,
+        color: ColorValue,
+        time: int,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(text, font, x, y, size, color, *args, **kwargs)
+        self.time = time
+        self.visible = False
+        self.wait = False
+        self.event = getattr(
+            importlib.import_module("game.custom_event"), "TEXT_DISAPEAR"
+        )
+
+    def blit_into(self, surface: Surface):
+        if not self.wait:
+            # set text to disapear after `time`
+            self.event.wait(self.time)
+            self.wait = True
+            self.visible = True
+        if self.event.get():
+            self.visible = False
+
+        if self.visible:
+            super().blit_into(surface)

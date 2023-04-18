@@ -4,11 +4,13 @@ import pygame.image
 from pygame import Surface
 from pygame.sprite import Sprite
 
+from game.entities.player import PlayerAttributes
+
 
 class Enemy(Sprite):
     """Class for the enemy"""
 
-    def __init__(self, scale=(32, 32)):
+    def __init__(self, scale=(64, 64)):
         """Initialize the enemy"""
         super().__init__()
         self.image = pygame.transform.scale(
@@ -16,12 +18,6 @@ class Enemy(Sprite):
         )
         self.scale = scale
         self.rect = self.image.get_rect()
-        self.abilities = {
-            "attack": 5,
-            "damage": 30,
-            "health": 70,
-        }
-        self.max_health = 70
         self.details = ["I am Quantalocus.", "A deadly Alien with no special abilities"]
         self.visible = True
         self.name = "Alien"
@@ -32,14 +28,31 @@ class Enemy(Sprite):
             {"name": "Super Attack", "power": 30},
             {"name": "Mega Attack", "power": 40},
         ]
-
-    def take_damage(self, p_ability):
-        """Take damage from the player"""
-        self.abilities["health"] -= (
-            p_ability["attack"] * (100 - self.abilities["damage"]) / 100
+        # base case
+        self.attributes = PlayerAttributes(
+            health=40,
+            xp=1,  # base xp received if this enemy is killed
         )
-        # Return true if the enemy dies
-        return self.abilities["health"] <= 0
+        self.max_health = 40  # base
+
+    @property
+    def level(self):
+        """get enemy level"""
+        # based on a formula i derived from observation
+        try:
+            return int(0.0222386 * (self.max_health**0.994036 - 40) ** 0.826446) + 1
+        except TypeError:
+            return 0
+
+    @staticmethod
+    def calculate_max_health(player_hp):
+        """get max health"""
+        return int((player_hp - 60) ** 1.006)
+
+    def set_attributes(self, player):
+        """set the enemy attributes"""
+        self.max_health = self.calculate_max_health(player.max_health)
+        self.attributes.health = self.max_health
 
     def draw(self, screen: Surface, pos_x, pos_y, scale=None):
         """Draw the enemy"""

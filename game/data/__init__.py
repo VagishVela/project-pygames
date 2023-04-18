@@ -22,6 +22,9 @@ class SlotData:
     time: int
     loc: list
     removed: set[tuple]
+    health: int
+    xp: int
+    coins: int
 
     def to_dict(self) -> dict:
         """convert the slots back to dictionary"""
@@ -29,6 +32,11 @@ class SlotData:
             "time": self.time,
             "loc": self.loc,
             "removed": [list(pos) for pos in self.removed],
+            "attributes": {
+                "health": self.health,
+                "xp": self.xp,
+            },
+            "coins": self.coins,
         }
 
 
@@ -47,6 +55,9 @@ class Data:
                 time=slot["time"],
                 removed={tuple(s) for s in slot["removed"]},
                 loc=slot["loc"],
+                health=slot["attributes"]["health"],
+                xp=slot["attributes"]["xp"],
+                coins=slot["coins"],
             )
             for slot in self._slots
         ]
@@ -67,10 +78,14 @@ class Data:
     def construct_slot(game_state: "GameState") -> SlotData:
         """construct a dict for a slot"""
         level_state = game_state.level_state
+        attributes = game_state.attributes
         return SlotData(
             time=int(time.time()),
             loc=level_state.loc,
             removed=level_state.removed,
+            health=attributes.health,
+            xp=attributes.xp,
+            coins=game_state.coins,
         )
 
     def read(self) -> dict:
@@ -123,6 +138,14 @@ class DataIO:
         """write the data into the savefile"""
         with open(self.file, "w+", encoding="utf-8") as f:
             json.dump(self._data, f)
+
+    def clean(self):
+        """clear the savefile and cleans the data"""
+        with open(self.file, "w+", encoding="utf-8") as f:
+            f.write("")
+        # re-init
+        # pylint:disable=unnecessary-dunder-call
+        self.__init__()
 
     def read(self):
         """read the file and save the data internally"""

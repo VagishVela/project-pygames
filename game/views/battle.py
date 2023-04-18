@@ -31,8 +31,12 @@ class Battle(View):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+        # -------- rewards ----------- #
+        self.coins_to_gain = 0
+        self.level_before = 0
+
         # -------- buttons ----------- #
-        self.menu_width = 400
+        self.menu_width = 380
         self.menu_height = 300
         self.menu_x = self.width - self.menu_width - 20
         self.menu_y = self.height - self.menu_height - 20
@@ -60,6 +64,10 @@ class Battle(View):
             Battle.game_view = e.view
         # get the player from Map view
         self.player: Player = Battle.game_view.player
+        # set level before battle
+        self.level_before = self.player.level
+        # set enemy hp
+        self.enemy.set_attributes(self.player)
         # get enemy position on the map
         self.enemy_map_pos = Battle.game_view.enemy_pos
         num_attacks = len(self.player.attacks)
@@ -79,7 +87,7 @@ class Battle(View):
         if self.result == "won":
             Text(
                 "You won!",
-                self.font,
+                "pokemon-hollow",
                 self.width / 2,
                 self.height / 2 - 50,
                 100,
@@ -87,17 +95,25 @@ class Battle(View):
             ).blit_into(self.screen)
             Text(
                 "Click to return to map!",
-                self.font,
+                "pokemon-hollow",
                 self.width / 2,
                 self.height / 2 + 50,
                 50,
+                "white",
+            ).blit_into(self.screen)
+            Text(
+                f"You gained {self.enemy.attributes.xp} XP and {self.coins_to_gain} coins",
+                "pokemon-hollow",
+                self.width / 2,
+                self.height / 2 + 250,
+                20,
                 "white",
             ).blit_into(self.screen)
             return
         if self.result == "lost":
             Text(
                 "You lost.",
-                self.font,
+                "pokemon-hollow",
                 self.width / 2,
                 self.height / 2 - 50,
                 100,
@@ -105,29 +121,48 @@ class Battle(View):
             ).blit_into(self.screen)
             Text(
                 "Click to return to map!",
-                self.font,
+                "pokemon-hollow",
                 self.width / 2,
                 self.height / 2 + 50,
                 50,
                 "white",
             ).blit_into(self.screen)
+            Text(
+                f"You lost {int(self.enemy.attributes.xp // 0.8)} XP",
+                "pokemon-hollow",
+                self.width / 2,
+                self.height / 2 + 250,
+                20,
+                "white",
+            ).blit_into(self.screen)
             return
 
+        # show coins
+        Text(
+            f"Coins: {self.game_view.coins}",
+            "pokemon-solid",
+            100,
+            62,
+            18,
+            "white",
+        ).blit_into(self.screen)
+
+        # draw ovals
+        pygame.draw.ellipse(self.screen, (90, 90, 90), (50, self.height - 140, 150, 50))
+        pygame.draw.ellipse(self.screen, (90, 90, 90), (self.width - 195, 160, 150, 50))
+
         # draw the player and the enemy
-        self.player.draw(self.screen, (70, self.height - 300), scale=(128, 192))
+        self.player.draw(self.screen, (70, self.height - 320), scale=(128, 212))
         self.enemy.draw(self.screen, self.width - 170, 100, scale=(96, 96))
 
-        # draw the health bars
-        HealthBar(self.player.max_health).draw(
+        # draw the health bars and levels
+        HealthBar(self.player).draw(
             self.screen,
-            self.player.abilities["health"],
-            (60, self.height - 100),
+            (80, self.height - 100),
             150,
             20,
         )
-        HealthBar(self.enemy.max_health).draw(
-            self.screen, self.enemy.abilities["health"], (self.width - 190, 50), 150, 20
-        )
+        HealthBar(self.enemy).draw(self.screen, (self.width - 190, 50), 150, 20)
 
         # draw the attack menu
         menu_rect = pygame.Rect(
@@ -208,8 +243,18 @@ class Battle(View):
     def on_keydown(self, event) -> None:
         if event.key == pygame.K_ESCAPE:
             # open the pause menu
-            game_data.save_temp(GameState(Battle.game_view.screen_map.level.state))
-            game_data.save_temp("Battle", "paused_from")
+            game_data.save_temp(
+                GameState(
+                    Battle.game_view.screen_map.level.state,
+                    Battle.game_view.player.attributes,
+                    Battle.game_view.coins,
+                )
+            )
+            if self.result:
+                # don't return to battle if match is over
+                game_data.save_temp("Map", "paused_from")
+            else:
+                game_data.save_temp("Battle", "paused_from")
             self.change_views("pause.Pause")
 
     def on_click(self, event) -> None:
@@ -242,7 +287,7 @@ class Battle(View):
             if button_rect.collidepoint(mouse_pos):
                 self.attack(self.player, self.enemy, attack)
                 # if opponent is alive after player's turn
-                if not self.my_turn and self.enemy.abilities["health"] > 0:
+                if not self.my_turn and self.enemy.attributes.health > 0:
                     # wait 2 seconds
                     WAIT_FOR_ENEMY.wait(2000)
 
@@ -258,7 +303,7 @@ class Battle(View):
         """Called when the player selects an attack or enemy attacks"""
 
         # if opponent's already dead
-        if _to.abilities["health"] <= 0:
+        if _to.attributes.health <= 0:
             self._evaluate(_to)
             return
         # set current attack
@@ -268,9 +313,9 @@ class Battle(View):
         }
 
         # deduct health
-        _to.abilities["health"] -= attack["power"]
+        _to.attributes.health -= attack["power"]
         # if last attack killed the opponent
-        if _to.abilities["health"] <= 0:
+        if _to.attributes.health <= 0:
             self._evaluate(_to)
         # flip sides if opponent survived the attack
         self.my_turn ^= True
@@ -295,9 +340,21 @@ class Battle(View):
         # regenerate and reload the map internally
         Battle.game_view.screen_map.regenerate = True
         Battle.game_view.screen_map.load()
-        # TODO: give player XP and rewards
+        self.player.attributes.xp += self.enemy.attributes.xp
+        # check if level was increased
+        if self.level_before < self.player.level:
+            # max-out player level
+            self.player.attributes.health = self.player.max_health
+        self.coins_to_gain = int(
+            1000
+            * self.player.attributes.xp
+            * (self.player.attributes.health / self.player.max_health)
+        )
+        self.game_view.coins += self.coins_to_gain
 
     def game_over(self):
         """Called when the player dies"""
         self.result = "lost"
-        # TODO: reduce player XP
+        self.player.attributes.xp = max(
+            0, self.player.attributes.xp - self.enemy.attributes.xp // 0.8
+        )
