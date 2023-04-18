@@ -28,4 +28,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
  - [enemy.png](assets/enemy.png) from [alien ufo pack](https://www.kenney.nl/assets/alien-ufo-pack) with license [CC0](https://creativecommons.org/publicdomain/zero/1.0/)
  - [player.png](assets/player.png) from [2d character animation sprite](https://opengameart.org/content/2d-character-animation-sprite) with license [CC0](https://creativecommons.org/publicdomain/zero/1.0/)
- - fonts used from (pokmon font)[https://fontmeme.com/fonts/pokmon-font/]
+ - fonts used from [pokmon font](https://fontmeme.com/fonts/pokmon-font/)
