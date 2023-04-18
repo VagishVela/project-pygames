@@ -31,7 +31,9 @@ class Battle(View):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self.coins_to_gain = None
+        # -------- rewards ----------- #
+        self.coins_to_gain = 0
+        self.level_before = 0
 
         # -------- buttons ----------- #
         self.menu_width = 380
@@ -62,6 +64,8 @@ class Battle(View):
             Battle.game_view = e.view
         # get the player from Map view
         self.player: Player = Battle.game_view.player
+        # set level before battle
+        self.level_before = self.player.level
         # set enemy hp
         self.enemy.set_attributes(self.player)
         # get enemy position on the map
@@ -323,6 +327,10 @@ class Battle(View):
         Battle.game_view.screen_map.regenerate = True
         Battle.game_view.screen_map.load()
         self.player.attributes.xp += self.enemy.attributes.xp
+        # check if level was increased
+        if self.level_before < self.player.level:
+            # max-out player level
+            self.player.attributes.health = self.player.max_health
         self.coins_to_gain = int(
             1000
             * self.player.attributes.xp
