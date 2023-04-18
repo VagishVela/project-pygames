@@ -10,7 +10,7 @@ from game.entities.player import PlayerAttributes
 class Enemy(Sprite):
     """Class for the enemy"""
 
-    def __init__(self, scale=(32, 32)):
+    def __init__(self, scale=(64, 64)):
         """Initialize the enemy"""
         super().__init__()
         self.image = pygame.transform.scale(

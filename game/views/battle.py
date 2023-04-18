@@ -137,8 +137,22 @@ class Battle(View):
             ).blit_into(self.screen)
             return
 
+        # show coins
+        Text(
+            f"Coins: {self.game_view.coins}",
+            "pokemon-solid",
+            100,
+            62,
+            18,
+            "white",
+        ).blit_into(self.screen)
+
+        # draw ovals
+        pygame.draw.ellipse(self.screen, (90, 90, 90), (50, self.height - 140, 150, 50))
+        pygame.draw.ellipse(self.screen, (90, 90, 90), (self.width - 195, 160, 150, 50))
+
         # draw the player and the enemy
-        self.player.draw(self.screen, (70, self.height - 300), scale=(128, 192))
+        self.player.draw(self.screen, (70, self.height - 320), scale=(128, 212))
         self.enemy.draw(self.screen, self.width - 170, 100, scale=(96, 96))
 
         # draw the health bars and levels
