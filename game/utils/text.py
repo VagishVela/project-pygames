@@ -103,8 +103,13 @@ class Text:
             background is transparent a pixel alpha will be included.
             :return: The rendered surface
         """
-
-        font = find_font(self.font, self.size)
+        try:
+            font = find_font(self.font, self.size)
+        # using bare 'except' as a quick fix
+        # todo: fix this
+        # pylint:disable=bare-except
+        except:
+            font = pygame.font.get_default_font()
         font.strikethrough = "strikethrough" in self.style
         font.italic = "italic" in self.style
         font.bold = "bold" in self.style
