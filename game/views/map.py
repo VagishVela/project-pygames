@@ -255,3 +255,6 @@ class Map(View):
                 self.player = Player()
             elif "load" in _spl_args:
                 self.load_data(_spl_args["load"])
+            # make sure levels not set to ghost mode
+            self.screen_map.preghost = None
+            self.screen_map.is_ghost = False
