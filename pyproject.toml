@@ -10,7 +10,7 @@ packages = [{ include = "game" }]
 [tool.poetry.dependencies]
 python = "^3.11"
 pygame = "^2.3.0"
-numpy = "^1.24.2"
+numpy = "^1.24.3"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.2.0"
